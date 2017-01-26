@@ -1,10 +1,10 @@
 package com.example.api
 
-import com.example.contract.PurchaseOrderContract
-import com.example.contract.PurchaseOrderState
+import com.example.contract.IOUContract
 import com.example.flow.ExampleFlow.Initiator
 import com.example.flow.ExampleFlowResult
-import com.example.model.PurchaseOrder
+import com.example.model.IOU
+import com.example.state.IOUState
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.startFlow
 import javax.ws.rs.*
@@ -19,7 +19,7 @@ class ExampleApi(val services: CordaRPCOps) {
     val myLegalName: String = services.nodeIdentity().legalIdentity.name
 
     /**
-     * Returns the party name of the node providing this end-point.
+     * Returns the node's name.
      */
     @GET
     @Path("me")
@@ -27,8 +27,8 @@ class ExampleApi(val services: CordaRPCOps) {
     fun whoami() = mapOf("me" to myLegalName)
 
     /**
-     * Returns all parties registered with the [NetworkMapService], the names can be used to look-up identities
-     * by using the [IdentityService].
+     * Returns all parties registered with the [NetworkMapService]. These names can be used to look up identities
+     * using the [IdentityService].
      */
     @GET
     @Path("peers")
@@ -38,17 +38,18 @@ class ExampleApi(val services: CordaRPCOps) {
             .filter { it != myLegalName && it != NOTARY_NAME })
 
     /**
-     * Displays all purchase order states that exist in the vault.
+     * Displays all IOU states that exist in the node's vault.
      */
     @GET
-    @Path("purchase-orders")
+    @Path("ious")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getPurchaseOrders() = services.vaultAndUpdates().first
+    fun getIOUs() = services.vaultAndUpdates().first
 
     /**
-     * This should only be called from the 'buyer' node. It initiates a flow to agree a purchase order with a
-     * seller. Once the flow finishes it will have written the purchase order to ledger. Both the buyer and the
-     * seller will be able to see it when calling /api/example/purchase-orders on their respective nodes.
+     * Initiates a flow to agree an IOU between two parties.
+     *
+     * Once the flow finishes it will have written the IOU to ledger. Both the sender and the recipient will be able to
+     * see it when calling /api/example/ious on their respective nodes.
      *
      * This end-point takes a Party name parameter as part of the path. If the serving node can't find the other party
      * in its network map cache, it will return an HTTP bad request.
@@ -56,18 +57,18 @@ class ExampleApi(val services: CordaRPCOps) {
      * The flow is invoked asynchronously. It returns a future when the flow's call() method returns.
      */
     @PUT
-    @Path("{party}/create-purchase-order")
-    fun createPurchaseOrder(purchaseOrder: PurchaseOrder, @PathParam("party") partyName: String): Response {
+    @Path("{party}/create-iou")
+    fun createIOU(iou: IOU, @PathParam("party") partyName: String): Response {
         val otherParty = services.partyFromName(partyName)
         if (otherParty == null) {
             return Response.status(Response.Status.BAD_REQUEST).build()
         }
 
-        val state = PurchaseOrderState(
-                purchaseOrder,
+        val state = IOUState(
+                iou,
                 services.nodeIdentity().legalIdentity,
                 otherParty,
-                PurchaseOrderContract())
+                IOUContract())
 
         // The line below blocks and waits for the future to resolve.
         val result: ExampleFlowResult = services

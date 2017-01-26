@@ -20,4 +20,4 @@ print "There are %s 'unspent' purchase orders on 'NodeA'" % (len(txs))
 
 if len(txs):
     for txn in txs:
-        print(txn.tx.outputs[0].data.po)
+        print(txn.tx.outputs[0].data.iou)

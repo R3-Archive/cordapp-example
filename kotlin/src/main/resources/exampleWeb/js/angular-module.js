@@ -49,12 +49,12 @@ app.controller('DemoAppController', function($http, $location, $uibModal) {
         modalInstance.result.then(() => {}, () => {});
     };
 
-    demoApp.getPOs = () => $http.get(apiBaseURL + "purchase-orders")
-        .then((response) => demoApp.pos = Object.keys(response.data)
+    demoApp.getIOUs = () => $http.get(apiBaseURL + "ious")
+        .then((response) => demoApp.ious = Object.keys(response.data)
             .map((key) => response.data[key].state.data)
             .reverse());
 
-    demoApp.getPOs();
+    demoApp.getIOUs();
 });
 
 app.controller('ModalInstanceCtrl', function ($http, $location, $uibModalInstance, $uibModal, apiBaseURL, peers) {
@@ -63,34 +63,27 @@ app.controller('ModalInstanceCtrl', function ($http, $location, $uibModalInstanc
     modalInstance.peers = peers;
     modalInstance.form = {};
     modalInstance.formError = false;
-    modalInstance.items = [{}];
 
-    // Validate and create purchase order.
+    // Validate and create IOU.
     modalInstance.create = () => {
         if (invalidFormInput()) {
             modalInstance.formError = true;
         } else {
             modalInstance.formError = false;
 
-            const po = {
-                orderNumber: modalInstance.form.orderNumber,
-                deliveryDate: modalInstance.form.deliveryDate,
-                deliveryAddress: {
-                    city: modalInstance.form.city,
-                    country: modalInstance.form.country.toUpperCase()
-                },
-                items: modalInstance.items
+            const iou = {
+                value: modalInstance.form.value,
             };
 
             $uibModalInstance.close();
 
-            const createPoEndpoint =
+            const createIOUEndpoint =
                 apiBaseURL +
                 modalInstance.form.counterparty +
-                "/create-purchase-order";
+                "/create-iou";
 
             // Create PO and handle success / fail responses.
-            $http.put(createPoEndpoint, angular.toJson(po)).then(
+            $http.put(createIOUEndpoint, angular.toJson(iou)).then(
                 (result) => modalInstance.displayMessage(result),
                 (result) => modalInstance.displayMessage(result)
             );
@@ -109,30 +102,12 @@ app.controller('ModalInstanceCtrl', function ($http, $location, $uibModalInstanc
         modalInstanceTwo.result.then(() => {}, () => {});
     };
 
-    // Close create purchase order modal dialogue.
+    // Close create IOU modal dialogue.
     modalInstance.cancel = () => $uibModalInstance.dismiss();
 
-    // Add an extra set of item fields.
-    modalInstance.addItem = () => modalInstance.items.push({});
-
-    // Remove a set of item fields.
-    modalInstance.deleteItem = () => modalInstance.items.pop();
-
-    // Validate the purchase order.
+    // Validate the IOU.
     function invalidFormInput() {
-        const invalidNonItemFields = !modalInstance.form.orderNumber
-            || isNaN(modalInstance.form.orderNumber)
-            || !modalInstance.form.deliveryDate
-            || !modalInstance.form.city
-            || !modalInstance.form.country;
-
-        const inValidCounterparty = modalInstance.form.counterparty === undefined;
-
-        const invalidItemFields = modalInstance.items
-            .map(item => !item.name || !item.amount || isNaN(item.amount))
-            .reduce((prev, curr) => prev && curr);
-
-        return invalidNonItemFields || inValidCounterparty || invalidItemFields;
+        return isNaN(modalInstance.form.value) || (modalInstance.form.counterparty === undefined);
     }
 });
 
