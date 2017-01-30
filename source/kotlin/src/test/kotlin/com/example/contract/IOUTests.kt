@@ -6,7 +6,7 @@ import net.corda.core.utilities.TEST_TX_TIME
 import net.corda.testing.*
 import org.junit.Test
 
-class PurchaseOrderTests {
+class IOUTests {
     @Test
     fun `transaction must include Create command`() {
         val iou = IOU(1)
