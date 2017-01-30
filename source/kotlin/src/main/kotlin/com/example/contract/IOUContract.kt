@@ -27,7 +27,7 @@ open class IOUContract : Contract {
         val out = tx.outputs.single() as IOUState
         requireThat {
             // Generic constraints around the IOU transaction.
-            "No inputs should be consumed when issuing a purchase order." by (tx.inputs.isEmpty())
+            "No inputs should be consumed when issuing an IOU." by (tx.inputs.isEmpty())
             "Only one output state should be created for each group." by (tx.outputs.size == 1)
             "The sender and the recipient cannot be the same entity." by (out.sender != out.recipient)
             "All of the participants must be signers." by (command.signers.containsAll(out.participants))
@@ -41,9 +41,9 @@ open class IOUContract : Contract {
      * This contract only implements one command, Create.
      */
     interface Commands : CommandData {
-        data class Create(override val nonce: Long = random63BitValue()) : IssueCommand, Commands
+        class Create : Commands
     }
 
     /** This is a reference to the underlying legal contract template and associated parameters. */
-    override val legalContractReference: SecureHash = SecureHash.sha256("purchase order contract template and params")
+    override val legalContractReference: SecureHash = SecureHash.sha256("IOU contract template and params")
 }

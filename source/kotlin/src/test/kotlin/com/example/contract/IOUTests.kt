@@ -13,7 +13,6 @@ class IOUTests {
         ledger {
             transaction {
                 output { IOUState(iou, MINI_CORP, MEGA_CORP, IOUContract()) }
-                timestamp(TEST_TX_TIME)
                 fails()
                 command(MEGA_CORP_PUBKEY, MINI_CORP_PUBKEY) { IOUContract.Commands.Create() }
                 verifies()
@@ -27,7 +26,6 @@ class IOUTests {
         ledger {
             transaction {
                 output { IOUState(iou, MINI_CORP, MEGA_CORP, IOUContract()) }
-                timestamp(TEST_TX_TIME)
                 command(MINI_CORP_PUBKEY) { IOUContract.Commands.Create() }
                 `fails with`("All of the participants must be signers.")
             }
@@ -40,7 +38,6 @@ class IOUTests {
         ledger {
             transaction {
                 output { IOUState(iou, MINI_CORP, MEGA_CORP, IOUContract()) }
-                timestamp(TEST_TX_TIME)
                 command(MEGA_CORP_PUBKEY) { IOUContract.Commands.Create() }
                 `fails with`("All of the participants must be signers.")
             }
@@ -53,7 +50,6 @@ class IOUTests {
         ledger {
             transaction {
                 output { IOUState(iou, MINI_CORP, MEGA_CORP, IOUContract()) }
-                timestamp(TEST_TX_TIME)
                 command(MEGA_CORP_PUBKEY, MINI_CORP_PUBKEY) { IOUContract.Commands.Create() }
                 `fails with`("The IOU's value must be non-negative.")
             }

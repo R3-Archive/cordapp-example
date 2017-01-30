@@ -1,9 +1,12 @@
 package com.example.flow;
 
 import co.paralleluniverse.fibers.Suspendable;
-import com.example.contract.PurchaseOrderState;
+import com.example.contract.IOUContract;
+import com.example.state.IOUState;
 import com.google.common.collect.ImmutableSet;
+import net.corda.core.contracts.Command;
 import net.corda.core.contracts.TransactionResolutionException;
+import net.corda.core.contracts.TransactionType;
 import net.corda.core.crypto.CompositeKey;
 import net.corda.core.crypto.CryptoUtilities;
 import net.corda.core.crypto.DigitalSignature;
@@ -18,53 +21,48 @@ import net.corda.flows.FinalityFlow;
 import java.io.FileNotFoundException;
 import java.security.KeyPair;
 import java.security.SignatureException;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Set;
 
 import static kotlin.collections.CollectionsKt.single;
 
 /**
- * This is the "Hello World" of flows!
+ * This flow allows two parties (the [Initiator] and the [Acceptor]) to come to an agreement about the IOU encapsulated
+ * within an [IOUState].
  *
- * It is a generic flow which facilitates the workflow required for two parties; an [Initiator] and an [Acceptor],
- * to come to an agreement about some arbitrary data (in this case, a [PurchaseOrder]) encapsulated within a [DealState].
- *
- * As this is just an example there's no way to handle any counter-proposals. The [Acceptor] always accepts the
- * proposed state assuming it satisfies the referenced [Contract]'s issuance constraints.
+ * In our simple example, the [Acceptor] always accepts a valid IOU.
  *
  * These flows have deliberately been implemented by using only the call() method for ease of understanding. In
  * practice we would recommend splitting up the various stages of the flow into sub-routines.
  *
- * NB. All methods called within the [FlowLogic] sub-class need to be annotated with the @Suspendable annotation.
- *
- * The flows below have been heavily commented to aid your understanding. It may also be worth reading the CorDapp
- * tutorial documentation on the Corda docsite (https://docs.corda.net) which includes a sequence diagram which clearly
- * explains each stage of the flow.
+ * All methods called within the [FlowLogic] sub-class need to be annotated with the @Suspendable annotation.
  */
 public class ExampleFlow {
     public static class Initiator extends FlowLogic<ExampleFlowResult> {
 
-        private final PurchaseOrderState purchaseOrderState;
+        private final IOUState iou;
         private final Party otherParty;
+
         // The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
         // checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call()
         // function.
         private final ProgressTracker progressTracker = new ProgressTracker(
                 GENERATING_TRANSACTION,
+                VERIFYING_TRANSACTION,
                 SIGNING_TRANSACTION,
                 SENDING_TRANSACTION
         );
 
         private static final ProgressTracker.Step GENERATING_TRANSACTION = new ProgressTracker.Step(
-                "Generating transaction based on new purchase order.");
+                "Generating transaction based on new IOU.");
+        private static final ProgressTracker.Step VERIFYING_TRANSACTION = new ProgressTracker.Step(
+                "Verifying contract constraints.");
         private static final ProgressTracker.Step SIGNING_TRANSACTION = new ProgressTracker.Step(
                 "Signing transaction with our private key.");
         private static final ProgressTracker.Step SENDING_TRANSACTION = new ProgressTracker.Step(
                 "Sending proposed transaction to seller for review.");
 
-        public Initiator(PurchaseOrderState purchaseOrderState, Party otherParty) {
-            this.purchaseOrderState = purchaseOrderState;
+        public Initiator(IOUState iou, Party otherParty) {
+            this.iou = iou;
             this.otherParty = otherParty;
         }
 
@@ -89,19 +87,19 @@ public class ExampleFlow {
                 // Stage 1.
                 progressTracker.setCurrentStep(GENERATING_TRANSACTION);
                 // Generate an unsigned transaction.
-                final TransactionBuilder utx = purchaseOrderState.generateAgreement(notary);
-                // Add a timestamp (the contract code in PurchaseOrderContract mandates that PurchaseOrderStates are timestamped).
-                final Instant currentTime = getServiceHub().getClock().instant();
-                // As we are running in a distributed system, we allocate a 30-second time window for the transaction to
-                // be timestamped by the Notary service. This is because there is no true time in a distributed system, and
-                // because the process of agreeing and notarising the transaction is not instantaneous.
-                utx.setTime(currentTime, Duration.ofSeconds(30));
+                final Command txCommand = new Command(new IOUContract.Commands.Create(), iou.getParticipants());
+                final TransactionBuilder unsignedTx = new TransactionType.General.Builder(notary).withItems(iou, txCommand);
 
                 // Stage 2.
-                progressTracker.setCurrentStep(SIGNING_TRANSACTION);
-                final SignedTransaction partSignedTx = utx.signWith(keyPair).toSignedTransaction(false);
+                progressTracker.setCurrentStep(VERIFYING_TRANSACTION);
+                // Verify that the transaction is valid.
+                unsignedTx.toWireTransaction().toLedgerTransaction(getServiceHub()).verify();
 
                 // Stage 3.
+                progressTracker.setCurrentStep(SIGNING_TRANSACTION);
+                final SignedTransaction partSignedTx = unsignedTx.signWith(keyPair).toSignedTransaction(false);
+
+                // Stage 4.
                 progressTracker.setCurrentStep(SENDING_TRANSACTION);
                 // Send the state across the wire to the designated counterparty.
                 // -----------------------
@@ -137,9 +135,7 @@ public class ExampleFlow {
         private static final ProgressTracker.Step FINALISING_TRANSACTION = new ProgressTracker.Step(
                 "Obtaining notary signature and recording transaction.");
 
-        public Acceptor(Party otherParty) {
-            this.otherParty = otherParty;
-        }
+        public Acceptor(Party otherParty) { this.otherParty = otherParty; }
 
         @Override public ProgressTracker getProgressTracker() { return progressTracker; }
 
@@ -153,23 +149,23 @@ public class ExampleFlow {
                 // Obtain a reference to the notary we want to use and its public key.
                 final CompositeKey notaryPubKey = notary.getOwningKey();
 
-                // Stage 4.
+                // Stage 5.
                 progressTracker.setCurrentStep(RECEIVING_TRANSACTION);
                 // All messages come off the wire as UntrustworthyData. You need to 'unwrap' them. This is where you
                 // validate what you have just received.
                 final SignedTransaction partSignedTx = receive(SignedTransaction.class, otherParty)
                         .unwrap(tx ->
                         {
-                            // Stage 5.
+                            // Stage 6.
                             progressTracker.setCurrentStep(VERIFYING_TRANSACTION);
                             try {
                                 // Check that the signature of the other party is valid.
-                                // Our signature and the notary's signature are allowed to be omitted at this stage as this is only a
-                                // partially signed transaction.
+                                // Our signature and the notary's signature are allowed to be omitted at this stage as
+                                // this is only a partially signed transaction.
                                 final WireTransaction wireTx = tx.verifySignatures(CryptoUtilities.getComposite(keyPair.getPublic()), notaryPubKey);
                                 // Run the contract's verify function.
-                                // We want to be sure that the PurchaseOrderState agreed upon is a valid instance of an
-                                // PurchaseOrderContract. To do this we need to run the contract's verify() function.
+                                // We want to be sure that the agreed-upon IOU is valid under the rules of the contract.
+                                // To do this we need to run the contract's verify() function.
                                 wireTx.toLedgerTransaction(getServiceHub()).verify();
                             } catch (SignatureException | FileNotFoundException | TransactionResolutionException ex) {
                                 throw new RuntimeException(ex);
@@ -177,7 +173,7 @@ public class ExampleFlow {
                             return tx;
                         });
 
-                // Stage 6.
+                // Stage 7.
                 progressTracker.setCurrentStep(SIGNING_TRANSACTION);
                 // Sign the transaction with our key pair and add it to the transaction.
                 // We now have 'validation consensus'. We still require uniqueness consensus.
@@ -186,7 +182,7 @@ public class ExampleFlow {
                 // Add our signature to the transaction.
                 final SignedTransaction signedTx = partSignedTx.plus(mySig);
 
-                // Stage 7.
+                // Stage 8.
                 progressTracker.setCurrentStep(FINALISING_TRANSACTION);
                 final Set<Party> participants = ImmutableSet.of(getServiceHub().getMyInfo().getLegalIdentity(), otherParty);
                 // FinalityFlow() notarises the transaction and records it in each party's vault.

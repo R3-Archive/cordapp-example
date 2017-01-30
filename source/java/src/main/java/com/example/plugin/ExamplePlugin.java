@@ -2,11 +2,11 @@ package com.example.plugin;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.example.api.ExampleApi;
-import com.example.contract.PurchaseOrderContract;
-import com.example.contract.PurchaseOrderState;
+import com.example.contract.IOUContract;
 import com.example.flow.ExampleFlow;
-import com.example.model.PurchaseOrder;
+import com.example.model.IOU;
 import com.example.service.ExampleService;
+import com.example.state.IOUState;
 import net.corda.core.crypto.Party;
 import net.corda.core.flows.IllegalFlowLogicException;
 import net.corda.core.messaging.CordaRPCOps;
@@ -30,7 +30,7 @@ public class ExamplePlugin extends CordaPluginRegistry {
      *
      * E.g. In the case of this CorDapp:
      *
-     * "ExampleFlow.Initiator" -> Set(PurchaseOrderState, Party)
+     * "ExampleFlow.Initiator" -> Set(IOUState, Party)
      *
      * This map also acts as a white list. If a flow is invoked via the API and not registered correctly
      * here, then the flow state machine will _not_ invoke the flow. Instead, an exception will be raised.
@@ -38,14 +38,14 @@ public class ExamplePlugin extends CordaPluginRegistry {
     private final Map<String, Set<String>> requiredFlows = Collections.singletonMap(
             ExampleFlow.Initiator.class.getName(),
             new HashSet<>(Arrays.asList(
-                    PurchaseOrderState.class.getName(),
+                    IOUState.class.getName(),
                     Party.class.getName()
             )));
 
     /**
      * A list of long lived services to be hosted within the node. Typically you would use these to register flow
      * factories that would be used when an initiating party attempts to communicate with our node using a particular
-     * flow. See the [ExampleService.Service] class for an implementation.
+     * flow. See the [ExampleService.Service] class for an implementation which sets up a
      */
     private final List<Function<PluginServiceHub, ?>> servicePlugins = Collections.singletonList(ExampleService::new);
 
@@ -66,12 +66,9 @@ public class ExamplePlugin extends CordaPluginRegistry {
      * Register required types with Kryo (our serialisation framework).
      */
     @Override public boolean registerRPCKryoTypes(Kryo kryo) {
-        kryo.register(PurchaseOrderState.class);
-        kryo.register(PurchaseOrderContract.class);
-        kryo.register(PurchaseOrder.class);
-        kryo.register(PurchaseOrder.Address.class);
-        kryo.register(Date.class);
-        kryo.register(PurchaseOrder.Item.class);
+        kryo.register(IOUState.class);
+        kryo.register(IOUContract.class);
+        kryo.register(IOU.class);
         kryo.register(ExampleFlow.ExampleFlowResult.Success.class);
         kryo.register(ExampleFlow.ExampleFlowResult.Failure.class);
         kryo.register(IllegalArgumentException.class);

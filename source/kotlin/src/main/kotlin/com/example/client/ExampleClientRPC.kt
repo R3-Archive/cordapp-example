@@ -36,7 +36,7 @@ private class ExampleClientRPC {
         val (transactions: List<SignedTransaction>, futureTransactions: Observable<SignedTransaction>) =
                 proxy.verifiedTransactions()
 
-        // Log the 'placed' purchase order states and listen for new ones.
+        // Log the 'placed' IOU states and listen for new ones.
         futureTransactions.startWith(transactions).toBlocking().subscribe { transaction ->
             transaction.tx.outputs.forEach { output ->
                 val state = output.data as IOUState

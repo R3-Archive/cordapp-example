@@ -1,6 +1,6 @@
 package com.example.client;
 
-import com.example.contract.PurchaseOrderState;
+import com.example.state.IOUState;
 import com.google.common.net.HostAndPort;
 import kotlin.Pair;
 import net.corda.core.messaging.CordaRPCOps;
@@ -39,13 +39,13 @@ public class ExampleClientRPC {
         final List<SignedTransaction> txs = txsAndFutureTxs.getFirst();
         final Observable<SignedTransaction> futureTxs = txsAndFutureTxs.getSecond();
 
-        // Log the 'placed' purchase order states and listen for new ones.
+        // Log the 'placed' IOU states and listen for new ones.
         futureTxs.startWith(txs).toBlocking().subscribe(
                 transaction ->
                         transaction.getTx().getOutputs().forEach(
                                 output -> {
-                                    final PurchaseOrderState poState = (PurchaseOrderState) output.getData();
-                                    logger.info(poState.getPurchaseOrder().toString());
+                                    final IOUState iouState = (IOUState) output.getData();
+                                    logger.info(iouState.getIOU().toString());
                                 })
         );
     }

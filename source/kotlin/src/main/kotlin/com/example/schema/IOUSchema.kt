@@ -13,7 +13,7 @@ object IOUSchemaV1 : MappedSchema(
         version = 1,
         mappedTypes = listOf(PersistentIOU::class.java)) {
     @Entity
-    @Table(name = "purchase_order_states")
+    @Table(name = "iou_states")
     class PersistentIOU(
             @Column(name = "sender_name")
             var senderName: String,

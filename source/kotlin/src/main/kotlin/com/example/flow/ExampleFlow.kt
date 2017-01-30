@@ -132,12 +132,12 @@ object ExampleFlow {
                     // Stage 6.
                     progressTracker.currentStep = VERIFYING_TRANSACTION
                     // Check that the signature of the other party is valid.
-                    // Our signature and the notary's signature are allowed to be omitted at this stage as this is only a
-                    // partially signed transaction.
+                    // Our signature and the notary's signature are allowed to be omitted at this stage as this is only
+                    // a partially signed transaction.
                     val wireTx = partSignedTx.verifySignatures(keyPair.public.composite, notaryPubKey)
                     // Run the contract's verify function.
-                    // We want to be sure that the IOUState agreed upon is a valid instance of an
-                    // IOUContract. To do this we need to run the contract's verify() function.
+                    // We want to be sure that the agreed-upon IOU is valid under the rules of the contract.
+                    // To do this we need to run the contract's verify() function.
                     wireTx.toLedgerTransaction(serviceHub).verify()
                     // We've verified the signed transaction and return it.
                     partSignedTx

@@ -1,6 +1,6 @@
 # Example python (via jython) code to use the client RPC interface
 # Works in conjunction with the Example CorDapp nodes.
-# The nodes must have transacted for you to see the purchase order states.
+# The nodes must have transacted for you to see the IOU states.
 
 import sys
 from com.google.common.net import HostAndPort
@@ -16,7 +16,7 @@ client.start("user1", "test")
 proxy = client.proxy(None,0)
 txs = proxy.verifiedTransactions().first
 
-print "There are %s 'unspent' purchase orders on 'NodeA'" % (len(txs))
+print "There are %s 'unspent' IOUs on 'NodeA'" % (len(txs))
 
 if len(txs):
     for txn in txs:
