@@ -24,11 +24,11 @@ open class IOUContract : Contract {
      */
     override fun verify(tx: TransactionForContract) {
         val command = tx.commands.requireSingleCommand<Commands.Create>()
-        val out = tx.outputs.single() as IOUState
         requireThat {
             // Generic constraints around the IOU transaction.
             "No inputs should be consumed when issuing an IOU." by (tx.inputs.isEmpty())
-            "Only one output state should be created for each group." by (tx.outputs.size == 1)
+            "Only one output state should be created." by (tx.outputs.size == 1)
+            val out = tx.outputs.single() as IOUState
             "The sender and the recipient cannot be the same entity." by (out.sender != out.recipient)
             "All of the participants must be signers." by (command.signers.containsAll(out.participants))
 

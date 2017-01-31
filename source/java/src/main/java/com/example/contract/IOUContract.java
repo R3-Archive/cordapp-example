@@ -31,13 +31,13 @@ public class IOUContract implements Contract {
     @Override
     public void verify(TransactionForContract tx) {
         final AuthenticatedObject<Commands.Create> command = requireSingleCommand(tx.getCommands(), Commands.Create.class);
-        final IOUState out = (IOUState) single(tx.getOutputs());
         requireThat(require -> {
             // Generic constraints around the IOU transaction.
             require.by("No inputs should be consumed when issuing an IOU.",
                     tx.getInputs().isEmpty());
-            require.by("Only one output state should be created for each group.",
+            require.by("Only one output state should be created.",
                     tx.getOutputs().size() == 1);
+            final IOUState out = (IOUState) single(tx.getOutputs());
             require.by("The sender and the recipient cannot be the same entity.",
                     out.getSender() != out.getRecipient());
             require.by("All of the participants must be signers.",

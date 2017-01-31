@@ -21,7 +21,33 @@ class IOUTests {
     }
 
     @Test
-    fun `buyer must sign transaction`() {
+    fun `transaction must have no inputs`() {
+        val iou = IOU(1)
+        ledger {
+            transaction {
+                input { IOUState(iou, MINI_CORP, MEGA_CORP, IOUContract()) }
+                output { IOUState(iou, MINI_CORP, MEGA_CORP, IOUContract()) }
+                command(MEGA_CORP_PUBKEY) { IOUContract.Commands.Create() }
+                `fails with`("No inputs should be consumed when issuing an IOU.")
+            }
+        }
+    }
+
+    @Test
+    fun `transaction must have one output`() {
+        val iou = IOU(1)
+        ledger {
+            transaction {
+                output { IOUState(iou, MINI_CORP, MEGA_CORP, IOUContract()) }
+                output { IOUState(iou, MINI_CORP, MEGA_CORP, IOUContract()) }
+                command(MEGA_CORP_PUBKEY, MINI_CORP_PUBKEY) { IOUContract.Commands.Create() }
+                `fails with`("Only one output state should be created.")
+            }
+        }
+    }
+
+    @Test
+    fun `sender must sign transaction`() {
         val iou = IOU(1)
         ledger {
             transaction {
@@ -33,13 +59,25 @@ class IOUTests {
     }
 
     @Test
-    fun `seller must sign transaction`() {
+    fun `recipient must sign transaction`() {
         val iou = IOU(1)
         ledger {
             transaction {
                 output { IOUState(iou, MINI_CORP, MEGA_CORP, IOUContract()) }
                 command(MEGA_CORP_PUBKEY) { IOUContract.Commands.Create() }
                 `fails with`("All of the participants must be signers.")
+            }
+        }
+    }
+
+    @Test
+    fun `sender is not recipient`() {
+        val iou = IOU(1)
+        ledger {
+            transaction {
+                output { IOUState(iou, MEGA_CORP, MEGA_CORP, IOUContract()) }
+                command(MEGA_CORP_PUBKEY, MINI_CORP_PUBKEY) { IOUContract.Commands.Create() }
+                `fails with`("The sender and the recipient cannot be the same entity.")
             }
         }
     }
