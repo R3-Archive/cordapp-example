@@ -4,6 +4,7 @@ import com.example.contract.IOUContract;
 import com.example.flow.ExampleFlow;
 import com.example.model.IOU;
 import com.example.state.IOUState;
+import com.google.common.collect.Lists;
 import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.crypto.Party;
@@ -24,6 +25,7 @@ import static java.util.stream.Collectors.toList;
 public class ExampleApi {
     private final CordaRPCOps services;
     private final String myLegalName;
+    private final List<String> notaryNames = Lists.newArrayList("Controller", "NetworkMapService");
 
     public ExampleApi(CordaRPCOps services) {
         this.services = services;
@@ -46,13 +48,12 @@ public class ExampleApi {
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, List<String>> getPeers() {
-        final String NOTARY_NAME = "Controller";
         return singletonMap(
                 "peers",
                 services.networkMapUpdates().getFirst()
                         .stream()
                         .map(node -> node.getLegalIdentity().getName())
-                        .filter(name -> !name.equals(myLegalName) && !name.equals(NOTARY_NAME))
+                        .filter(name -> !name.equals(myLegalName) && !(notaryNames.contains(name)))
                         .collect(toList()));
     }
 

@@ -11,7 +11,7 @@ import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
-val NOTARY_NAME = "Controller"
+val NOTARY_NAMES = listOf("Controller", "NetworkMapService")
 
 // This API is accessible from /api/example. All paths specified below are relative to it.
 @Path("example")
@@ -35,7 +35,7 @@ class ExampleApi(val services: CordaRPCOps) {
     @Produces(MediaType.APPLICATION_JSON)
     fun getPeers() = mapOf("peers" to services.networkMapUpdates().first
             .map { it.legalIdentity.name }
-            .filter { it != myLegalName && it != NOTARY_NAME })
+            .filter { it != myLegalName && it !in NOTARY_NAMES })
 
     /**
      * Displays all IOU states that exist in the node's vault.
