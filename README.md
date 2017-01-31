@@ -14,10 +14,10 @@ contributing to the core Corda platform or viewing and running sample
 demos then clone the [corda repository](https://github.com/corda/corda).**
 
 The code in the CorDapp template implements the _"Hello World"_ of
-CorDapps. It allows users of a Corda node to generate and send purchase
-orders to other nodes. You can also enumerate all the purchase orders
-which have been agreed with other nodes. The nodes also provide a simple
-web interface which can be used to interact with the CorDapp.
+CorDapps. It allows users of a Corda node to generate and send IOUs to other 
+nodes. You can also enumerate all the IOU which have been agreed with other 
+nodes. The nodes also provide a simple web interface which can be used to 
+interact with the CorDapp.
 
 The source code for this CorDapp is provided in both Kotlin (under `/kotlin`)
 and Java (under `/java`), and users can choose to write their CorDapps in
@@ -26,7 +26,7 @@ either language.
 ## The Example CorDapp
 
 The Example CorDapp implements a basic scenario where a buyer wishes to
-submit purchase orders to a seller. The scenario defines four nodes:
+submit IOUs to a seller. The scenario defines four nodes:
 
 * **Controller** which hosts the network map service and validating notary
   service.
@@ -34,15 +34,15 @@ submit purchase orders to a seller. The scenario defines four nodes:
 * **NodeB** who is the seller.
 * **NodeC** an unrelated third party.
 
-NodeA can generate purchase orders for lists and quantities of items and
+NodeA can generate IOUs for lists and quantities of items and
 associated metadata such as delivery address and delivery date. The
 flows used to facilitate the agreement process always result in an
-agreement with the seller as long as the purchase order meets the
-contract constraints which are defined in `PurchaseOrderContract.kt`.
+agreement with the seller as long as the IOU meets the contract constraints 
+which are defined in `IOUContract.kt`.
 
-All agreed purchase orders between NodeA and NodeB become "shared facts"
+All agreed IOUs between NodeA and NodeB become "shared facts"
 between NodeA and NodeB. Note that NodeC won't see any of these
-transactions or have copies of any of the resulting `PurchaseOrderState`
+transactions or have copies of any of the resulting `IOUState`
 objects. This is because data is only propagated on a need-to-know
 basis.
 
@@ -161,36 +161,36 @@ embedded web server is running on. The API endpoints served are as follows:
 
      /api/example/me
      /api/example/peers
-     /api/example/purchase-orders
-     /api/example/{COUNTERPARTY}/create-purchase-order
+     /api/example/ious
+     /api/example/{COUNTERPARTY}/create-iou
      
 The static web content is served from:
 
      /web/example
      
-A purchase order can be created via accessing the
-`create-purchase-order` end-point directly or through the the web form
+An IOU can be created via accessing the
+`create-iou` end-point directly or through the the web form
 hosted at `/web/example`.
 
 **NOTE: The content in `web/example` is only available for demonstration
 purposes and does not implement any anti-XSS/XSRF security techniques. Do
 not copy such code directly into products meant for production use.**
 
-**Submitting a purchase order via HTTP API:**
+**Submitting an IOU via HTTP API:**
 
-To create a purchase order from NodeA to NodeB, use:
+To create an IOU from NodeA to NodeB, use:
 
-     echo '{"orderNumber": "1","deliveryDate": "2018-09-15","deliveryAddress": {"city": "London","country": "UK"},"items" : [{"name": "widget","amount": "3"},{"name": "thing","amount": "4"}]}' | curl -T - -H 'Content-Type: application/json' http://localhost:10005/api/example/NodeB/create-purchase-order
+     echo '{"orderNumber": "1","deliveryDate": "2018-09-15","deliveryAddress": {"city": "London","country": "UK"},"items" : [{"name": "widget","amount": "3"},{"name": "thing","amount": "4"}]}' | curl -T - -H 'Content-Type: application/json' http://localhost:10005/api/example/NodeB/create-iou
 
 note the port number `10005` (NodeA) and `NodeB` referenced in the
 end-point path. This command instructs NodeA to create and send an order
 to NodeB. Upon verification and completion of the process, both nodes
-(but not NodeC) will have a signed, notarised copy of the purchase order.
+(but not NodeC) will have a signed, notarised copy of the IOU.
 
-**Submitting a purchase order via `web/example`:**
+**Submitting an IOU via `web/example`:**
 
-Click the "Create purchase order" button at the top left of the
-page and enter the purchase order details, e.g.
+Click the "Create IOU" button at the top left of the page and enter the IOU 
+details, e.g.
 
      Counter-party: Node B
      Order Number:  1
@@ -200,61 +200,55 @@ page and enter the purchase order details, e.g.
      Item 1 name:   Things
      Item 1 amount: 5
 
-and click "Create purchase order". The modal dialogue should close.
+and click "Create IOU". The modal dialogue should close.
 
-To check what validation is performed on the purchase order data, have a look 
-at the `Place` class in `PurchaseOrderContract.kt`. For example, Entering a
+To check what validation is performed on the IOU data, have a look 
+at the `Place` class in `IOUContract.kt`. For example, Entering a
 'Country Code' other than 'UK' will cause the verify function to return an
 Exception and you should rceeive an error message in response.
 
-**Viewing the submitted purchase order:**
+**Viewing the submitted IOU:**
 
 Inspect the terminal for the nodes. You should see some activity in the
 terminal windows for NodeA and NodeB:
 
 *NodeA:*
 
-     Constructing proposed purchase order.
-     Sending purchase order to seller for review.
-     Received partially signed transaction from seller.
-     Verifying signatures and contract constraints.
+     Generating transaction based on new IOU.
+     Verifying contract constraints.
      Signing transaction with our private key.
-     Obtaining notary signature.
-     Recording transaction in vault.
-     Sending fully signed transaction to seller.
+     Sending proposed transaction to recipient for review.
      Done
 
 *NodeB:*
 
-     Receiving proposed purchase order from buyer.
-     Generating transaction based on proposed purchase order.
-     Signing proposed transaction with our private key.
-     Sending partially signed transaction to buyer and wait for a response.
+     Receiving proposed transaction from sender.
      Verifying signatures and contract constraints.
-     Recording transaction in vault.
+     Signing proposed transaction with our private key.
+     Obtaining notary signature and recording transaction.
      Done
 
 *NodeC:*
 
      You shouldn't see any activity.
      
-Alternatively, try adding a purchase order with a delivery date in the past 
+Alternatively, try adding an IOU with a delivery date in the past 
 or a delivery country other than the UK.
 
-Next you can view the newly created purchase order by accessing the
+Next you can view the newly created IOU by accessing the
 vault of NodeA or NodeB:
 
 **Via the HTTP API:**
 
 For NodeA. navigate to
-`http://localhost:10005/api/example/purchase-orders`. For NodeB,
-navigate to `http://localhost:10007/api/example/purchase-orders`.
+`http://localhost:10005/api/example/ious`. For NodeB,
+navigate to `http://localhost:10007/api/example/ious`.
 
 **Via web/example:**
 
 Navigate to `http://localhost:10005/web/example/` and click the refresh
 button at the top left-hand side of the page. You should see the newly
-created purchase order on the page.
+created IOU on the page.
 
 ## Accessing a Node's Database via the h2 Web Console
 
@@ -295,9 +289,9 @@ available tables and provides an interface for you to query them using SQL.
 ## Using the Example RPC Client
 
 The `ExampleClientRPC.kt` file is a simple utility which uses the client
-RPC library to connect to a node and log the 'placed' purchase orders.
-It will log any existing purchase orders and listen for any future
-purchase orders. To build the client use the following gradle task:
+RPC library to connect to a node and log the 'placed' IOUs.
+It will log any existing IOUs and listen for any future
+IOUs. To build the client use the following gradle task:
 
      ./gradlew runExampleClientRPC
      
@@ -315,7 +309,7 @@ Run the following gradle task:
 
      ./gradlew runExampleClientRPC
      
-The RPC client should output some purchase order objects to the console.
+The RPC client should output some IOUs to the console.
 
 ## Running the Nodes Across Multiple Machines
 
@@ -346,20 +340,10 @@ controller node is running (e.g. `networkMapAddress="10.18.0.166:10002"`)
 
 Each machine should now run its nodes using `runnodes` or `runnodes.bat` 
 files. Once they are up and running, the nodes should be able to place 
-purchase orders among themselves in the same way as when they were running on 
+IOUs among themselves in the same way as when they were running on 
 the same machine.
 
 ## Further reading
 
 Tutorials and developer docs for CorDapps and Corda are
 [here](https://docs.corda.net/tutorial-cordapp.html).
-
-<!---
-TODOs
-* Make the progress tracker steps more instructive
-* Add a schema for PurchaseOrderState
-* Add an attachment to the 'Place' transaction
-* Add contract unit tests
-* Add flow unit tests
-* Add an integration test
--->
