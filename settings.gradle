@@ -1,2 +1,2 @@
-include 'source/kotlin'
-include 'source/java'
+include 'kotlin'
+include 'java'
