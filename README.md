@@ -41,10 +41,23 @@ agreement with the seller as long as the IOU meets the contract constraints
 which are defined in `IOUContract.kt`.
 
 All agreed IOUs between NodeA and NodeB become "shared facts"
-between NodeA and NodeB. Note that NodeC won't see any of these
-transactions or have copies of any of the resulting `IOUState`
+between NodeA and NodeB. However, NodeC won't see any of these
+transactions or receive copies of the resulting `IOUState`
 objects. This is because data is only propagated on a need-to-know
 basis.
+
+You can generate a diagram of this flow using Gradle, by running:
+
+**Unix:** 
+
+     ./gradlew generateFlowDiagram
+     
+**Windows:**
+
+     gradlew.bat generateFlowDiagram
+
+The resulting flow diagram will be placed under ``kotlin-source/build/doc`` and 
+``java-source/build/doc``.
 
 ## Pre-Requisites
 
