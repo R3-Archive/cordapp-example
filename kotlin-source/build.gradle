@@ -45,6 +45,9 @@ dependencies {
         exclude group: "bouncycastle"
     }
 
+    // PlantUML: For Generation of Sequence Diagrams of the Flows
+    compile 'net.sourceforge.plantuml:plantuml:8039'
+
     // CorDapp dependencies
     // Specify your cordapp's dependencies below, including dependent cordapps
 }
@@ -116,6 +119,17 @@ publishing {
             artifact javadocJar
         }
     }
+}
+
+task generateFlowDiagram(type: JavaExec) {
+    classpath = files("build/jythonDeps/plantuml-8039.jar")
+    main = "net.sourceforge.plantuml.Run"
+    args = [
+            "-tsvg",
+            "-output", "../kotlin-source/build/doc",
+            "-exclude", "inc_*",
+            "../doc/*.plantuml"
+    ]
 }
 
 task runExampleClientRPC(type: JavaExec) {
