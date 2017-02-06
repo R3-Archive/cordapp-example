@@ -8,7 +8,10 @@ import com.google.common.collect.Lists;
 import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.crypto.Party;
+import net.corda.core.flows.FlowException;
 import net.corda.core.messaging.CordaRPCOps;
+import net.corda.core.transactions.SignedTransaction;
+import net.corda.node.services.statemachine.FlowSessionException;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -92,21 +95,33 @@ public class ExampleApi {
                 otherParty,
                 new IOUContract());
 
-        // The line below blocks and waits for the flow to return.
-        final ExampleFlow.ExampleFlowResult result = getOrThrow(services
-                .startFlowDynamic(ExampleFlow.Initiator.class, state, otherParty)
-                .getReturnValue(), null);
+        Response.Status status;
+        String msg;
+        try {
+            // The line below blocks and waits for the flow to return.
+            final SignedTransaction result = getOrThrow(services
+                    .startFlowDynamic(ExampleFlow.Initiator.class, state, otherParty)
+                    .getReturnValue(), null);
 
-        final Response.Status status;
-        if (result instanceof ExampleFlow.ExampleFlowResult.Success) {
             status = Response.Status.CREATED;
-        } else {
+            msg = String.format("Transaction id %s committed to ledger.", result.getId());
+
+        } catch (FlowSessionException ex) {
             status = Response.Status.BAD_REQUEST;
+            msg = "Counterparty flow terminated unexpectedly.";
+
+        } catch (RuntimeException ex) {
+            status = Response.Status.BAD_REQUEST;
+            msg = ex.getCause().getMessage();
+
+        } catch (Throwable ex) {
+            status = Response.Status.BAD_REQUEST;
+            msg = "Unexpected error.";
         }
 
         return Response
                 .status(status)
-                .entity(result.toString())
+                .entity(msg)
                 .build();
     }
 }

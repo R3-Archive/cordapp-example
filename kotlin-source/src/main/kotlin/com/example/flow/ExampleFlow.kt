@@ -13,6 +13,7 @@ import net.corda.core.crypto.signWithECDSA
 import net.corda.core.flows.FlowLogic
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.utilities.ProgressTracker
+import net.corda.core.utilities.unwrap
 import net.corda.flows.FinalityFlow
 
 /**
@@ -28,7 +29,7 @@ import net.corda.flows.FinalityFlow
  */
 object ExampleFlow {
     class Initiator(val iou: IOUState,
-                    val otherParty: Party): FlowLogic<ExampleFlowResult>() {
+                    val otherParty: Party): FlowLogic<SignedTransaction>() {
         /**
          * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
          * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
@@ -53,51 +54,43 @@ object ExampleFlow {
          * The flow logic is encapsulated within the call() method.
          */
         @Suspendable
-        override fun call(): ExampleFlowResult {
-            // Naively, wrapped the whole flow in a try ... catch block so we can
-            // push the exceptions back through the web API.
-            try {
-                // Prep.
-                // Obtain a reference to our key pair. Currently, the only key pair used is the one which is registered
-                // with the NetWorkMapService. In a future milestone release we'll implement HD key generation so that
-                // new keys can be generated for each transaction.
-                val keyPair = serviceHub.legalIdentityKey
-                // Obtain a reference to the notary we want to use.
-                val notary = serviceHub.networkMapCache.notaryNodes.single().notaryIdentity
+        override fun call(): SignedTransaction {
+            // Prep.
+            // Obtain a reference to our key pair. Currently, the only key pair used is the one which is registered
+            // with the NetWorkMapService. In a future milestone release we'll implement HD key generation so that
+            // new keys can be generated for each transaction.
+            val keyPair = serviceHub.legalIdentityKey
+            // Obtain a reference to the notary we want to use.
+            val notary = serviceHub.networkMapCache.notaryNodes.single().notaryIdentity
 
-                // Stage 1.
-                progressTracker.currentStep = GENERATING_TRANSACTION
-                // Generate an unsigned transaction.
-                val txCommand = Command(IOUContract.Commands.Create(), iou.participants)
-                val unsignedTx = TransactionType.General.Builder(notary).withItems(iou, txCommand)
+            // Stage 1.
+            progressTracker.currentStep = GENERATING_TRANSACTION
+            // Generate an unsigned transaction.
+            val txCommand = Command(IOUContract.Commands.Create(), iou.participants)
+            val unsignedTx = TransactionType.General.Builder(notary).withItems(iou, txCommand)
 
-                // Stage 2.
-                progressTracker.currentStep = VERIFYING_TRANSACTION
-                // Verify that the transaction is valid.
-                unsignedTx.toWireTransaction().toLedgerTransaction(serviceHub).verify()
+            // Stage 2.
+            progressTracker.currentStep = VERIFYING_TRANSACTION
+            // Verify that the transaction is valid.
+            unsignedTx.toWireTransaction().toLedgerTransaction(serviceHub).verify()
 
-                // Stage 3.
-                progressTracker.currentStep = SIGNING_TRANSACTION
-                val partSignedTx = unsignedTx.signWith(keyPair).toSignedTransaction(checkSufficientSignatures = false)
+            // Stage 3.
+            progressTracker.currentStep = SIGNING_TRANSACTION
+            val partSignedTx = unsignedTx.signWith(keyPair).toSignedTransaction(checkSufficientSignatures = false)
 
-                // Stage 4.
-                progressTracker.currentStep = SENDING_TRANSACTION
-                // Send the state across the wire to the designated counterparty.
-                // -----------------------
-                // Flow jumps to Acceptor.
-                // -----------------------
-                send(otherParty, partSignedTx)
+            // Stage 4.
+            progressTracker.currentStep = SENDING_TRANSACTION
+            // Send the state across the wire to the designated counterparty.
+            // -----------------------
+            // Flow jumps to Acceptor.
+            // -----------------------
+            send(otherParty, partSignedTx)
 
-                return ExampleFlowResult.Success("Transaction id ${partSignedTx.id} committed to ledger.")
-
-            } catch(ex: Exception) {
-                // Catch all exception types.
-                return ExampleFlowResult.Failure(ex.message)
-            }
+            return waitForLedgerCommit(partSignedTx.id)
         }
     }
 
-    class Acceptor(val otherParty: Party): FlowLogic<ExampleFlowResult>() {
+    class Acceptor(val otherParty: Party) : FlowLogic<SignedTransaction>() {
         companion object {
             object RECEIVING_TRANSACTION : ProgressTracker.Step("Receiving proposed transaction from sender.")
             object VERIFYING_TRANSACTION : ProgressTracker.Step("Verifying signatures and contract constraints.")
@@ -115,66 +108,48 @@ object ExampleFlow {
         override val progressTracker = tracker()
 
         @Suspendable
-        override fun call(): ExampleFlowResult {
-            try {
-                // Prep.
-                // Obtain a reference to our key pair.
-                val keyPair = serviceHub.legalIdentityKey
-                // Obtain a reference to the notary we want to use and its public key.
-                val notary = serviceHub.networkMapCache.notaryNodes.single().notaryIdentity
-                val notaryPubKey = notary.owningKey
+        override fun call(): SignedTransaction {
+            // Prep.
+            // Obtain a reference to our key pair.
+            val keyPair = serviceHub.legalIdentityKey
+            // Obtain a reference to the notary we want to use and its public key.
+            val notary = serviceHub.networkMapCache.notaryNodes.single().notaryIdentity
+            val notaryPubKey = notary.owningKey
 
-                // Stage 5.
-                progressTracker.currentStep = RECEIVING_TRANSACTION
-                // All messages come off the wire as UntrustworthyData. You need to 'unwrap' them. This is where you
-                // validate what you have just received.
-                val partSignedTx = receive<SignedTransaction>(otherParty).unwrap { partSignedTx ->
-                    // Stage 6.
-                    progressTracker.currentStep = VERIFYING_TRANSACTION
-                    // Check that the signature of the other party is valid.
-                    // Our signature and the notary's signature are allowed to be omitted at this stage as this is only
-                    // a partially signed transaction.
-                    val wireTx = partSignedTx.verifySignatures(keyPair.public.composite, notaryPubKey)
-                    // Run the contract's verify function.
-                    // We want to be sure that the agreed-upon IOU is valid under the rules of the contract.
-                    // To do this we need to run the contract's verify() function.
-                    wireTx.toLedgerTransaction(serviceHub).verify()
-                    // We've verified the signed transaction and return it.
-                    partSignedTx
-                }
-
-                // Stage 7.
-                progressTracker.currentStep = SIGNING_TRANSACTION
-                // Sign the transaction with our key pair and add it to the transaction.
-                // We now have 'validation consensus'. We still require uniqueness consensus.
-                // Technically validation consensus for this type of agreement implicitly provides uniqueness consensus.
-                val mySig = keyPair.signWithECDSA(partSignedTx.id.bytes)
-                // Add our signature to the transaction.
-                val signedTx = partSignedTx + mySig
-
-                // Stage 8.
-                progressTracker.currentStep = FINALISING_TRANSACTION
-                // FinalityFlow() notarises the transaction and records it in each party's vault.
-                subFlow(FinalityFlow(signedTx, setOf(serviceHub.myInfo.legalIdentity, otherParty)))
-
-                return ExampleFlowResult.Success("Transaction id ${signedTx.id} committed to ledger.")
-
-            } catch (ex: Exception) {
-                return ExampleFlowResult.Failure(ex.message)
+            // Stage 5.
+            progressTracker.currentStep = RECEIVING_TRANSACTION
+            // All messages come off the wire as UntrustworthyData. You need to 'unwrap' them. This is where you
+            // validate what you have just received.
+            val partSignedTx = receive<SignedTransaction>(otherParty).unwrap { partSignedTx ->
+                // Stage 6.
+                progressTracker.currentStep = VERIFYING_TRANSACTION
+                // Check that the signature of the other party is valid.
+                // Our signature and the notary's signature are allowed to be omitted at this stage as this is only
+                // a partially signed transaction.
+                val wireTx = partSignedTx.verifySignatures(keyPair.public.composite, notaryPubKey)
+                // Run the contract's verify function.
+                // We want to be sure that the agreed-upon IOU is valid under the rules of the contract.
+                // To do this we need to run the contract's verify() function.
+                wireTx.toLedgerTransaction(serviceHub).verify()
+                // We've verified the signed transaction and return it.
+                partSignedTx
             }
+
+            // Stage 7.
+            progressTracker.currentStep = SIGNING_TRANSACTION
+            // Sign the transaction with our key pair and add it to the transaction.
+            // We now have 'validation consensus'. We still require uniqueness consensus.
+            // Technically validation consensus for this type of agreement implicitly provides uniqueness consensus.
+            val mySig = keyPair.signWithECDSA(partSignedTx.id.bytes)
+            // Add our signature to the transaction.
+            val signedTx = partSignedTx + mySig
+
+            // Stage 8.
+            progressTracker.currentStep = FINALISING_TRANSACTION
+            // FinalityFlow() notarises the transaction and records it in each party's vault.
+            subFlow(FinalityFlow(signedTx, setOf(serviceHub.myInfo.legalIdentity, otherParty)))
+
+            return signedTx
         }
-    }
-}
-
-/**
- * Helper class for returning a result from the flows.
- */
-sealed class ExampleFlowResult {
-    class Success(val message: String?): ExampleFlowResult() {
-        override fun toString(): String = "Success($message)"
-    }
-
-    class Failure(val message: String?): ExampleFlowResult() {
-        override fun toString(): String = "Failure($message)"
     }
 }

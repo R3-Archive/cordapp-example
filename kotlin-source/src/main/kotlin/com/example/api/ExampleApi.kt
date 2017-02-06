@@ -2,12 +2,16 @@ package com.example.api
 
 import com.example.contract.IOUContract
 import com.example.flow.ExampleFlow.Initiator
-import com.example.flow.ExampleFlowResult
 import com.example.model.IOU
 import com.example.state.IOUState
+import net.corda.core.contracts.TransactionVerificationException
+import net.corda.core.flows.FlowException
 import net.corda.core.getOrThrow
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.startFlow
+import net.corda.core.transactions.SignedTransaction
+import net.corda.node.services.statemachine.FlowSessionException
+import java.util.concurrent.ExecutionException
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
@@ -71,23 +75,25 @@ class ExampleApi(val services: CordaRPCOps) {
                 otherParty,
                 IOUContract())
 
-        // The line below blocks and waits for the future to resolve.
-        val result: ExampleFlowResult = services
-                .startFlow(::Initiator, state, otherParty)
-                .returnValue
-                .getOrThrow()
+        val (status, msg) = try {
+            // The line below blocks and waits for the future to resolve.
+            val result = services
+                    .startFlow(::Initiator, state, otherParty)
+                    .returnValue
+                    .getOrThrow()
 
-        when (result) {
-            is ExampleFlowResult.Success ->
-                return Response
-                        .status(Response.Status.CREATED)
-                        .entity(result.message)
-                        .build()
-            is ExampleFlowResult.Failure ->
-                return Response
-                        .status(Response.Status.BAD_REQUEST)
-                        .entity(result.message)
-                        .build()
+            Response.Status.CREATED to "Transaction id ${result.id} committed to ledger."
+
+        } catch (ex: Throwable) {
+            val msg = when (ex) {
+                is ExecutionException -> ex.message
+                is FlowException -> ex.message
+                is FlowSessionException -> "Counterparty flow terminated unexpectedly."
+                else -> "Unexpected error."
+            }
+            Response.Status.BAD_REQUEST to msg
         }
+
+        return Response.status(status).entity(msg).build()
     }
 }
