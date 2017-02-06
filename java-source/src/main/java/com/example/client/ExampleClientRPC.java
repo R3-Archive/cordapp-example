@@ -35,17 +35,17 @@ public class ExampleClientRPC {
 
         // Grab all signed transactions and all future signed transactions.
         final Pair<List<SignedTransaction>, Observable<SignedTransaction>> txsAndFutureTxs =
-            proxy.verifiedTransactions();
+                proxy.verifiedTransactions();
         final List<SignedTransaction> txs = txsAndFutureTxs.getFirst();
         final Observable<SignedTransaction> futureTxs = txsAndFutureTxs.getSecond();
 
-        // Log the 'placed' IOU states and listen for new ones.
+        // Log the 'placed' IOUs and listen for new ones.
         futureTxs.startWith(txs).toBlocking().subscribe(
                 transaction ->
                         transaction.getTx().getOutputs().forEach(
                                 output -> {
                                     final IOUState iouState = (IOUState) output.getData();
-                                    logger.info(iouState.getIOU().toString());
+                                    logger.info(iouState.toString());
                                 })
         );
     }
