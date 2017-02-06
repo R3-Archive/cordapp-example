@@ -2,11 +2,10 @@ package com.example.contract
 
 import com.example.model.IOU
 import com.example.state.IOUState
-import net.corda.core.utilities.TEST_TX_TIME
 import net.corda.testing.*
 import org.junit.Test
 
-class IOUTests {
+class IOUTransactionTests {
     @Test
     fun `transaction must include Create command`() {
         val iou = IOU(1)
