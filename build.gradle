@@ -2,7 +2,7 @@ buildscript {
     ext.corda_version = '0.8-SNAPSHOT'
     ext.corda_gradle_plugins_version = '0.7.1'
     ext.kotlin_version = '1.0.6'
-    ext.quasar_version = '0.7.1'
+    ext.quasar_version = '0.7.6'
 
     repositories {
         mavenLocal()
@@ -14,6 +14,6 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "net.corda.plugins:publish-utils:$corda_gradle_plugins_version"
         classpath "net.corda.plugins:cordformation:$corda_gradle_plugins_version"
-        classpath "net.corda.plugins:quasar-utils:$quasar_version"
+        classpath "net.corda.plugins:quasar-utils:$corda_gradle_plugins_version"
     }
 }
