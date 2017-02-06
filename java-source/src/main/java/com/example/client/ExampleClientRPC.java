@@ -39,7 +39,7 @@ public class ExampleClientRPC {
         final List<SignedTransaction> txs = txsAndFutureTxs.getFirst();
         final Observable<SignedTransaction> futureTxs = txsAndFutureTxs.getSecond();
 
-        // Log the 'placed' purchase order states and listen for new ones.
+        // Log the 'placed' IOUs and listen for new ones.
         futureTxs.startWith(txs).toBlocking().subscribe(
                 transaction ->
                         transaction.getTx().getOutputs().forEach(
