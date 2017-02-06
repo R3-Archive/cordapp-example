@@ -5,6 +5,7 @@ import com.example.flow.ExampleFlow.Initiator
 import com.example.flow.ExampleFlowResult
 import com.example.model.IOU
 import com.example.state.IOUState
+import net.corda.core.getOrThrow
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.startFlow
 import javax.ws.rs.*
@@ -74,8 +75,7 @@ class ExampleApi(val services: CordaRPCOps) {
         val result: ExampleFlowResult = services
                 .startFlow(::Initiator, state, otherParty)
                 .returnValue
-                .toBlocking()
-                .first()
+                .getOrThrow()
 
         when (result) {
             is ExampleFlowResult.Success ->
