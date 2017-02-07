@@ -4,7 +4,6 @@ import com.example.flow.ExampleFlow
 import com.example.model.IOU
 import com.example.state.IOUState
 import net.corda.core.contracts.TransactionVerificationException
-import net.corda.core.crypto.Party
 import net.corda.core.getOrThrow
 import net.corda.node.utilities.databaseTransaction
 import net.corda.testing.node.MockNetwork
@@ -19,7 +18,6 @@ class IOUFlowTests {
     lateinit var a: MockNetwork.MockNode
     lateinit var b: MockNetwork.MockNode
     lateinit var c: MockNetwork.MockNode
-    lateinit var notary: Party
 
     @Before
     fun setup() {
@@ -28,7 +26,6 @@ class IOUFlowTests {
         a = nodes.partyNodes[0]
         b = nodes.partyNodes[1]
         c = nodes.partyNodes[2]
-        notary = nodes.notaryNode.info.notaryIdentity
         net.runNetwork()
     }
 
@@ -138,7 +135,7 @@ class IOUFlowTests {
             assertEquals(recordedState.recipient, inputState.recipient)
             assertEquals(recordedState.linearId, inputState.linearId)
         }
-        
+
         databaseTransaction(b.database) {
             val recordedTx = b.storage.validatedTransactions.getTransaction(signedTx.id)
             val txOutputs = recordedTx!!.tx.outputs

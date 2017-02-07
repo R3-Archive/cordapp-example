@@ -8,7 +8,6 @@ import com.google.common.collect.Lists;
 import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.crypto.Party;
-import net.corda.core.flows.FlowException;
 import net.corda.core.messaging.CordaRPCOps;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.node.services.statemachine.FlowSessionException;
@@ -99,24 +98,24 @@ public class ExampleApi {
         String msg;
         try {
             // The line below blocks and waits for the flow to return.
-            final SignedTransaction result = getOrThrow(services
+            final SignedTransaction result = services
                     .startFlowDynamic(ExampleFlow.Initiator.class, state, otherParty)
-                    .getReturnValue(), null);
+                    .getReturnValue()
+                    .get();
 
             status = Response.Status.CREATED;
             msg = String.format("Transaction id %s committed to ledger.", result.getId());
 
-        } catch (FlowSessionException ex) {
-            status = Response.Status.BAD_REQUEST;
-            msg = "Counterparty flow terminated unexpectedly.";
-
-        } catch (RuntimeException ex) {
-            status = Response.Status.BAD_REQUEST;
-            msg = ex.getCause().getMessage();
-
         } catch (Throwable ex) {
             status = Response.Status.BAD_REQUEST;
-            msg = "Unexpected error.";
+
+            if (ex.getCause() instanceof FlowSessionException) {
+                msg = "Counterparty flow terminated unexpectedly.";
+            } else if (ex.getCause() instanceof RuntimeException) {
+                msg = ex.getCause().getMessage();
+            } else {
+                msg = "Unexpected error.";
+            }
         }
 
         return Response
