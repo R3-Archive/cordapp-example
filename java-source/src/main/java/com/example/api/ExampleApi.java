@@ -9,6 +9,8 @@ import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.crypto.Party;
 import net.corda.core.messaging.CordaRPCOps;
+import net.corda.core.transactions.SignedTransaction;
+import net.corda.node.services.statemachine.FlowSessionException;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -92,21 +94,33 @@ public class ExampleApi {
                 otherParty,
                 new IOUContract());
 
-        // The line below blocks and waits for the flow to return.
-        final ExampleFlow.ExampleFlowResult result = getOrThrow(services
-                .startFlowDynamic(ExampleFlow.Initiator.class, state, otherParty)
-                .getReturnValue(), null);
+        Response.Status status;
+        String msg;
+        try {
+            // The line below blocks and waits for the flow to return.
+            final SignedTransaction result = services
+                    .startFlowDynamic(ExampleFlow.Initiator.class, state, otherParty)
+                    .getReturnValue()
+                    .get();
 
-        final Response.Status status;
-        if (result instanceof ExampleFlow.ExampleFlowResult.Success) {
             status = Response.Status.CREATED;
-        } else {
+            msg = String.format("Transaction id %s committed to ledger.", result.getId());
+
+        } catch (Throwable ex) {
             status = Response.Status.BAD_REQUEST;
+
+            if (ex.getCause() instanceof FlowSessionException) {
+                msg = "Counterparty flow terminated unexpectedly.";
+            } else if (ex.getCause() instanceof RuntimeException) {
+                msg = ex.getCause().getMessage();
+            } else {
+                msg = "Unexpected error.";
+            }
         }
 
         return Response
                 .status(status)
-                .entity(result.toString())
+                .entity(msg)
                 .build();
     }
 }

@@ -4,19 +4,19 @@ import co.paralleluniverse.fibers.Suspendable;
 import com.example.contract.IOUContract;
 import com.example.state.IOUState;
 import com.google.common.collect.ImmutableSet;
-import net.corda.core.contracts.Command;
-import net.corda.core.contracts.TransactionResolutionException;
-import net.corda.core.contracts.TransactionType;
+import net.corda.core.contracts.*;
 import net.corda.core.crypto.CompositeKey;
 import net.corda.core.crypto.CryptoUtilities;
 import net.corda.core.crypto.DigitalSignature;
 import net.corda.core.crypto.Party;
+import net.corda.core.flows.FlowException;
 import net.corda.core.flows.FlowLogic;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 import net.corda.core.transactions.WireTransaction;
 import net.corda.core.utilities.ProgressTracker;
 import net.corda.flows.FinalityFlow;
+import net.corda.core.contracts.AttachmentResolutionException;
 
 import java.io.FileNotFoundException;
 import java.security.KeyPair;
@@ -28,16 +28,16 @@ import static kotlin.collections.CollectionsKt.single;
 /**
  * This flow allows two parties (the [Initiator] and the [Acceptor]) to come to an agreement about the IOU encapsulated
  * within an [IOUState].
- *
+ * <p>
  * In our simple example, the [Acceptor] always accepts a valid IOU.
- *
+ * <p>
  * These flows have deliberately been implemented by using only the call() method for ease of understanding. In
  * practice we would recommend splitting up the various stages of the flow into sub-routines.
- *
+ * <p>
  * All methods called within the [FlowLogic] sub-class need to be annotated with the @Suspendable annotation.
  */
 public class ExampleFlow {
-    public static class Initiator extends FlowLogic<ExampleFlowResult> {
+    public static class Initiator extends FlowLogic<SignedTransaction> {
 
         private final IOUState iou;
         private final Party otherParty;
@@ -66,57 +66,57 @@ public class ExampleFlow {
             this.otherParty = otherParty;
         }
 
-        @Override public ProgressTracker getProgressTracker() { return progressTracker; }
+        @Override
+        public ProgressTracker getProgressTracker() {
+            return progressTracker;
+        }
 
         /**
          * The flow logic is encapsulated within the call() method.
          */
         @Suspendable
-        @Override public ExampleFlowResult call() {
-            // Naively, wrapped the whole flow in a try ... catch block so we can
-            // push the exceptions back through the web API.
+        @Override
+        public SignedTransaction call() {
+            // Prep.
+            // Obtain a reference to our key pair. Currently, the only key pair used is the one which is registered with
+            // the NetWorkMapService. In a future milestone release we'll implement HD key generation such that new keys
+            // can be generated for each transaction.
+            final KeyPair keyPair = getServiceHub().getLegalIdentityKey();
+            // Obtain a reference to the notary we want to use.
+            final Party notary = single(getServiceHub().getNetworkMapCache().getNotaryNodes()).getNotaryIdentity();
+
+            // Stage 1.
+            progressTracker.setCurrentStep(GENERATING_TRANSACTION);
+            // Generate an unsigned transaction.
+            final Command txCommand = new Command(new IOUContract.Commands.Create(), iou.getParticipants());
+            final TransactionBuilder unsignedTx = new TransactionType.General.Builder(notary).withItems(iou, txCommand);
+
+            // Stage 2.
+            progressTracker.setCurrentStep(VERIFYING_TRANSACTION);
+            // Verify that the transaction is valid.
             try {
-                // Prep.
-                // Obtain a reference to our key pair. Currently, the only key pair used is the one which is registered with
-                // the NetWorkMapService. In a future milestone release we'll implement HD key generation such that new keys
-                // can be generated for each transaction.
-                final KeyPair keyPair = getServiceHub().getLegalIdentityKey();
-                // Obtain a reference to the notary we want to use.
-                final Party notary = single(getServiceHub().getNetworkMapCache().getNotaryNodes()).getNotaryIdentity();
-
-                // Stage 1.
-                progressTracker.setCurrentStep(GENERATING_TRANSACTION);
-                // Generate an unsigned transaction.
-                final Command txCommand = new Command(new IOUContract.Commands.Create(), iou.getParticipants());
-                final TransactionBuilder unsignedTx = new TransactionType.General.Builder(notary).withItems(iou, txCommand);
-
-                // Stage 2.
-                progressTracker.setCurrentStep(VERIFYING_TRANSACTION);
-                // Verify that the transaction is valid.
                 unsignedTx.toWireTransaction().toLedgerTransaction(getServiceHub()).verify();
-
-                // Stage 3.
-                progressTracker.setCurrentStep(SIGNING_TRANSACTION);
-                final SignedTransaction partSignedTx = unsignedTx.signWith(keyPair).toSignedTransaction(false);
-
-                // Stage 4.
-                progressTracker.setCurrentStep(SENDING_TRANSACTION);
-                // Send the state across the wire to the designated counterparty.
-                // -----------------------
-                // Flow jumps to Acceptor.
-                // -----------------------
-                this.send(otherParty, partSignedTx);
-
-                return new ExampleFlowResult.Success(String.format("Transaction id %s committed to ledger.", partSignedTx.getId()));
-
-            } catch(Exception ex) {
-                // Just catch all exception types.
-                return new ExampleFlowResult.Failure(ex.getMessage());
+            } catch (AttachmentResolutionException|TransactionVerificationException|TransactionResolutionException ex) {
+                throw new RuntimeException(ex);
             }
+
+            // Stage 3.
+            progressTracker.setCurrentStep(SIGNING_TRANSACTION);
+            final SignedTransaction partSignedTx = unsignedTx.signWith(keyPair).toSignedTransaction(false);
+    
+            // Stage 4.
+            progressTracker.setCurrentStep(SENDING_TRANSACTION);
+            // Send the state across the wire to the designated counterparty.
+            // -----------------------
+            // Flow jumps to Acceptor.
+            // -----------------------
+            this.send(otherParty, partSignedTx);
+
+            return waitForLedgerCommit(partSignedTx.getId());
         }
     }
 
-    public static class Acceptor extends FlowLogic<ExampleFlowResult> {
+    public static class Acceptor extends FlowLogic<SignedTransaction> {
 
         private final Party otherParty;
         private final ProgressTracker progressTracker = new ProgressTracker(
@@ -135,84 +135,67 @@ public class ExampleFlow {
         private static final ProgressTracker.Step FINALISING_TRANSACTION = new ProgressTracker.Step(
                 "Obtaining notary signature and recording transaction.");
 
-        public Acceptor(Party otherParty) { this.otherParty = otherParty; }
+        public Acceptor(Party otherParty) {
+            this.otherParty = otherParty;
+        }
 
-        @Override public ProgressTracker getProgressTracker() { return progressTracker; }
+        @Override
+        public ProgressTracker getProgressTracker() {
+            return progressTracker;
+        }
 
         @Suspendable
-        @Override public ExampleFlowResult call() {
-            try {
-                // Prep.
-                // Obtain a reference to our key pair.
-                final KeyPair keyPair = getServiceHub().getLegalIdentityKey();
-                final Party notary = single(getServiceHub().getNetworkMapCache().getNotaryNodes()).getNotaryIdentity();
-                // Obtain a reference to the notary we want to use and its public key.
-                final CompositeKey notaryPubKey = notary.getOwningKey();
+        @Override
+        public SignedTransaction call() throws FlowException {
+            // Prep.
+            // Obtain a reference to our key pair.
+            final KeyPair keyPair = getServiceHub().getLegalIdentityKey();
+            final Party notary = single(getServiceHub().getNetworkMapCache().getNotaryNodes()).getNotaryIdentity();
+            // Obtain a reference to the notary we want to use and its public key.
+            final CompositeKey notaryPubKey = notary.getOwningKey();
 
-                // Stage 5.
-                progressTracker.setCurrentStep(RECEIVING_TRANSACTION);
-                // All messages come off the wire as UntrustworthyData. You need to 'unwrap' them. This is where you
-                // validate what you have just received.
-                final SignedTransaction partSignedTx = receive(SignedTransaction.class, otherParty)
-                        .unwrap(tx ->
-                        {
-                            // Stage 6.
-                            progressTracker.setCurrentStep(VERIFYING_TRANSACTION);
-                            try {
-                                // Check that the signature of the other party is valid.
-                                // Our signature and the notary's signature are allowed to be omitted at this stage as
-                                // this is only a partially signed transaction.
-                                final WireTransaction wireTx = tx.verifySignatures(CryptoUtilities.getComposite(keyPair.getPublic()), notaryPubKey);
-                                // Run the contract's verify function.
-                                // We want to be sure that the agreed-upon IOU is valid under the rules of the contract.
-                                // To do this we need to run the contract's verify() function.
-                                wireTx.toLedgerTransaction(getServiceHub()).verify();
-                            } catch (SignatureException | FileNotFoundException | TransactionResolutionException ex) {
-                                throw new RuntimeException(ex);
-                            }
-                            return tx;
-                        });
+            // Stage 5.
+            progressTracker.setCurrentStep(RECEIVING_TRANSACTION);
+            // All messages come off the wire as UntrustworthyData. You need to 'unwrap' them. This is where you
+            // validate what you have just received.
 
-                // Stage 7.
-                progressTracker.setCurrentStep(SIGNING_TRANSACTION);
-                // Sign the transaction with our key pair and add it to the transaction.
-                // We now have 'validation consensus'. We still require uniqueness consensus.
-                // Technically validation consensus for this type of agreement implicitly provides uniqueness consensus.
-                final DigitalSignature.WithKey mySig = partSignedTx.signWithECDSA(keyPair);
-                // Add our signature to the transaction.
-                final SignedTransaction signedTx = partSignedTx.plus(mySig);
+            final SignedTransaction partSignedTx = receive(SignedTransaction.class, otherParty)
+                    .unwrap(tx ->
+                    {
+                        // Stage 6.
+                        progressTracker.setCurrentStep(VERIFYING_TRANSACTION);
+                        try {
+                            // Check that the signature of the other party is valid.
+                            // Our signature and the notary's signature are allowed to be omitted at this stage as
+                            // this is only a partially signed transaction.
+                            final WireTransaction wireTx = tx.verifySignatures(CryptoUtilities.getComposite(keyPair.getPublic()), notaryPubKey);
 
-                // Stage 8.
-                progressTracker.setCurrentStep(FINALISING_TRANSACTION);
-                final Set<Party> participants = ImmutableSet.of(getServiceHub().getMyInfo().getLegalIdentity(), otherParty);
-                // FinalityFlow() notarises the transaction and records it in each party's vault.
-                subFlow(new FinalityFlow(signedTx, participants));
+                            // Run the contract's verify function.
+                            // We want to be sure that the agreed-upon IOU is valid under the rules of the contract.
+                            // To do this we need to run the contract's verify() function.
+                            wireTx.toLedgerTransaction(getServiceHub()).verify();
+                        } catch (SignatureException|TransactionResolutionException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                        return tx;
+                    });
 
-                return new ExampleFlowResult.Success(String.format("Transaction id %s committed to ledger.", signedTx.getId()));
+            // Stage 7.
+            progressTracker.setCurrentStep(SIGNING_TRANSACTION);
+            // Sign the transaction with our key pair and add it to the transaction.
+            // We now have 'validation consensus'. We still require uniqueness consensus.
+            // Technically validation consensus for this type of agreement implicitly provides uniqueness consensus.
+            final DigitalSignature.WithKey mySig = partSignedTx.signWithECDSA(keyPair);
+            // Add our signature to the transaction.
+            final SignedTransaction signedTx = partSignedTx.plus(mySig);
 
-            } catch (Exception ex) {
-                return new ExampleFlowResult.Failure(ex.getMessage());
-            }
-        }
-    }
+            // Stage 8.
+            progressTracker.setCurrentStep(FINALISING_TRANSACTION);
+            final Set<Party> participants = ImmutableSet.of(getServiceHub().getMyInfo().getLegalIdentity(), otherParty);
+            // FinalityFlow() notarises the transaction and records it in each party's vault.
+            subFlow(new FinalityFlow(signedTx, participants));
 
-    public static class ExampleFlowResult {
-        public static class Success extends com.example.flow.ExampleFlow.ExampleFlowResult {
-            private String message;
-
-            private Success(String message) { this.message = message; }
-
-            @Override
-            public String toString() { return String.format("Success(%s)", message); }
-        }
-
-        public static class Failure extends com.example.flow.ExampleFlow.ExampleFlowResult {
-            private String message;
-
-            private Failure(String message) { this.message = message; }
-
-            @Override
-            public String toString() { return String.format("Failure(%s)", message); }
+            return signedTx;
         }
     }
 }

@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import static net.corda.testing.CoreTestUtils.*;
 
-public class IOUTests {
+public class IOUTransactionTests {
     static private final Party miniCorp = getMINI_CORP();
     static private final Party megaCorp = getMEGA_CORP();
     static private final CompositeKey[] keys = new CompositeKey[2];

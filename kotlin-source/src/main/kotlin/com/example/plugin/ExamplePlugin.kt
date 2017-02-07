@@ -5,13 +5,19 @@ import com.example.api.ExampleApi
 import com.example.contract.IOUContract
 import com.example.state.IOUState
 import com.example.flow.ExampleFlow
-import com.example.flow.ExampleFlowResult
 import com.example.model.IOU
 import com.example.service.ExampleService
+import net.corda.core.contracts.AuthenticatedObject
+import net.corda.core.contracts.Timestamp
+import net.corda.core.contracts.TransactionType
+import net.corda.core.contracts.TransactionVerificationException
 import net.corda.core.crypto.Party
 import net.corda.core.messaging.CordaRPCOps
+import net.corda.core.transactions.LedgerTransaction
 import net.corda.core.node.CordaPluginRegistry
 import net.corda.core.node.PluginServiceHub
+import net.corda.core.transactions.SignedTransaction
+import java.util.concurrent.ExecutionException
 import java.util.function.Function
 
 class ExamplePlugin : CordaPluginRegistry() {
@@ -59,8 +65,12 @@ class ExamplePlugin : CordaPluginRegistry() {
         kryo.register(IOUState::class.java)
         kryo.register(IOUContract::class.java)
         kryo.register(IOU::class.java)
-        kryo.register(ExampleFlowResult.Success::class.java)
-        kryo.register(ExampleFlowResult.Failure::class.java)
+        kryo.register(TransactionVerificationException.ContractRejection::class.java)
+        kryo.register(LedgerTransaction::class.java)
+        kryo.register(AuthenticatedObject::class.java)
+        kryo.register(IOUContract.Commands.Create::class.java)
+        kryo.register(Timestamp::class.java)
+        kryo.register(TransactionType.General::class.java)
         return true
     }
 }
