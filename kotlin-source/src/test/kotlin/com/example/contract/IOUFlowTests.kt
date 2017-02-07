@@ -80,6 +80,7 @@ class IOUFlowTests {
         assertFailsWith<TransactionVerificationException> {future.getOrThrow()}
     }
 
+    // TODO: The following tests cannot currently run due to a bug in waitForLedgerCommit()
 //    @Test
 //    fun `SignedTransaction returned by the flow is signed by the initiator`() {
 //        val state = IOUState(

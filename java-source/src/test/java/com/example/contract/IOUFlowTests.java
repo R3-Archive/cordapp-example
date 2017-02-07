@@ -96,6 +96,7 @@ public class IOUFlowTests {
         }
     }
 
+    // TODO: The following tests cannot currently run due to a bug in waitForLedgerCommit()
 //    @Test
 //    public void signedTransactionReturnedByTheFlowIsSignedByTheInitiator() throws InterruptedException, ExecutionException, SignatureException {
 //        IOUState state = new IOUState(
