@@ -103,7 +103,7 @@ public class ExampleFlow {
             // Stage 3.
             progressTracker.setCurrentStep(SIGNING_TRANSACTION);
             final SignedTransaction partSignedTx = unsignedTx.signWith(keyPair).toSignedTransaction(false);
-
+    
             // Stage 4.
             progressTracker.setCurrentStep(SENDING_TRANSACTION);
             // Send the state across the wire to the designated counterparty.

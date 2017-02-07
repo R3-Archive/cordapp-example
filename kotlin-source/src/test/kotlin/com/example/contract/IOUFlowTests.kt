@@ -36,7 +36,7 @@ class IOUFlowTests {
     }
 
     @Test
-    fun `the flow returns a SignedTransaction`() {
+    fun `flow returns a SignedTransaction`() {
         val state = IOUState(
                 IOU(1),
                 a.info.legalIdentity,
@@ -51,7 +51,7 @@ class IOUFlowTests {
     }
 
     @Test
-    fun `the flow rejects invalid IOUs`() {
+    fun `flow rejects invalid IOUs`() {
         val state = IOUState(
                 IOU(-1),
                 a.info.legalIdentity,
@@ -66,7 +66,7 @@ class IOUFlowTests {
     }
 
     @Test
-    fun `the flow rejects invalid IOU states`() {
+    fun `flow rejects invalid IOU states`() {
         val state = IOUState(
                 IOU(1),
                 a.info.legalIdentity,
@@ -81,7 +81,7 @@ class IOUFlowTests {
     }
 
 //    @Test
-//    fun `the SignedTransaction returned by the flow is signed by the initiator`() {
+//    fun `SignedTransaction returned by the flow is signed by the initiator`() {
 //        val state = IOUState(
 //                IOU(1),
 //                a.info.legalIdentity,
@@ -96,7 +96,7 @@ class IOUFlowTests {
 //    }
 
 //    @Test
-//    fun `the SignedTransaction returned by the flow is signed by the acceptor`() {
+//    fun `SignedTransaction returned by the flow is signed by the acceptor`() {
 //        val state = IOUState(
 //                IOU(1),
 //                a.info.legalIdentity,
@@ -111,7 +111,7 @@ class IOUFlowTests {
 //    }
 
 //    @Test
-//    fun `the flow rejects IOUs that are not signed by the sender`() {
+//    fun `flow rejects IOUs that are not signed by the sender`() {
 //        val state = IOUState(
 //                IOU(1),
 //                c.info.legalIdentity,
@@ -125,7 +125,7 @@ class IOUFlowTests {
 //    }
 
 //    @Test
-//    fun `the flow rejects IOUs that are not signed by the recipient`() {
+//    fun `flow rejects IOUs that are not signed by the recipient`() {
 //        val state = IOUState(
 //                IOU(1),
 //                a.info.legalIdentity,
@@ -139,7 +139,7 @@ class IOUFlowTests {
 //    }
 
     @Test
-    fun `the flow records a transaction in both parties' vaults`() {
+    fun `flow records a transaction in both parties' vaults`() {
         val state = IOUState(
                 IOU(1),
                 a.info.legalIdentity,
@@ -159,7 +159,7 @@ class IOUFlowTests {
     }
 
     @Test
-    fun `the recorded transaction has no inputs and a single output, the input IOU`() {
+    fun `recorded transaction has no inputs and a single output, the input IOU`() {
         val inputState = IOUState(
                 IOU(1),
                 a.info.legalIdentity,
