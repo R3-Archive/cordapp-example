@@ -138,8 +138,17 @@ class IOUFlowTests {
             assertEquals(recordedState.recipient, inputState.recipient)
             assertEquals(recordedState.linearId, inputState.linearId)
         }
+        
         databaseTransaction(b.database) {
-            assertEquals(signedTx, b.storage.validatedTransactions.getTransaction(signedTx.id))
+            val recordedTx = b.storage.validatedTransactions.getTransaction(signedTx.id)
+            val txOutputs = recordedTx!!.tx.outputs
+            assert(txOutputs.size == 1)
+
+            val recordedState = txOutputs[0].data as IOUState
+            assertEquals(recordedState.iou, inputState.iou)
+            assertEquals(recordedState.sender, inputState.sender)
+            assertEquals(recordedState.recipient, inputState.recipient)
+            assertEquals(recordedState.linearId, inputState.linearId)
         }
     }
 }
