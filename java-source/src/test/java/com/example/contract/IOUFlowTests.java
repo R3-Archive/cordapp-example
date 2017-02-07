@@ -7,6 +7,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.TransactionState;
 import net.corda.core.contracts.TransactionVerificationException;
+import net.corda.core.crypto.CryptoUtilities;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.utilities.TestConstants;
 import net.corda.testing.node.MockNetwork;
@@ -14,6 +15,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.security.SignatureException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -39,6 +41,21 @@ public class IOUFlowTests {
     @After
     public void tearDown() {
         net.stopNodes();
+    }
+
+    @Test
+    public void theFlowReturnsASignedTransaction() throws InterruptedException, ExecutionException {
+        IOUState state = new IOUState(
+                new IOU(1),
+                a.info.getLegalIdentity(),
+                b.info.getLegalIdentity(),
+                new IOUContract());
+        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(state, b.info.getLegalIdentity());
+        ListenableFuture<SignedTransaction> future = a.getServices().startFlow(flow).getResultFuture();
+        net.runNetwork(-1);
+
+        Object signedTx = future.get();
+        assert(signedTx instanceof SignedTransaction);
     }
 
     @Test
@@ -82,31 +99,61 @@ public class IOUFlowTests {
     }
 
 //    @Test
-//    public void theFlowRejectsIOUsThatAreNotSignedByTheSender() throws InterruptedException {
+//    public void theSignedTransactionReturnedByTheFlowIsSignedByTheInitiator() throws InterruptedException, ExecutionException, SignatureException {
 //        IOUState state = new IOUState(
 //                new IOU(1),
-//                c.info.getLegalIdentity(),
 //                a.info.getLegalIdentity(),
+//                b.info.getLegalIdentity(),
 //                new IOUContract());
 //        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(state, b.info.getLegalIdentity());
 //        ListenableFuture<SignedTransaction> future = a.getServices().startFlow(flow).getResultFuture();
 //        net.runNetwork(-1);
 //
-//        assertFails {future.getOrThrow()}
+//        SignedTransaction signedTx = future.get();
+//        signedTx.verifySignatures(CryptoUtilities.getComposite(a.getServices().getLegalIdentityKey().getPublic()));
 //    }
-
+//
 //    @Test
-//    public void theFlowRejectsIOUsThatAreNotSignedByTheRecipient() {
+//    public void theSignedTransactionReturnedByTheFlowIsSignedByTheAcceptor() throws InterruptedException, ExecutionException, SignatureException {
 //        IOUState state = new IOUState(
 //                new IOU(1),
-//                c.info.getLegalIdentity(),
 //                a.info.getLegalIdentity(),
+//                b.info.getLegalIdentity(),
 //                new IOUContract());
-//        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(state, c.info.getLegalIdentity());
+//        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(state, b.info.getLegalIdentity());
 //        ListenableFuture<SignedTransaction> future = a.getServices().startFlow(flow).getResultFuture();
 //        net.runNetwork(-1);
 //
-//        assertFails {future.getOrThrow()}
+//        SignedTransaction signedTx = future.get();
+//        signedTx.verifySignatures(CryptoUtilities.getComposite(b.getServices().getLegalIdentityKey().getPublic()));
+//    }
+
+//    @Test
+//    public void theFlowRejectsIOUsThatAreNotSignedByTheSender() throws InterruptedException, ExecutionException, SignatureException {
+//        IOUState state = new IOUState(
+//                new IOU(1),
+//                c.info.getLegalIdentity(),
+//                b.info.getLegalIdentity(),
+//                new IOUContract());
+//        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(state, b.info.getLegalIdentity());
+//        ListenableFuture<SignedTransaction> future = a.getServices().startFlow(flow).getResultFuture();
+//        net.runNetwork(-1);
+//
+//        assertFails(future.get);
+//    }
+//
+//    @Test
+//    public void theFlowRejectsIOUsThatAreNotSignedByTheRecipient() throws InterruptedException, ExecutionException, SignatureException {
+//        IOUState state = new IOUState(
+//                new IOU(1),
+//                a.info.getLegalIdentity(),
+//                c.info.getLegalIdentity(),
+//                new IOUContract());
+//        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(state, b.info.getLegalIdentity());
+//        ListenableFuture<SignedTransaction> future = a.getServices().startFlow(flow).getResultFuture();
+//        net.runNetwork(-1);
+//
+//        assertFails(future.get);
 //    }
 
     @Test

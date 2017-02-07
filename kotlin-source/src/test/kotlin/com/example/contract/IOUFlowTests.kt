@@ -5,6 +5,7 @@ import com.example.model.IOU
 import com.example.state.IOUState
 import net.corda.core.contracts.TransactionVerificationException
 import net.corda.core.getOrThrow
+import net.corda.core.transactions.SignedTransaction
 import net.corda.node.utilities.databaseTransaction
 import net.corda.testing.node.MockNetwork
 import org.junit.After
@@ -32,6 +33,21 @@ class IOUFlowTests {
     @After
     fun tearDown() {
         net.stopNodes()
+    }
+
+    @Test
+    fun `the flow returns a SignedTransaction`() {
+        val state = IOUState(
+                IOU(1),
+                a.info.legalIdentity,
+                b.info.legalIdentity,
+                IOUContract())
+        val flow = ExampleFlow.Initiator(state, b.info.legalIdentity)
+        val future = a.services.startFlow(flow).resultFuture
+        net.runNetwork()
+
+        val signedTx = future.getOrThrow()
+        assert(signedTx is SignedTransaction)
     }
 
     @Test
@@ -65,6 +81,36 @@ class IOUFlowTests {
     }
 
 //    @Test
+//    fun `the SignedTransaction returned by the flow is signed by the initiator`() {
+//        val state = IOUState(
+//                IOU(1),
+//                a.info.legalIdentity,
+//                b.info.legalIdentity,
+//                IOUContract())
+//        val flow = ExampleFlow.Initiator(state, b.info.legalIdentity)
+//        val future = a.services.startFlow(flow).resultFuture
+//        net.runNetwork()
+//
+//        val signedTx = future.getOrThrow()
+//        signedTx.verifySignatures(a.services.legalIdentityKey.public.composite)
+//    }
+
+//    @Test
+//    fun `the SignedTransaction returned by the flow is signed by the acceptor`() {
+//        val state = IOUState(
+//                IOU(1),
+//                a.info.legalIdentity,
+//                b.info.legalIdentity,
+//                IOUContract())
+//        val flow = ExampleFlow.Initiator(state, b.info.legalIdentity)
+//        val future = a.services.startFlow(flow).resultFuture
+//        net.runNetwork()
+//
+//        val signedTx = future.getOrThrow()
+//        signedTx.verifySignatures(b.services.legalIdentityKey.public.composite)
+//    }
+
+//    @Test
 //    fun `the flow rejects IOUs that are not signed by the sender`() {
 //        val state = IOUState(
 //                IOU(1),
@@ -75,21 +121,21 @@ class IOUFlowTests {
 //        val future = a.services.startFlow(flow).resultFuture
 //        net.runNetwork()
 //
-//        assertFails {future.getOrThrow()}
+//        assertFails(future.getOrThrow())
 //    }
-//
+
 //    @Test
 //    fun `the flow rejects IOUs that are not signed by the recipient`() {
 //        val state = IOUState(
 //                IOU(1),
 //                a.info.legalIdentity,
-//                b.info.legalIdentity,
+//                c.info.legalIdentity,
 //                IOUContract())
-//        val flow = ExampleFlow.Initiator(state, c.info.legalIdentity)
+//        val flow = ExampleFlow.Initiator(state, b.info.legalIdentity)
 //        val future = a.services.startFlow(flow).resultFuture
 //        net.runNetwork()
 //
-//        assertFailsWith<RuntimeException> {future.getOrThrow()}
+//        assertFails(future.getOrThrow())
 //    }
 
     @Test
