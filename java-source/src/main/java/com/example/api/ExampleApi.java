@@ -106,7 +106,7 @@ public class ExampleApi {
                     .get();
 
             status = Response.Status.CREATED;
-            msg = String.format("Transaction id %s committed to ledger.", result.getId());
+            msg = String.format("Transaction id %s sent to counterparty.", result.getId());
 
         } catch (Throwable ex) {
             status = Response.Status.BAD_REQUEST;
