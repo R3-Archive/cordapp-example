@@ -80,4 +80,68 @@ public class IOUFlowTests {
             assertTrue(e.getCause() instanceof TransactionVerificationException.ContractRejection);
         }
     }
+
+    @Test
+    public void flowRecordsATransactionInBothPartiesVaults() throws InterruptedException, ExecutionException {
+        IOUState state = new IOUState(
+                new IOU(1),
+                a.info.getLegalIdentity(),
+                b.info.getLegalIdentity(),
+                new IOUContract());
+        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(state, b.info.getLegalIdentity());
+        ListenableFuture<SignedTransaction> future = a.getServices().startFlow(flow).getResultFuture();
+        net.runNetwork(-1);
+        SignedTransaction signedTx = future.get();
+
+        databaseTransaction(a.database, it -> {
+            SignedTransaction recordedTx = a.storage.getValidatedTransactions().getTransaction(signedTx.getId());
+            assertEquals(signedTx.getId(), recordedTx.getId());
+            return null;
+        });
+
+        databaseTransaction(b.database, it -> {
+            SignedTransaction recordedTx = b.storage.getValidatedTransactions().getTransaction(signedTx.getId());
+            assertEquals(signedTx.getId(), recordedTx.getId());
+            return null;
+        });
+    }
+
+    @Test
+    public void recordedTransactionHasNoInputsAndASingleOutputTheInputIOU() throws InterruptedException, ExecutionException {
+        IOUState inputState = new IOUState(
+                new IOU(1),
+                a.info.getLegalIdentity(),
+                b.info.getLegalIdentity(),
+                new IOUContract());
+        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(inputState, b.info.getLegalIdentity());
+        ListenableFuture<SignedTransaction> future = a.getServices().startFlow(flow).getResultFuture();
+        net.runNetwork(-1);
+        SignedTransaction signedTx = future.get();
+
+        databaseTransaction(a.database, it -> {
+            SignedTransaction recordedTx = a.storage.getValidatedTransactions().getTransaction(signedTx.getId());
+            List<TransactionState<ContractState>> txOutputs = recordedTx.getTx().getOutputs();
+            assert(txOutputs.size() == 1);
+
+            IOUState recordedState = (IOUState) txOutputs.get(0).getData();
+            assertEquals(recordedState.getIOU().getValue(), inputState.getIOU().getValue());
+            assertEquals(recordedState.getSender(), inputState.getSender());
+            assertEquals(recordedState.getRecipient(), inputState.getRecipient());
+            assertEquals(recordedState.getLinearId(), inputState.getLinearId());
+            return null;
+        });
+
+        databaseTransaction(b.database, it -> {
+            SignedTransaction recordedTx = b.storage.getValidatedTransactions().getTransaction(signedTx.getId());
+            List<TransactionState<ContractState>> txOutputs = recordedTx.getTx().getOutputs();
+            assert(txOutputs.size() == 1);
+
+            IOUState recordedState = (IOUState) txOutputs.get(0).getData();
+            assertEquals(recordedState.getIOU().getValue(), inputState.getIOU().getValue());
+            assertEquals(recordedState.getSender(), inputState.getSender());
+            assertEquals(recordedState.getRecipient(), inputState.getRecipient());
+            assertEquals(recordedState.getLinearId(), inputState.getLinearId());
+            return null;
+        });
+    }
 }
