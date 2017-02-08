@@ -30,7 +30,7 @@ public class ExampleApi {
     private final String myLegalName;
     private final List<String> notaryNames = Lists.newArrayList("Controller", "NetworkMapService");
 
-    private final Logger logger = LoggerFactory.getLogger(ExampleApi.class);
+    static private final Logger logger = LoggerFactory.getLogger(ExampleApi.class);
 
     public ExampleApi(CordaRPCOps services) {
         this.services = services;
@@ -111,7 +111,7 @@ public class ExampleApi {
         } catch (Throwable ex) {
             status = Response.Status.BAD_REQUEST;
             msg = "Transaction failed.";
-            logger.error(ex.getMessage());
+            logger.error(ex.getMessage(), ex);
         }
 
         return Response

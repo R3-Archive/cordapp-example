@@ -171,7 +171,7 @@ public class ExampleFlow {
                             // To do this we need to run the contract's verify() function.
                             wireTx.toLedgerTransaction(getServiceHub()).verify();
                         } catch (SignatureException ex) {
-                            throw new FlowException(ex);
+                            throw new FlowException(tx.getId() + " failed signature checks", ex);
                         }
                         return tx;
                     });

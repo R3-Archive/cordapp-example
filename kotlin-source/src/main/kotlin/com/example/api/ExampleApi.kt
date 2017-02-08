@@ -10,7 +10,9 @@ import net.corda.core.getOrThrow
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.startFlow
 import net.corda.core.transactions.SignedTransaction
+import net.corda.core.utilities.loggerFor
 import net.corda.node.services.statemachine.FlowSessionException
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ExecutionException
 import javax.ws.rs.*
@@ -24,7 +26,9 @@ val NOTARY_NAMES = listOf("Controller", "NetworkMapService")
 class ExampleApi(val services: CordaRPCOps) {
     private val myLegalName: String = services.nodeIdentity().legalIdentity.name
 
-    private val logger = LoggerFactory.getLogger(ExampleApi::class.java)
+    companion object {
+        private val logger: Logger = loggerFor<ExampleApi>()
+    }
 
     /**
      * Returns the node's name.
@@ -88,7 +92,7 @@ class ExampleApi(val services: CordaRPCOps) {
             Response.Status.CREATED to "Transaction id ${result.id} committed to ledger."
 
         } catch (ex: Throwable) {
-            logger.error(ex.message)
+            logger.error(ex.message, ex)
             Response.Status.BAD_REQUEST to "Transaction failed."
         }
 
