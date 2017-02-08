@@ -11,6 +11,7 @@ import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.startFlow
 import net.corda.core.transactions.SignedTransaction
 import net.corda.node.services.statemachine.FlowSessionException
+import org.slf4j.LoggerFactory
 import java.util.concurrent.ExecutionException
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
@@ -21,7 +22,9 @@ val NOTARY_NAMES = listOf("Controller", "NetworkMapService")
 // This API is accessible from /api/example. All paths specified below are relative to it.
 @Path("example")
 class ExampleApi(val services: CordaRPCOps) {
-    val myLegalName: String = services.nodeIdentity().legalIdentity.name
+    private val myLegalName: String = services.nodeIdentity().legalIdentity.name
+
+    private val logger = LoggerFactory.getLogger(ExampleApi::class.java)
 
     /**
      * Returns the node's name.
@@ -85,13 +88,8 @@ class ExampleApi(val services: CordaRPCOps) {
             Response.Status.CREATED to "Transaction id ${result.id} committed to ledger."
 
         } catch (ex: Throwable) {
-            val msg = when (ex) {
-                is ExecutionException -> ex.message
-                is FlowException -> ex.message
-                is FlowSessionException -> "Counterparty flow terminated unexpectedly."
-                else -> "Unexpected error."
-            }
-            Response.Status.BAD_REQUEST to msg
+            logger.error(ex.message)
+            Response.Status.BAD_REQUEST to "Transaction failed."
         }
 
         return Response.status(status).entity(msg).build()

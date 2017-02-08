@@ -11,6 +11,7 @@ import net.corda.testing.node.MockNetwork
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import javax.annotation.Signed
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
@@ -46,8 +47,7 @@ class IOUFlowTests {
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
 
-        val signedTx = future.getOrThrow()
-        assert(signedTx is SignedTransaction)
+        val signedTx: SignedTransaction = future.getOrThrow()
     }
 
     @Test

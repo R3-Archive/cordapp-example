@@ -52,8 +52,7 @@ public class IOUFlowTests {
         ListenableFuture<SignedTransaction> future = a.getServices().startFlow(flow).getResultFuture();
         net.runNetwork(-1);
 
-        Object signedTx = future.get();
-        assert(signedTx instanceof SignedTransaction);
+        SignedTransaction signedTx = future.get();
     }
 
     @Test
@@ -72,7 +71,7 @@ public class IOUFlowTests {
             future.get();
             fail();
         } catch (ExecutionException e) {
-            assertTrue(e.getCause().getCause() instanceof TransactionVerificationException.ContractRejection);
+            assertTrue(e.getCause() instanceof TransactionVerificationException.ContractRejection);
         }
     }
 
@@ -92,7 +91,7 @@ public class IOUFlowTests {
             future.get();
             fail();
         } catch (ExecutionException e) {
-            assertTrue(e.getCause().getCause() instanceof TransactionVerificationException.ContractRejection);
+            assertTrue(e.getCause() instanceof TransactionVerificationException.ContractRejection);
         }
     }
 

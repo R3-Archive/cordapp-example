@@ -10,7 +10,8 @@ import net.corda.core.contracts.StateAndRef;
 import net.corda.core.crypto.Party;
 import net.corda.core.messaging.CordaRPCOps;
 import net.corda.core.transactions.SignedTransaction;
-import net.corda.node.services.statemachine.FlowSessionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -21,7 +22,6 @@ import java.util.concurrent.ExecutionException;
 
 import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
-import static net.corda.core.Utils.getOrThrow;
 
 // This API is accessible from /api/example. All paths specified below are relative to it.
 @Path("example")
@@ -29,6 +29,8 @@ public class ExampleApi {
     private final CordaRPCOps services;
     private final String myLegalName;
     private final List<String> notaryNames = Lists.newArrayList("Controller", "NetworkMapService");
+
+    private final Logger logger = LoggerFactory.getLogger(ExampleApi.class);
 
     public ExampleApi(CordaRPCOps services) {
         this.services = services;
@@ -108,14 +110,8 @@ public class ExampleApi {
 
         } catch (Throwable ex) {
             status = Response.Status.BAD_REQUEST;
-
-            if (ex.getCause() instanceof FlowSessionException) {
-                msg = "Counterparty flow terminated unexpectedly.";
-            } else if (ex.getCause() instanceof RuntimeException) {
-                msg = ex.getCause().getMessage();
-            } else {
-                msg = "Unexpected error.";
-            }
+            msg = "Transaction failed.";
+            logger.error(ex.getMessage());
         }
 
         return Response
