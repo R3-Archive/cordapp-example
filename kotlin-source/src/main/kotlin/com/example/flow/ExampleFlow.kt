@@ -90,7 +90,7 @@ object ExampleFlow {
         }
     }
 
-    class Acceptor(val otherParty: Party) : FlowLogic<SignedTransaction>() {
+    class Acceptor(val otherParty: Party) : FlowLogic<Unit>() {
         companion object {
             object RECEIVING_TRANSACTION : ProgressTracker.Step("Receiving proposed transaction from sender.")
             object VERIFYING_TRANSACTION : ProgressTracker.Step("Verifying signatures and contract constraints.")
@@ -108,7 +108,7 @@ object ExampleFlow {
         override val progressTracker = tracker()
 
         @Suspendable
-        override fun call(): SignedTransaction {
+        override fun call() {
             // Prep.
             // Obtain a reference to our key pair.
             val keyPair = serviceHub.legalIdentityKey
@@ -148,8 +148,6 @@ object ExampleFlow {
             progressTracker.currentStep = FINALISING_TRANSACTION
             // FinalityFlow() notarises the transaction and records it in each party's vault.
             subFlow(FinalityFlow(signedTx, setOf(serviceHub.myInfo.legalIdentity, otherParty)))
-
-            return signedTx
         }
     }
 }

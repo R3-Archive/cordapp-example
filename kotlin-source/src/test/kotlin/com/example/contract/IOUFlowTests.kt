@@ -11,6 +11,7 @@ import net.corda.testing.node.MockNetwork
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import javax.annotation.Signed
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
@@ -33,21 +34,6 @@ class IOUFlowTests {
     @After
     fun tearDown() {
         net.stopNodes()
-    }
-
-    @Test
-    fun `flow returns a SignedTransaction`() {
-        val state = IOUState(
-                IOU(1),
-                a.info.legalIdentity,
-                b.info.legalIdentity,
-                IOUContract())
-        val flow = ExampleFlow.Initiator(state, b.info.legalIdentity)
-        val future = a.services.startFlow(flow).resultFuture
-        net.runNetwork()
-
-        val signedTx = future.getOrThrow()
-        assert(signedTx is SignedTransaction)
     }
 
     @Test

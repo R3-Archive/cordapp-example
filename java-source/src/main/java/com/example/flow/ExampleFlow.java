@@ -76,7 +76,7 @@ public class ExampleFlow {
          */
         @Suspendable
         @Override
-        public SignedTransaction call() {
+        public SignedTransaction call() throws FlowException {
             // Prep.
             // Obtain a reference to our key pair. Currently, the only key pair used is the one which is registered with
             // the NetWorkMapService. In a future milestone release we'll implement HD key generation such that new keys
@@ -94,11 +94,7 @@ public class ExampleFlow {
             // Stage 2.
             progressTracker.setCurrentStep(VERIFYING_TRANSACTION);
             // Verify that the transaction is valid.
-            try {
-                unsignedTx.toWireTransaction().toLedgerTransaction(getServiceHub()).verify();
-            } catch (AttachmentResolutionException|TransactionVerificationException|TransactionResolutionException ex) {
-                throw new RuntimeException(ex);
-            }
+            unsignedTx.toWireTransaction().toLedgerTransaction(getServiceHub()).verify();
 
             // Stage 3.
             progressTracker.setCurrentStep(SIGNING_TRANSACTION);
@@ -116,7 +112,7 @@ public class ExampleFlow {
         }
     }
 
-    public static class Acceptor extends FlowLogic<SignedTransaction> {
+    public static class Acceptor extends FlowLogic<Void> {
 
         private final Party otherParty;
         private final ProgressTracker progressTracker = new ProgressTracker(
@@ -146,7 +142,7 @@ public class ExampleFlow {
 
         @Suspendable
         @Override
-        public SignedTransaction call() throws FlowException {
+        public Void call() throws FlowException {
             // Prep.
             // Obtain a reference to our key pair.
             final KeyPair keyPair = getServiceHub().getLegalIdentityKey();
@@ -174,8 +170,8 @@ public class ExampleFlow {
                             // We want to be sure that the agreed-upon IOU is valid under the rules of the contract.
                             // To do this we need to run the contract's verify() function.
                             wireTx.toLedgerTransaction(getServiceHub()).verify();
-                        } catch (SignatureException|TransactionResolutionException ex) {
-                            throw new RuntimeException(ex);
+                        } catch (SignatureException ex) {
+                            throw new FlowException(tx.getId() + " failed signature checks", ex);
                         }
                         return tx;
                     });
@@ -195,7 +191,7 @@ public class ExampleFlow {
             // FinalityFlow() notarises the transaction and records it in each party's vault.
             subFlow(new FinalityFlow(signedTx, participants));
 
-            return signedTx;
+            return null;
         }
     }
 }

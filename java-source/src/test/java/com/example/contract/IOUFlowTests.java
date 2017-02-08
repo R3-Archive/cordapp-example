@@ -7,6 +7,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.TransactionState;
 import net.corda.core.contracts.TransactionVerificationException;
+import net.corda.core.flows.FlowLogic;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.utilities.TestConstants;
 import net.corda.testing.node.MockNetwork;
@@ -42,21 +43,6 @@ public class IOUFlowTests {
     }
 
     @Test
-    public void flowReturnsASignedTransaction() throws InterruptedException, ExecutionException {
-        IOUState state = new IOUState(
-                new IOU(1),
-                a.info.getLegalIdentity(),
-                b.info.getLegalIdentity(),
-                new IOUContract());
-        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(state, b.info.getLegalIdentity());
-        ListenableFuture<SignedTransaction> future = a.getServices().startFlow(flow).getResultFuture();
-        net.runNetwork(-1);
-
-        Object signedTx = future.get();
-        assert(signedTx instanceof SignedTransaction);
-    }
-
-    @Test
     public void flowRejectsInvalidIOUs() throws InterruptedException {
         IOUState state = new IOUState(
                 new IOU(-1),
@@ -72,7 +58,7 @@ public class IOUFlowTests {
             future.get();
             fail();
         } catch (ExecutionException e) {
-            assertTrue(e.getCause().getCause() instanceof TransactionVerificationException.ContractRejection);
+            assertTrue(e.getCause() instanceof TransactionVerificationException.ContractRejection);
         }
     }
 
@@ -92,7 +78,7 @@ public class IOUFlowTests {
             future.get();
             fail();
         } catch (ExecutionException e) {
-            assertTrue(e.getCause().getCause() instanceof TransactionVerificationException.ContractRejection);
+            assertTrue(e.getCause() instanceof TransactionVerificationException.ContractRejection);
         }
     }
 
