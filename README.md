@@ -80,12 +80,19 @@ Change directories to the newly cloned repo:
 
      cd cordapp-tutorial
      
-Build the example CorDapp:
+Check out the latest milestone release (currently `release-M8`):
+
+     git checkout release-M8
+     
+Non-milestone releases are development branches, and can be unstable 
+or even broken. You should develop against a milestone release.
+     
+## Build the example CorDapp
 
 **NOTE: Building the example CorDapp from master WILL fail without 
 first running `/gradlew install` (or `gradlew.bat install`) from the master 
 branch of the [corda repository](https://github.com/corda/corda). Make sure
-you have checked out the M7 release tag from this repository before you build, 
+you have checked out the M8 release tag from this repository before you build, 
 UNLESS you wish to build from a SNAPSHOT release.**
  
 **Unix:** 
@@ -96,8 +103,8 @@ UNLESS you wish to build from a SNAPSHOT release.**
 
      gradlew.bat deployNodes
      
-Note. You will be building the example CorDapp. If you want to make any
-changes they should be made before building, of course!
+This will build the example CorDapp. Any changes you wish to make to the 
+CorDapp should be made before running this build step, of course!
      
 Gradle will grab all the dependencies for you from Maven and then build 
 two sample applications and create several local Corda nodes.
