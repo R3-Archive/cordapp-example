@@ -4,17 +4,11 @@ import com.example.contract.IOUContract
 import com.example.flow.ExampleFlow.Initiator
 import com.example.model.IOU
 import com.example.state.IOUState
-import net.corda.core.contracts.TransactionVerificationException
-import net.corda.core.flows.FlowException
 import net.corda.core.getOrThrow
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.startFlow
-import net.corda.core.transactions.SignedTransaction
 import net.corda.core.utilities.loggerFor
-import net.corda.node.services.statemachine.FlowSessionException
 import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import java.util.concurrent.ExecutionException
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
@@ -89,7 +83,7 @@ class ExampleApi(val services: CordaRPCOps) {
                     .returnValue
                     .getOrThrow()
 
-            Response.Status.CREATED to "Transaction id ${result.id} committed to ledger."
+            Response.Status.CREATED to "Transaction id ${result.id} sent to counterparty."
 
         } catch (ex: Throwable) {
             logger.error(ex.message, ex)

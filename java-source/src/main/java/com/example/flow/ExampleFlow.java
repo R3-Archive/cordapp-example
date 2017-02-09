@@ -4,7 +4,9 @@ import co.paralleluniverse.fibers.Suspendable;
 import com.example.contract.IOUContract;
 import com.example.state.IOUState;
 import com.google.common.collect.ImmutableSet;
-import net.corda.core.contracts.*;
+import net.corda.core.contracts.Command;
+import net.corda.core.contracts.TransactionResolutionException;
+import net.corda.core.contracts.TransactionType;
 import net.corda.core.crypto.CompositeKey;
 import net.corda.core.crypto.CryptoUtilities;
 import net.corda.core.crypto.DigitalSignature;
@@ -16,7 +18,6 @@ import net.corda.core.transactions.TransactionBuilder;
 import net.corda.core.transactions.WireTransaction;
 import net.corda.core.utilities.ProgressTracker;
 import net.corda.flows.FinalityFlow;
-import net.corda.core.contracts.AttachmentResolutionException;
 
 import java.io.FileNotFoundException;
 import java.security.KeyPair;
@@ -94,7 +95,15 @@ public class ExampleFlow {
             // Stage 2.
             progressTracker.setCurrentStep(VERIFYING_TRANSACTION);
             // Verify that the transaction is valid.
-            unsignedTx.toWireTransaction().toLedgerTransaction(getServiceHub()).verify();
+            try {
+                unsignedTx.toWireTransaction().toLedgerTransaction(getServiceHub()).verify();
+            } catch (FileNotFoundException ex) {
+                throw new FlowException(
+                        unsignedTx.toSignedTransaction(false).getId() + " file not found", ex);
+            } catch (TransactionResolutionException ex) {
+                throw new FlowException(
+                        unsignedTx.toSignedTransaction(false).getId() + " transaction resolution exception", ex);
+            }
 
             // Stage 3.
             progressTracker.setCurrentStep(SIGNING_TRANSACTION);
@@ -108,7 +117,7 @@ public class ExampleFlow {
             // -----------------------
             this.send(otherParty, partSignedTx);
 
-            return waitForLedgerCommit(partSignedTx.getId());
+            return partSignedTx;
         }
     }
 
@@ -171,7 +180,11 @@ public class ExampleFlow {
                             // To do this we need to run the contract's verify() function.
                             wireTx.toLedgerTransaction(getServiceHub()).verify();
                         } catch (SignatureException ex) {
-                            throw new FlowException(tx.getId() + " failed signature checks", ex);
+                            throw new RuntimeException(tx.getId() + " failed signature checks", ex);
+                        } catch (FileNotFoundException ex) {
+                            throw new RuntimeException(tx.getId() + " file not found", ex);
+                        } catch (TransactionResolutionException ex) {
+                            throw new RuntimeException(tx.getId() + " transaction resolution exception", ex);
                         }
                         return tx;
                     });
