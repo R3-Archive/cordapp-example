@@ -1,11 +1,8 @@
 ![Corda](https://www.corda.net/wp-content/uploads/2016/11/fg005_corda_b.png)
 
-# CorDapp Template
+# Example CorDapp
 
-Welcome to the CorDapp template. The CorDapp template is an example CorDapp 
-which you can use to bootstrap your own CorDapp projects.
-
-This README is an abridged version of 
+Welcome to the example CorDapp. This README is an abridged version of 
 the [CorDapp tutorial](http://docs.corda.net/tutorial-cordapp.html) found on
 the Corda docsite.
 
@@ -13,7 +10,7 @@ the Corda docsite.
 contributing to the core Corda platform or viewing and running sample
 demos then clone the [corda repository](https://github.com/corda/corda).**
 
-The code in the CorDapp template implements the _"Hello World"_ of
+The code in the CorDapp tutorial implements the _"Hello World"_ of
 CorDapps. It allows users of a Corda node to generate and send IOUs to other 
 nodes. You can also enumerate all the IOU which have been agreed with other 
 nodes. The nodes also provide a simple web interface which can be used to 
@@ -34,17 +31,28 @@ submit IOUs to a seller. The scenario defines four nodes:
 * **NodeB** who is the seller.
 * **NodeC** an unrelated third party.
 
-NodeA can generate IOUs for lists and quantities of items and
-associated metadata such as delivery address and delivery date. The
-flows used to facilitate the agreement process always result in an
-agreement with the seller as long as the IOU meets the contract constraints 
-which are defined in `IOUContract.kt`.
+NodeA can generate IOUs. The flows used to facilitate the agreement process 
+always result in an agreement with the seller as long as the IOU meets the 
+contract constraints which are defined in `IOUContract.kt`.
 
 All agreed IOUs between NodeA and NodeB become "shared facts"
-between NodeA and NodeB. Note that NodeC won't see any of these
-transactions or have copies of any of the resulting `IOUState`
+between NodeA and NodeB. However, NodeC won't see any of these
+transactions or receive copies of the resulting `IOUState`
 objects. This is because data is only propagated on a need-to-know
 basis.
+
+You can generate a diagram of this flow using Gradle, by running:
+
+**Unix:** 
+
+     ./gradlew generateFlowDiagram
+     
+**Windows:**
+
+     gradlew.bat generateFlowDiagram
+
+The resulting flow diagram will be placed under ``kotlin-source/build/doc`` and 
+``java-source/build/doc``.
 
 ## Pre-Requisites
 
@@ -66,24 +74,15 @@ Corda docsite.
 
 To get started, clone this repository with:
 
-     git clone https://github.com/corda/cordapp-template.git
+     git clone https://github.com/corda/cordapp-tutorial.git
 
 Change directories to the newly cloned repo:
 
-     cd cordapp-template
+     cd cordapp-tutorial
      
-Now check out the latest stable milestone release:
+Build the example CorDapp:
 
-     git checkout -b corda-m7-template tags/release-M7.0
-     
-Instead, if you would like to build your CorDapp against a SNAPSHOT 
-release of Corda then you can follow the instructions on the 
-[CorDapp tutorial page](http://docs.corda.net/tutorial-cordapp.html) under 
-the "Using a SNAPSHOT release" heading.
-     
-Build the CorDapp template:
-
-**NOTE: Building the CorDapp Template from master WILL fail without 
+**NOTE: Building the example CorDapp from master WILL fail without 
 first running `/gradlew install` (or `gradlew.bat install`) from the master 
 branch of the [corda repository](https://github.com/corda/corda). Make sure
 you have checked out the M7 release tag from this repository before you build, 
@@ -180,7 +179,7 @@ not copy such code directly into products meant for production use.**
 
 To create an IOU from NodeA to NodeB, use:
 
-     echo '{"orderNumber": "1","deliveryDate": "2018-09-15","deliveryAddress": {"city": "London","country": "UK"},"items" : [{"name": "widget","amount": "3"},{"name": "thing","amount": "4"}]}' | curl -T - -H 'Content-Type: application/json' http://localhost:10005/api/example/NodeB/create-iou
+     echo '{"value": "1"}' | cURL -T - -H 'Content-Type: application/json' http://localhost:10005/api/example/NodeB/create-iou
 
 note the port number `10005` (NodeA) and `NodeB` referenced in the
 end-point path. This command instructs NodeA to create and send an order
@@ -193,12 +192,7 @@ Click the "Create IOU" button at the top left of the page and enter the IOU
 details, e.g.
 
      Counter-party: Node B
-     Order Number:  1
-     Delivery Date: 2018-09-15
-     City:          London
-     Country Code:  UK
-     Item 1 name:   Things
-     Item 1 amount: 5
+     Value:  1
 
 and click "Create IOU". The modal dialogue should close.
 
