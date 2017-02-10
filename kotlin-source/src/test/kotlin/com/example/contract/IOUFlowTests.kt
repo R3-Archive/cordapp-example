@@ -78,7 +78,7 @@ class IOUFlowTests {
         net.runNetwork()
 
         val signedTx = future.getOrThrow()
-        signedTx.verifySignatures(a.services.legalIdentityKey.public.composite)
+        signedTx.verifySignatures(b.services.legalIdentityKey.public.composite)
     }
 
     @Test
@@ -93,7 +93,7 @@ class IOUFlowTests {
         net.runNetwork()
 
         val signedTx = future.getOrThrow()
-        signedTx.verifySignatures(b.services.legalIdentityKey.public.composite)
+        signedTx.verifySignatures(a.services.legalIdentityKey.public.composite)
     }
 
     @Test

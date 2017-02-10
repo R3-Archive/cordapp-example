@@ -93,7 +93,7 @@ public class IOUFlowTests {
         net.runNetwork();
 
         SignedTransaction signedTx = future.get();
-        signedTx.verifySignatures(CryptoUtilities.getComposite(a.getServices().getLegalIdentityKey().getPublic()));
+        signedTx.verifySignatures(CryptoUtilities.getComposite(b.getServices().getLegalIdentityKey().getPublic()));
     }
 
     @Test
@@ -108,7 +108,7 @@ public class IOUFlowTests {
         net.runNetwork();
 
         SignedTransaction signedTx = future.get();
-        signedTx.verifySignatures(CryptoUtilities.getComposite(b.getServices().getLegalIdentityKey().getPublic()));
+        signedTx.verifySignatures(CryptoUtilities.getComposite(a.getServices().getLegalIdentityKey().getPublic()));
     }
 
     @Test
