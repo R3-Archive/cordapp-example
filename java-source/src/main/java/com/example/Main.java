@@ -1,11 +1,13 @@
 package com.example;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import net.corda.core.node.services.ServiceInfo;
 import net.corda.node.driver.NodeHandle;
 import net.corda.node.services.User;
 import net.corda.node.services.transactions.ValidatingNotaryService;
 
-import static java.util.Collections.*;
 import static net.corda.node.driver.Driver.driver;
 
 /**
@@ -25,19 +27,19 @@ import static net.corda.node.driver.Driver.driver;
 public class Main {
     public static void main(String[] args) {
         // No permissions required as we are not invoking flows.
-        final User user = new User("user1", "test", emptySet());
+        final User user = new User("user1", "test", ImmutableSet.of());
         driver(
                 true,
                 dsl -> {
                     dsl.startNode("Controller",
-                            singleton(new ServiceInfo(ValidatingNotaryService.Companion.getType(), null)),
-                            emptyList(),
-                            emptyMap());
+                            ImmutableSet.of(new ServiceInfo(ValidatingNotaryService.Companion.getType(), null)),
+                            ImmutableList.of(),
+                            ImmutableMap.of());
 
                     try {
-                        NodeHandle nodeA = dsl.startNode("NodeA", emptySet(), singletonList(user), emptyMap()).get();
-                        NodeHandle nodeB = dsl.startNode("NodeB", emptySet(), singletonList(user), emptyMap()).get();
-                        NodeHandle nodeC = dsl.startNode("NodeC", emptySet(), singletonList(user), emptyMap()).get();
+                        NodeHandle nodeA = dsl.startNode("NodeA", ImmutableSet.of(), ImmutableList.of(user), ImmutableMap.of()).get();
+                        NodeHandle nodeB = dsl.startNode("NodeB", ImmutableSet.of(), ImmutableList.of(user), ImmutableMap.of()).get();
+                        NodeHandle nodeC = dsl.startNode("NodeC", ImmutableSet.of(), ImmutableList.of(user), ImmutableMap.of()).get();
 
                         dsl.startWebserver(nodeA);
                         dsl.startWebserver(nodeB);
