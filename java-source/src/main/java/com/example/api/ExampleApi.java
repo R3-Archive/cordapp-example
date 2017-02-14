@@ -4,6 +4,7 @@ import com.example.contract.IOUContract;
 import com.example.flow.ExampleFlow;
 import com.example.model.IOU;
 import com.example.state.IOUState;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.StateAndRef;
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 
 // This API is accessible from /api/example. All paths specified below are relative to it.
@@ -43,7 +43,7 @@ public class ExampleApi {
     @GET
     @Path("me")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, String> whoami() { return singletonMap("me", myLegalName); }
+    public Map<String, String> whoami() { return ImmutableMap.of("me", myLegalName); }
 
     /**
      * Returns all parties registered with the [NetworkMapService]. These names can be used to look up identities
@@ -53,7 +53,7 @@ public class ExampleApi {
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, List<String>> getPeers() {
-        return singletonMap(
+        return ImmutableMap.of(
                 "peers",
                 services.networkMapUpdates().getFirst()
                         .stream()
