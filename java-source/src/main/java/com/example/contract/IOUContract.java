@@ -29,36 +29,9 @@ public class IOUContract implements Contract {
      * considered valid.
      */
     @Override
-    public void verify(TransactionForContract tx) {
-        final AuthenticatedObject<Commands.Create> command = requireSingleCommand(tx.getCommands(), Commands.Create.class);
-        requireThat(require -> {
-            // Generic constraints around the IOU transaction.
-            require.by("No inputs should be consumed when issuing an IOU.",
-                    tx.getInputs().isEmpty());
-            require.by("Only one output state should be created.",
-                    tx.getOutputs().size() == 1);
-            final IOUState out = (IOUState) single(tx.getOutputs());
-            require.by("The sender and the recipient cannot be the same entity.",
-                    out.getSender() != out.getRecipient());
-            require.by("All of the participants must be signers.",
-                    command.getSigners().containsAll(out.getParticipants()));
-
-            // IOU-specific constraints.
-            require.by("The IOU's value must be non-negative.",
-                    out.getIOU().getValue() > 0);
-
-            return null;
-        });
-    }
-
-    /**
-     * This contract only implements one command, Create.
-     */
-    public interface Commands extends CommandData {
-        class Create implements Commands {}
-    }
+    public void verify(TransactionForContract tx) { }
 
     /** This is a reference to the underlying legal contract template and associated parameters. */
-    private final SecureHash legalContractReference = SecureHash.sha256("IOU contract template and params");
+    private final SecureHash legalContractReference = SecureHash.sha256("Dummy contract");
     @Override public final SecureHash getLegalContractReference() { return legalContractReference; }
 }

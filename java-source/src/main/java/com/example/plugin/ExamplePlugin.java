@@ -79,7 +79,7 @@ public class ExamplePlugin extends CordaPluginRegistry {
         kryo.register(TransactionVerificationException.ContractRejection.class);
         kryo.register(LedgerTransaction.class);
         kryo.register(AuthenticatedObject.class);
-        kryo.register(IOUContract.Commands.Create.class);
+        kryo.register(IOUContract.CreateCmd.class);
         kryo.register(Timestamp.class);
         kryo.register(TransactionType.General.class);
         return true;
