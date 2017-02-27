@@ -1,5 +1,7 @@
 package com.example.model
 
+import net.corda.core.serialization.CordaSerializable
+
 /**
  * A simple class representing an IOU.
  *
@@ -9,4 +11,5 @@ package com.example.model
  *
  * @param value the IOU's value.
  */
+@CordaSerializable
 data class IOU(val value: Int)
