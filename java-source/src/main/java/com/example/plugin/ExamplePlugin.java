@@ -1,26 +1,20 @@
 package com.example.plugin;
 
-import com.esotericsoftware.kryo.Kryo;
 import com.example.api.ExampleApi;
-import com.example.contract.IOUContract;
 import com.example.flow.ExampleFlow;
-import com.example.model.IOU;
 import com.example.service.ExampleService;
 import com.example.state.IOUState;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import net.corda.core.contracts.AuthenticatedObject;
-import net.corda.core.contracts.Timestamp;
-import net.corda.core.contracts.TransactionType;
-import net.corda.core.contracts.TransactionVerificationException;
 import net.corda.core.crypto.Party;
 import net.corda.core.messaging.CordaRPCOps;
 import net.corda.core.node.CordaPluginRegistry;
 import net.corda.core.node.PluginServiceHub;
-import net.corda.core.transactions.LedgerTransaction;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 public class ExamplePlugin extends CordaPluginRegistry {
@@ -68,20 +62,4 @@ public class ExamplePlugin extends CordaPluginRegistry {
     @Override public Map<String, Set<String>> getRequiredFlows() { return requiredFlows; }
     @Override public List<Function<PluginServiceHub, ?>> getServicePlugins() { return servicePlugins; }
     @Override public Map<String, String> getStaticServeDirs() { return staticServeDirs; }
-
-    /**
-     * Register required types with Kryo (our serialisation framework).
-     */
-    @Override public boolean registerRPCKryoTypes(Kryo kryo) {
-        kryo.register(IOUState.class);
-        kryo.register(IOUContract.class);
-        kryo.register(IOU.class);
-        kryo.register(TransactionVerificationException.ContractRejection.class);
-        kryo.register(LedgerTransaction.class);
-        kryo.register(AuthenticatedObject.class);
-        kryo.register(IOUContract.Commands.Create.class);
-        kryo.register(Timestamp.class);
-        kryo.register(TransactionType.General.class);
-        return true;
-    }
 }
