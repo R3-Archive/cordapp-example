@@ -4,6 +4,7 @@ import com.example.state.IOUState
 import com.google.common.net.HostAndPort
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.utilities.loggerFor
+import net.corda.node.services.config.configureTestSSL
 import net.corda.node.services.messaging.CordaRPCClient
 import org.slf4j.Logger
 import rx.Observable
@@ -25,7 +26,7 @@ private class ExampleClientRPC {
     fun main(args: Array<String>) {
         require(args.size == 1) { "Usage: ExampleClientRPC <node address>" }
         val nodeAddress = HostAndPort.fromString(args[0])
-        val client = CordaRPCClient(nodeAddress)
+        val client = CordaRPCClient(nodeAddress, configureTestSSL(), null)
 
         // Can be amended in the com.example.MainKt file.
         client.start("user1", "test")
