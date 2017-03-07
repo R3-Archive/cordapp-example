@@ -26,7 +26,7 @@ private class ExampleClientRPC {
     fun main(args: Array<String>) {
         require(args.size == 1) { "Usage: ExampleClientRPC <node address>" }
         val nodeAddress = HostAndPort.fromString(args[0])
-        val client = CordaRPCClient(nodeAddress, configureTestSSL(), null)
+        val client = CordaRPCClient(nodeAddress, configureTestSSL())
 
         // Can be amended in the com.example.MainKt file.
         client.start("user1", "test")
