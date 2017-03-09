@@ -164,7 +164,7 @@ public class IOUFlowTests {
         for (MockNode node : ImmutableList.of(a, b)) {
             SignedTransaction recordedTx = node.storage.getValidatedTransactions().getTransaction(signedTx.getId());
             List<TransactionState<ContractState>> txOutputs = recordedTx.getTx().getOutputs();
-            assert (txOutputs.size() == 1);
+            assert(txOutputs.size() == 1);
 
             IOUState recordedState = (IOUState) txOutputs.get(0).getData();
             assertEquals(recordedState.getIOU().getValue(), inputState.getIOU().getValue());
