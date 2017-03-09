@@ -26,9 +26,8 @@ app.config(['$qProvider', function ($qProvider) {
 app.controller('DemoAppController', function($http, $location, $uibModal) {
     const demoApp = this;
 
-    // We identify the node based on its localhost port.
-    const nodePort = $location.port();
-    const apiBaseURL = "http://localhost:" + nodePort + "/api/example/";
+    // We identify the node.
+    const apiBaseURL = "/api/example/";
     let peers = [];
 
     $http.get(apiBaseURL + "me").then((response) => demoApp.thisNode = response.data.me);
