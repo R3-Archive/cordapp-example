@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
@@ -52,7 +51,7 @@ public class IOUFlowTests {
     public final ExpectedException exception = ExpectedException.none();
 
     @Test
-    public void flowRejectsInvalidIOUs() throws InterruptedException, ExecutionException {
+    public void flowRejectsInvalidIOUs() throws Exception {
         // The IOUContract specifies that IOUs cannot have negative values.
         IOUState state = new IOUState(
                 new IOU(-1),
@@ -69,7 +68,7 @@ public class IOUFlowTests {
     }
 
     @Test
-    public void flowRejectsInvalidIOUStates() throws InterruptedException, ExecutionException {
+    public void flowRejectsInvalidIOUStates() throws Exception {
         // The IOUContract specifies that an IOU's sender and recipient cannot be the same.
         IOUState state = new IOUState(
                 new IOU(1),
@@ -116,7 +115,7 @@ public class IOUFlowTests {
     }
 
     @Test
-    public void flowRejectsIOUsThatAreNotSignedByTheSender() throws InterruptedException, ExecutionException {
+    public void flowRejectsIOUsThatAreNotSignedByTheSender() throws Exception {
         IOUState state = new IOUState(
                 new IOU(1),
                 c.info.getLegalIdentity(),
@@ -132,7 +131,7 @@ public class IOUFlowTests {
     }
 
     @Test
-    public void flowRejectsIOUsThatAreNotSignedByTheRecipient() throws InterruptedException, ExecutionException {
+    public void flowRejectsIOUsThatAreNotSignedByTheRecipient() throws Exception {
         IOUState state = new IOUState(
                 new IOU(1),
                 a.info.getLegalIdentity(),
