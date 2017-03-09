@@ -6,13 +6,12 @@ import com.example.state.IOUState
 import net.corda.core.contracts.TransactionVerificationException
 import net.corda.core.crypto.composite
 import net.corda.core.getOrThrow
-import net.corda.node.utilities.databaseTransaction
+import net.corda.node.services.statemachine.FlowSessionException
 import net.corda.testing.node.MockNetwork
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
 
 class IOUFlowTests {
@@ -107,7 +106,7 @@ class IOUFlowTests {
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
 
-        assertFails { future.getOrThrow() }
+        assertFailsWith<FlowSessionException> { future.getOrThrow() }
     }
 
     @Test
@@ -121,7 +120,7 @@ class IOUFlowTests {
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
 
-        assertFails { future.getOrThrow() }
+        assertFailsWith<FlowSessionException> { future.getOrThrow() }
     }
 
     @Test
@@ -136,11 +135,9 @@ class IOUFlowTests {
         net.runNetwork()
         val signedTx = future.getOrThrow()
 
-        databaseTransaction(a.database) {
-            assertEquals(signedTx, a.storage.validatedTransactions.getTransaction(signedTx.id))
-        }
-        databaseTransaction(b.database) {
-            assertEquals(signedTx, b.storage.validatedTransactions.getTransaction(signedTx.id))
+        // We check the recorded transaction in both vaults.
+        for (node in listOf(a, b)) {
+            assertEquals(signedTx, node.storage.validatedTransactions.getTransaction(signedTx.id))
         }
     }
 
@@ -156,20 +153,9 @@ class IOUFlowTests {
         net.runNetwork()
         val signedTx = future.getOrThrow()
 
-        databaseTransaction(a.database) {
-            val recordedTx = a.storage.validatedTransactions.getTransaction(signedTx.id)
-            val txOutputs = recordedTx!!.tx.outputs
-            assert(txOutputs.size == 1)
-
-            val recordedState = txOutputs[0].data as IOUState
-            assertEquals(recordedState.iou, inputState.iou)
-            assertEquals(recordedState.sender, inputState.sender)
-            assertEquals(recordedState.recipient, inputState.recipient)
-            assertEquals(recordedState.linearId, inputState.linearId)
-        }
-
-        databaseTransaction(b.database) {
-            val recordedTx = b.storage.validatedTransactions.getTransaction(signedTx.id)
+        // We check the recorded transaction in both vaults.
+        for (node in listOf(a, b)) {
+            val recordedTx = node.storage.validatedTransactions.getTransaction(signedTx.id)
             val txOutputs = recordedTx!!.tx.outputs
             assert(txOutputs.size == 1)
 
