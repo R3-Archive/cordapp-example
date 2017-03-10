@@ -38,6 +38,7 @@ dependencies {
     compile "net.corda:node:$corda_version"
     compile "net.corda:test-utils:$corda_version"
     runtime "net.corda:corda:$corda_version"
+    runtime "net.corda:corda-webserver:$corda_version"
 
     // GraphStream: For visualisation (required by ExampleClientRPC app)
     compile "org.graphstream:gs-core:1.3"
