@@ -6,7 +6,6 @@ import kotlin.Pair;
 import net.corda.client.rpc.CordaRPCClient;
 import net.corda.core.messaging.CordaRPCOps;
 import net.corda.core.transactions.SignedTransaction;
-import net.corda.node.services.config.ConfigUtilities;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

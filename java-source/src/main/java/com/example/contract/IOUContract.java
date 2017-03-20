@@ -7,7 +7,6 @@ import net.corda.core.contracts.Contract;
 import net.corda.core.contracts.TransactionForContract;
 import net.corda.core.crypto.SecureHash;
 
-import static kotlin.collections.CollectionsKt.single;
 import static net.corda.core.contracts.ContractsDSL.requireSingleCommand;
 import static net.corda.core.contracts.ContractsDSL.requireThat;
 
@@ -37,7 +36,7 @@ public class IOUContract implements Contract {
                     tx.getInputs().isEmpty());
             require.by("Only one output state should be created.",
                     tx.getOutputs().size() == 1);
-            final IOUState out = (IOUState) single(tx.getOutputs());
+            final IOUState out = (IOUState) tx.getOutputs().get(0);
             require.by("The sender and the recipient cannot be the same entity.",
                     out.getSender() != out.getRecipient());
             require.by("All of the participants must be signers.",

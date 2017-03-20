@@ -4,7 +4,8 @@ import co.paralleluniverse.fibers.Suspendable;
 import com.example.contract.IOUContract;
 import com.example.state.IOUState;
 import com.google.common.collect.ImmutableSet;
-import net.corda.core.contracts.*;
+import net.corda.core.contracts.Command;
+import net.corda.core.contracts.TransactionType;
 import net.corda.core.crypto.CompositeKey;
 import net.corda.core.crypto.CryptoUtilities;
 import net.corda.core.crypto.DigitalSignature;
@@ -16,14 +17,10 @@ import net.corda.core.transactions.TransactionBuilder;
 import net.corda.core.transactions.WireTransaction;
 import net.corda.core.utilities.ProgressTracker;
 import net.corda.flows.FinalityFlow;
-import net.corda.core.contracts.AttachmentResolutionException;
 
-import java.io.FileNotFoundException;
 import java.security.KeyPair;
 import java.security.SignatureException;
 import java.util.Set;
-
-import static kotlin.collections.CollectionsKt.single;
 
 /**
  * This flow allows two parties (the [Initiator] and the [Acceptor]) to come to an agreement about the IOU encapsulated
@@ -83,7 +80,7 @@ public class ExampleFlow {
             // can be generated for each transaction.
             final KeyPair keyPair = getServiceHub().getLegalIdentityKey();
             // Obtain a reference to the notary we want to use.
-            final Party notary = single(getServiceHub().getNetworkMapCache().getNotaryNodes()).getNotaryIdentity();
+            final Party notary = getServiceHub().getNetworkMapCache().getNotaryNodes().get(0).getNotaryIdentity();
 
             // Stage 1.
             progressTracker.setCurrentStep(GENERATING_TRANSACTION);
@@ -146,7 +143,7 @@ public class ExampleFlow {
             // Prep.
             // Obtain a reference to our key pair.
             final KeyPair keyPair = getServiceHub().getLegalIdentityKey();
-            final Party notary = single(getServiceHub().getNetworkMapCache().getNotaryNodes()).getNotaryIdentity();
+            final Party notary = getServiceHub().getNetworkMapCache().getNotaryNodes().get(0).getNotaryIdentity();
             // Obtain a reference to the notary we want to use and its public key.
             final CompositeKey notaryPubKey = notary.getOwningKey();
 
