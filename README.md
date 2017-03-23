@@ -33,7 +33,7 @@ submit IOUs to a seller. The scenario defines four nodes:
 
 NodeA can generate IOUs. The flows used to facilitate the agreement process 
 always result in an agreement with the seller as long as the IOU meets the 
-contract constraints which are defined in `IOUContract.kt`.
+contract constraints which are defined in `IOUContract`.
 
 All agreed IOUs between NodeA and NodeB become "shared facts"
 between NodeA and NodeB. However, NodeC won't see any of these
@@ -204,7 +204,7 @@ details, e.g.
 and click "Create IOU". The modal dialogue should close.
 
 To check what validation is performed on the IOU data, have a look 
-at the `Place` class in `IOUContract.kt`. For example, Entering a
+at the `Create` class in `IOUContract`. For example, Entering a
 'Country Code' other than 'UK' will cause the verify function to return an
 Exception and you should rceeive an error message in response.
 
@@ -289,7 +289,7 @@ available tables and provides an interface for you to query them using SQL.
 
 ## Using the Example RPC Client
 
-The `ExampleClientRPC.kt` file is a simple utility which uses the client
+`ExampleClientRPC` is a simple utility class which uses the client
 RPC library to connect to a node and log the 'placed' IOUs.
 It will log any existing IOUs and listen for any future
 IOUs. To build the client use the following gradle task:

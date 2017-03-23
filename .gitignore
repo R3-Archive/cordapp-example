@@ -28,6 +28,7 @@ lib/dokka.jar
 
 # Specific files to avoid churn
 .idea/*.xml
+.idea/inspectionProfiles
 .idea/copyright
 .idea/jsLibraryMappings.xml
 
