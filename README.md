@@ -16,8 +16,8 @@ nodes. You can also enumerate all the IOU which have been agreed with other
 nodes. The nodes also provide a simple web interface which can be used to 
 interact with the CorDapp.
 
-The source code for this CorDapp is provided in both Kotlin (under `/kotlin`)
-and Java (under `/java`), and users can choose to write their CorDapps in
+The source code for this CorDapp is provided in both Kotlin (under `/kotlin-source`)
+and Java (under `/java-source`), and users can choose to write their CorDapps in
 either language.
 
 ## The Example CorDapp
@@ -80,9 +80,9 @@ Change directories to the newly cloned repo:
 
      cd cordapp-tutorial
      
-Check out the latest milestone release (currently `release-M8.2`):
+Check out the latest milestone release (currently `release-M9.2`):
 
-     git checkout release-M8.2
+     git checkout release-M9.2
      
 Non-milestone releases are development branches, and can be unstable 
 or even broken. You should develop against a milestone release.
@@ -92,7 +92,7 @@ or even broken. You should develop against a milestone release.
 **NOTE: Building the example CorDapp from master WILL fail without 
 first running `/gradlew install` (or `gradlew.bat install`) from the master 
 branch of the [corda repository](https://github.com/corda/corda). Make sure
-you have checked out the M8.2 release tag from this repository before you build, 
+you have checked out the M9.2 release tag from this repository before you build,
 UNLESS you wish to build from a SNAPSHOT release.**
  
 **Unix:** 
@@ -116,11 +116,11 @@ built nodes are located:
 
 **Kotlin:**
 
-     cd kotlin/build/nodes
+     cd kotlin-source/build/nodes
 
 **Java:**
 
-     cd java/build/nodes
+     cd java-source/build/nodes
      
 The Gradle build script will have created a folder for each node. You'll
 see three folders, one for each node and a `runnodes` script. You can
@@ -156,11 +156,11 @@ agreements.
 
 The nodes can be found using the following port numbers, defined in
 `build.gradle` and the respective `node.conf` file for each node found
-in `kotlin/build/nodes/NodeX` or `java/build/nodes/NodeX`:
+in `kotlin-source/build/nodes/NodeX` or `java-source/build/nodes/NodeX`:
 
-     NodeA: localhost:10005
-     NodeB: localhost:10007
-     NodeC: localhost:10009
+     NodeA: localhost:10007
+     NodeB: localhost:10010
+     NodeC: localhost:10013
 
 Also, as the nodes start-up they should tell you which host and port the
 embedded web server is running on. The API endpoints served are as follows:
@@ -186,9 +186,9 @@ not copy such code directly into products meant for production use.**
 
 To create an IOU from NodeA to NodeB, use:
 
-     echo '{"value": "1"}' | cURL -T - -H 'Content-Type: application/json' http://localhost:10005/api/example/NodeB/create-iou
+     echo '{"value": "1"}' | cURL -T - -H 'Content-Type: application/json' http://localhost:10007/api/example/NodeB/create-iou
 
-note the port number `10005` (NodeA) and `NodeB` referenced in the
+note the port number `10007` (NodeA) and `NodeB` referenced in the
 end-point path. This command instructs NodeA to create and send an order
 to NodeB. Upon verification and completion of the process, both nodes
 (but not NodeC) will have a signed, notarised copy of the IOU.
@@ -242,12 +242,12 @@ vault of NodeA or NodeB:
 **Via the HTTP API:**
 
 For NodeA. navigate to
-`http://localhost:10005/api/example/ious`. For NodeB,
-navigate to `http://localhost:10007/api/example/ious`.
+`http://localhost:10007/api/example/ious`. For NodeB,
+navigate to `http://localhost:10010/api/example/ious`.
 
 **Via web/example:**
 
-Navigate to `http://localhost:10005/web/example/` and click the refresh
+Navigate to `http://localhost:10007/web/example/` and click the refresh
 button at the top left-hand side of the page. You should see the newly
 created IOU on the page.
 
@@ -301,7 +301,7 @@ To run the client:
 **Via IntelliJ:**
 
 Select the 'Run Example RPC Client' run configuration which, by default,
-connects to NodeA (Artemis port 10004). Click the Green Arrow to run the
+connects to NodeA (Artemis port 10006). Click the Green Arrow to run the
 client. 
 
 **Via the command line:**
@@ -317,8 +317,8 @@ The RPC client should output some IOUs to the console.
 The nodes can also be set up to communicate between separate machines on the 
 same subnet.
 
-After deploying the nodes, navigate to the build folder (`kotlin/build/
-nodes` or `java/build/nodes`) and move some of the individual node folders to 
+After deploying the nodes, navigate to the build folder (`kotlin-source/build/
+nodes` or `java-source/build/nodes`) and move some of the individual node folders to
 separate machines on the same subnet (e.g. using a USB key). It is important 
 that no nodes - including the controller node - end up on more than one 
 machine. Each computer should also have a copy of `runnodes` and 

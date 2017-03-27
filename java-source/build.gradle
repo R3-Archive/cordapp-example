@@ -143,5 +143,5 @@ task generateFlowDiagram(type: JavaExec) {
 task runExampleClientRPC(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = 'com.example.client.ExampleClientRPC'
-    args 'localhost:10004'
+    args 'localhost:10006'
 }
