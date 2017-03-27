@@ -301,7 +301,7 @@ To run the client:
 **Via IntelliJ:**
 
 Select the 'Run Example RPC Client' run configuration which, by default,
-connects to NodeA (Artemis port 10006). Click the Green Arrow to run the
+connects to NodeA (RPC port 10006). Click the Green Arrow to run the
 client. 
 
 **Via the command line:**
