@@ -55,6 +55,9 @@ dependencies {
 
     // CorDapp dependencies
     // Specify your cordapp's dependencies below, including dependent cordapps
+    compile files('../rg-lib/CordaGames.jar')
+    runtime files('../rg-lib/CordaGames.jar')
+
 }
 
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['build']) {
