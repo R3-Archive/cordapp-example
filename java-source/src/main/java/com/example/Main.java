@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableSet;
 import net.corda.core.node.services.ServiceInfo;
 import net.corda.node.driver.NodeHandle;
 import net.corda.node.services.config.VerifierType;
-import net.corda.node.services.transactions.ValidatingNotaryService;
 import net.corda.nodeapi.User;
 
 import static java.util.Collections.*;
