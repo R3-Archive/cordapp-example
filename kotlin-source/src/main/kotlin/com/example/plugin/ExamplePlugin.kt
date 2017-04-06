@@ -1,13 +1,20 @@
 package com.example.plugin
 
 import com.example.api.ExampleApi
+import com.example.contract.CordaGameRules
 import com.example.flow.ExampleFlow
+import com.example.flow.GameFlow
 import com.example.service.ExampleService
+import com.example.state.CordaGameState
 import com.example.state.IOUState
 import net.corda.core.crypto.Party
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.node.CordaPluginRegistry
 import net.corda.core.node.PluginServiceHub
+import net.corda.core.serialization.SerializationCustomization
+import net.corda.games.TicTacToeBoard
+import net.corda.games.TicTacToeGameParticipant
+import net.corda.games.TicTacToeGameRules
 import java.util.function.Function
 
 class ExamplePlugin : CordaPluginRegistry() {
@@ -30,7 +37,8 @@ class ExamplePlugin : CordaPluginRegistry() {
      * here, then the flow state machine will _not_ invoke the flow. Instead, an exception will be raised.
      */
     override val requiredFlows: Map<String, Set<String>> = mapOf(
-            ExampleFlow.Initiator::class.java.name to setOf(IOUState::class.java.name, Party::class.java.name)
+            ExampleFlow.Initiator::class.java.name to setOf(IOUState::class.java.name, Party::class.java.name),
+            GameFlow.GameInitiator::class.java.name to setOf(CordaGameState::class.java.name, Party::class.java.name)
     )
 
     /**
@@ -47,4 +55,17 @@ class ExamplePlugin : CordaPluginRegistry() {
             // This will serve the exampleWeb directory in resources to /web/example
             "example" to javaClass.classLoader.getResource("exampleWeb").toExternalForm()
     )
+
+    override fun customizeSerialization(custom: SerializationCustomization): Boolean {
+        custom.apply {
+            addToWhitelist(TicTacToeBoard::class.java)
+            addToWhitelist(TicTacToeGameParticipant::class.java)
+            addToWhitelist(TicTacToeGameRules::class.java)
+            addToWhitelist(CordaGameRules::class.java)
+           }
+        return true
+    }
+
+
+
 }

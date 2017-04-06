@@ -1,6 +1,7 @@
 package com.example.service
 
 import com.example.flow.ExampleFlow
+import com.example.flow.GameFlow
 import net.corda.core.node.PluginServiceHub
 
 /**
@@ -17,6 +18,7 @@ object ExampleService {
     class Service(services: PluginServiceHub) {
         init {
             services.registerFlowInitiator(ExampleFlow.Initiator::class.java) { ExampleFlow.Acceptor(it) }
+            services.registerFlowInitiator(GameFlow.GameInitiator::class.java) { GameFlow.GameAcceptor(it) }
         }
     }
 }

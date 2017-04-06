@@ -1,20 +1,21 @@
 package com.example.api
 
+import com.example.contract.CordaGameContract
+import com.example.contract.CordaGameRules
 import com.example.contract.IOUContract
 import com.example.flow.ExampleFlow.Initiator
+import com.example.flow.GameFlow.GameInitiator
 import com.example.model.IOU
+import com.example.state.CordaGameState
 import com.example.state.IOUState
-import net.corda.core.contracts.TransactionVerificationException
-import net.corda.core.flows.FlowException
 import net.corda.core.getOrThrow
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.startFlow
-import net.corda.core.transactions.SignedTransaction
 import net.corda.core.utilities.loggerFor
-import net.corda.node.services.statemachine.FlowSessionException
+import net.corda.games.TicTacToeBoard
+import net.corda.games.TicTacToeGame
+import net.corda.games.TicTacToeGameRules
 import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import java.util.concurrent.ExecutionException
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
@@ -98,4 +99,39 @@ class ExampleApi(val services: CordaRPCOps) {
 
         return Response.status(status).entity(msg).build()
     }
+
+
+    @PUT
+    @Path("{party}/create-game")
+    fun createGame(@PathParam("party") partyName: String) : Response {
+        val otherParty = services.partyFromName(partyName) ?: return Response.status(Response.Status.BAD_REQUEST).build()
+
+        val rules = TicTacToeGameRules()
+
+        val state = CordaGameState(services.nodeIdentity().legalIdentity, otherParty,
+                TicTacToeBoard(participants = TicTacToeGame.sampleParticipants()),
+                CordaGameContract(CordaGameRules(rules))
+                )
+
+        println("Created state $state")
+
+        val (status,msg) = try {
+            val result = services
+                    .startFlow(::GameInitiator, state, otherParty)
+                    .returnValue
+                    .getOrThrow()
+
+            Response.Status.CREATED to "Transaction id ${result.id} committed to ledger."
+        }
+        catch (ex: Throwable) {
+            logger.error(ex.message, ex)
+            Response.Status.BAD_REQUEST to "Transaction failed."
+        }
+
+
+        return Response.status(status).entity(msg).build()
+    }
+
 }
+
+
