@@ -32,18 +32,18 @@ public class IOUContract implements Contract {
         final AuthenticatedObject<Commands.Create> command = requireSingleCommand(tx.getCommands(), Commands.Create.class);
         requireThat(require -> {
             // Generic constraints around the IOU transaction.
-            require.by("No inputs should be consumed when issuing an IOU.",
+            require.using("No inputs should be consumed when issuing an IOU.",
                     tx.getInputs().isEmpty());
-            require.by("Only one output state should be created.",
+            require.using("Only one output state should be created.",
                     tx.getOutputs().size() == 1);
             final IOUState out = (IOUState) tx.getOutputs().get(0);
-            require.by("The sender and the recipient cannot be the same entity.",
+            require.using("The sender and the recipient cannot be the same entity.",
                     out.getSender() != out.getRecipient());
-            require.by("All of the participants must be signers.",
+            require.using("All of the participants must be signers.",
                     command.getSigners().containsAll(out.getParticipants()));
 
             // IOU-specific constraints.
-            require.by("The IOU's value must be non-negative.",
+            require.using("The IOU's value must be non-negative.",
                     out.getIOU().getValue() > 0);
 
             return null;
