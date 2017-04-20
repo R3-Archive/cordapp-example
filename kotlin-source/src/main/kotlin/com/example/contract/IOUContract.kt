@@ -3,7 +3,6 @@ package com.example.contract
 import com.example.state.IOUState
 import net.corda.core.contracts.*
 import net.corda.core.crypto.SecureHash
-import net.corda.core.random63BitValue
 
 /**
  * A implementation of a basic smart contract in Corda.
