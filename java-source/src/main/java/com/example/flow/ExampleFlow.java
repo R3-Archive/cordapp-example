@@ -6,8 +6,6 @@ import com.example.state.IOUState;
 import com.google.common.collect.ImmutableSet;
 import net.corda.core.contracts.Command;
 import net.corda.core.contracts.TransactionType;
-import net.corda.core.crypto.CompositeKey;
-import net.corda.core.crypto.CryptoUtilities;
 import net.corda.core.crypto.DigitalSignature;
 import net.corda.core.crypto.Party;
 import net.corda.core.flows.FlowException;
@@ -19,6 +17,7 @@ import net.corda.core.utilities.ProgressTracker;
 import net.corda.flows.FinalityFlow;
 
 import java.security.KeyPair;
+import java.security.PublicKey;
 import java.security.SignatureException;
 import java.util.Set;
 
@@ -145,7 +144,7 @@ public class ExampleFlow {
             final KeyPair keyPair = getServiceHub().getLegalIdentityKey();
             final Party notary = getServiceHub().getNetworkMapCache().getNotaryNodes().get(0).getNotaryIdentity();
             // Obtain a reference to the notary we want to use and its public key.
-            final CompositeKey notaryPubKey = notary.getOwningKey();
+            final PublicKey notaryPubKey = notary.getOwningKey();
 
             // Stage 5.
             progressTracker.setCurrentStep(RECEIVING_TRANSACTION);
@@ -161,7 +160,7 @@ public class ExampleFlow {
                             // Check that the signature of the other party is valid.
                             // Our signature and the notary's signature are allowed to be omitted at this stage as
                             // this is only a partially signed transaction.
-                            final WireTransaction wireTx = tx.verifySignatures(CryptoUtilities.getComposite(keyPair.getPublic()), notaryPubKey);
+                            final WireTransaction wireTx = tx.verifySignatures(keyPair.getPublic(), notaryPubKey);
 
                             // Run the contract's verify function.
                             // We want to be sure that the agreed-upon IOU is valid under the rules of the contract.

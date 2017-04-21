@@ -8,7 +8,6 @@ import com.example.state.IOUState
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.TransactionType
 import net.corda.core.crypto.Party
-import net.corda.core.crypto.composite
 import net.corda.core.crypto.signWithECDSA
 import net.corda.core.flows.FlowLogic
 import net.corda.core.transactions.SignedTransaction
@@ -126,7 +125,7 @@ object ExampleFlow {
                 // Check that the signature of the other party is valid.
                 // Our signature and the notary's signature are allowed to be omitted at this stage as this is only
                 // a partially signed transaction.
-                val wireTx = partSignedTx.verifySignatures(keyPair.public.composite, notaryPubKey)
+                val wireTx = partSignedTx.verifySignatures(keyPair.public, notaryPubKey)
                 // Run the contract's verify function.
                 // We want to be sure that the agreed-upon IOU is valid under the rules of the contract.
                 // To do this we need to run the contract's verify() function.

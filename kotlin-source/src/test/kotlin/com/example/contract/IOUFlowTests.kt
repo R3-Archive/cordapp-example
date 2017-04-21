@@ -4,7 +4,6 @@ import com.example.flow.ExampleFlow
 import com.example.model.IOU
 import com.example.state.IOUState
 import net.corda.core.contracts.TransactionVerificationException
-import net.corda.core.crypto.composite
 import net.corda.core.getOrThrow
 import net.corda.node.services.statemachine.FlowSessionException
 import net.corda.testing.node.MockNetwork
@@ -77,7 +76,7 @@ class IOUFlowTests {
         net.runNetwork()
 
         val signedTx = future.getOrThrow()
-        signedTx.verifySignatures(b.services.legalIdentityKey.public.composite)
+        signedTx.verifySignatures(b.services.legalIdentityKey.public)
     }
 
     @Test
@@ -92,7 +91,7 @@ class IOUFlowTests {
         net.runNetwork()
 
         val signedTx = future.getOrThrow()
-        signedTx.verifySignatures(a.services.legalIdentityKey.public.composite)
+        signedTx.verifySignatures(a.services.legalIdentityKey.public)
     }
 
     @Test

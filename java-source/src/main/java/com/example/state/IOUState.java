@@ -4,14 +4,13 @@ import com.example.contract.IOUContract;
 import com.example.model.IOU;
 import net.corda.core.contracts.LinearState;
 import net.corda.core.contracts.UniqueIdentifier;
-import net.corda.core.crypto.CompositeKey;
+import static net.corda.core.crypto.CryptoUtils.getKeys;
 import net.corda.core.crypto.Party;
 
 import java.security.PublicKey;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
-
 import static java.util.stream.Collectors.toList;
 
 // TODO: Implement QueryableState and add ORM code (to match Kotlin example).
@@ -50,7 +49,7 @@ public class IOUState implements LinearState {
     public Party getRecipient() { return recipient; }
     @Override public IOUContract getContract() { return contract; }
     @Override public UniqueIdentifier getLinearId() { return linearId; }
-    @Override public List<CompositeKey> getParticipants() {
+    @Override public List<PublicKey> getParticipants() {
         return Stream.of(sender, recipient)
                 .map(Party::getOwningKey)
                 .collect(toList());
@@ -62,7 +61,7 @@ public class IOUState implements LinearState {
      */
     @Override public boolean isRelevant(Set<? extends PublicKey> ourKeys) {
         final List<PublicKey> partyKeys = Stream.of(sender, recipient)
-                .flatMap(party -> party.getOwningKey().getKeys().stream())
+                .flatMap(party -> getKeys(party.getOwningKey()).stream())
                 .collect(toList());
         return ourKeys
                 .stream()
