@@ -284,7 +284,7 @@ window where a node is running, look for the following string:
      Database connection url is      : jdbc:h2:tcp://xxx.xxx.xxx.xxx:xxxxx/node
      
 you can use the string on the right to connect to the h2 database: just
-paste it in to the `JDBC URL` field and click *Connect*.
+paste it in to the `JDBC URL` field and click *Connect* (leave the default username/password).
 
 You will be presented with a web application that enumerates all the
 available tables and provides an interface for you to query them using SQL.
