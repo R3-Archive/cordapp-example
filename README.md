@@ -128,14 +128,14 @@ run the nodes with:
 
 **Unix:**
 
-     sh runnodes --log-to-console --logging-level=INFO
+     sh runnodes --log-to-console --logging-level=DEBUG
 
 **Windows:**
 
-    runnodes.bat --log-to-console --logging-level=INFO
+    runnodes.bat --log-to-console --logging-level=DEBUG
 
 You should now have four Corda nodes running on your machine serving 
-the example CorDapp. (There are other logging levels, i.e. DEBUG and TRACE.)
+the example CorDapp. (There are other logging levels, i.e. INFO and TRACE.)
 
 When the nodes have booted up you should see a message like: 
 
