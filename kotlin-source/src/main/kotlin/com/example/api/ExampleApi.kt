@@ -4,17 +4,14 @@ import com.example.contract.IOUContract
 import com.example.flow.ExampleFlow.Initiator
 import com.example.model.IOU
 import com.example.state.IOUState
-import net.corda.core.contracts.TransactionVerificationException
-import net.corda.core.flows.FlowException
+import net.corda.client.rpc.notUsed
+import net.corda.core.contracts.ContractState
+import net.corda.core.contracts.StateAndRef
 import net.corda.core.getOrThrow
 import net.corda.core.messaging.CordaRPCOps
-import net.corda.core.messaging.startFlow
-import net.corda.core.transactions.SignedTransaction
+import net.corda.core.messaging.startTrackedFlow
 import net.corda.core.utilities.loggerFor
-import net.corda.node.services.statemachine.FlowSessionException
 import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import java.util.concurrent.ExecutionException
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
@@ -45,9 +42,13 @@ class ExampleApi(val services: CordaRPCOps) {
     @GET
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getPeers() = mapOf("peers" to services.networkMapUpdates().first
-            .map { it.legalIdentity.name }
-            .filter { it != myLegalName && it !in NOTARY_NAMES })
+    fun getPeers(): Map<String, List<String>> {
+        val (nodeInfo, nodeUpdates) = services.networkMapUpdates()
+        nodeUpdates.notUsed()
+        return mapOf("peers" to nodeInfo
+                .map { it.legalIdentity.name }
+                .filter { it != myLegalName && it !in NOTARY_NAMES })
+    }
 
     /**
      * Displays all IOU states that exist in the node's vault.
@@ -55,7 +56,11 @@ class ExampleApi(val services: CordaRPCOps) {
     @GET
     @Path("ious")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getIOUs() = services.vaultAndUpdates().first
+    fun getIOUs(): List<StateAndRef<ContractState>> {
+        val (vault, vaultUpdates) = services.vaultAndUpdates()
+        vaultUpdates.notUsed()
+        return vault
+    }
 
     /**
      * Initiates a flow to agree an IOU between two parties.
@@ -83,9 +88,12 @@ class ExampleApi(val services: CordaRPCOps) {
                 IOUContract())
 
         val (status, msg) = try {
+            val flowHandle = services
+                    .startTrackedFlow(::Initiator, state, otherParty)
+            flowHandle.progress.subscribe { println(">> $it") }
+
             // The line below blocks and waits for the future to resolve.
-            val result = services
-                    .startFlow(::Initiator, state, otherParty)
+            val result = flowHandle
                     .returnValue
                     .getOrThrow()
 
