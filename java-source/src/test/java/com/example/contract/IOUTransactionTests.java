@@ -2,17 +2,18 @@ package com.example.contract;
 
 import com.example.model.IOU;
 import com.example.state.IOUState;
-import net.corda.core.crypto.CompositeKey;
 import net.corda.core.crypto.Party;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.security.PublicKey;
 
 import static net.corda.testing.CoreTestUtils.*;
 
 public class IOUTransactionTests {
     static private final Party miniCorp = getMINI_CORP();
     static private final Party megaCorp = getMEGA_CORP();
-    static private final CompositeKey[] keys = new CompositeKey[2];
+    static private final PublicKey[] keys = new PublicKey[2];
 
     @BeforeClass
     public static void setUpClass() {
@@ -71,7 +72,7 @@ public class IOUTransactionTests {
         ledger(ledgerDSL -> {
             ledgerDSL.transaction(txDSL -> {
                 txDSL.output(new IOUState(iou, miniCorp, megaCorp, new IOUContract()));
-                CompositeKey[] keys = new CompositeKey[1];
+                PublicKey[] keys = new PublicKey[1];
                 keys[0] = getMINI_CORP_PUBKEY();
                 txDSL.command(keys, IOUContract.Commands.Create::new);
                 txDSL.failsWith("All of the participants must be signers.");
@@ -87,7 +88,7 @@ public class IOUTransactionTests {
         ledger(ledgerDSL -> {
             ledgerDSL.transaction(txDSL -> {
                 txDSL.output(new IOUState(iou, miniCorp, megaCorp, new IOUContract()));
-                CompositeKey[] keys = new CompositeKey[1];
+                PublicKey[] keys = new PublicKey[1];
                 keys[0] = getMEGA_CORP_PUBKEY();
                 txDSL.command(keys, IOUContract.Commands.Create::new);
                 txDSL.failsWith("All of the participants must be signers.");
@@ -103,7 +104,7 @@ public class IOUTransactionTests {
         ledger(ledgerDSL -> {
             ledgerDSL.transaction(txDSL -> {
                 txDSL.output(new IOUState(iou, megaCorp, megaCorp, new IOUContract()));
-                CompositeKey[] keys = new CompositeKey[1];
+                PublicKey[] keys = new PublicKey[1];
                 keys[0] = getMEGA_CORP_PUBKEY();
                 txDSL.command(keys, IOUContract.Commands.Create::new);
                 txDSL.failsWith("The sender and the recipient cannot be the same entity.");

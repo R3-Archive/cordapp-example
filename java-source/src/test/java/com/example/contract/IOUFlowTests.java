@@ -8,7 +8,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.TransactionState;
 import net.corda.core.contracts.TransactionVerificationException;
-import net.corda.core.crypto.CryptoUtilities;
 import net.corda.core.flows.FlowException;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.testing.node.MockNetwork;
@@ -96,7 +95,7 @@ public class IOUFlowTests {
         net.runNetwork();
 
         SignedTransaction signedTx = future.get();
-        signedTx.verifySignatures(CryptoUtilities.getComposite(b.getServices().getLegalIdentityKey().getPublic()));
+        signedTx.verifySignatures(b.getServices().getLegalIdentityKey().getPublic());
     }
 
     @Test
@@ -111,7 +110,7 @@ public class IOUFlowTests {
         net.runNetwork();
 
         SignedTransaction signedTx = future.get();
-        signedTx.verifySignatures(CryptoUtilities.getComposite(a.getServices().getLegalIdentityKey().getPublic()));
+        signedTx.verifySignatures(a.getServices().getLegalIdentityKey().getPublic());
     }
 
     @Test

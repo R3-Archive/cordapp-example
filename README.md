@@ -33,7 +33,7 @@ submit IOUs to a seller. The scenario defines four nodes:
 
 NodeA can generate IOUs. The flows used to facilitate the agreement process 
 always result in an agreement with the seller as long as the IOU meets the 
-contract constraints which are defined in `IOUContract.kt`.
+contract constraints which are defined in `IOUContract`.
 
 All agreed IOUs between NodeA and NodeB become "shared facts"
 between NodeA and NodeB. However, NodeC won't see any of these
@@ -80,9 +80,9 @@ Change directories to the newly cloned repo:
 
      cd cordapp-tutorial
      
-Check out the latest milestone release (currently `release-M9.2`):
+Check out the latest milestone release (currently `release-M11`):
 
-     git checkout release-M9.2
+     git checkout release-M11
      
 Non-milestone releases are development branches, and can be unstable 
 or even broken. You should develop against a milestone release.
@@ -92,7 +92,7 @@ or even broken. You should develop against a milestone release.
 **NOTE: Building the example CorDapp from master WILL fail without 
 first running `/gradlew install` (or `gradlew.bat install`) from the master 
 branch of the [corda repository](https://github.com/corda/corda). Make sure
-you have checked out the M9.2 release tag from this repository before you build,
+you have checked out the M11 release tag from this repository before you build,
 UNLESS you wish to build from a SNAPSHOT release.**
  
 **Unix:** 
@@ -128,14 +128,14 @@ run the nodes with:
 
 **Unix:**
 
-     sh runnodes
+     sh runnodes --log-to-console --logging-level=DEBUG
 
 **Windows:**
 
-    runnodes.bat
+    runnodes.bat --log-to-console --logging-level=DEBUG
 
 You should now have four Corda nodes running on your machine serving 
-the example CorDapp.
+the example CorDapp. (There are other logging levels, i.e. INFO and TRACE.)
 
 When the nodes have booted up you should see a message like: 
 
@@ -186,7 +186,7 @@ not copy such code directly into products meant for production use.**
 
 To create an IOU from NodeA to NodeB, use:
 
-     echo '{"value": "1"}' | cURL -T - -H 'Content-Type: application/json' http://localhost:10007/api/example/NodeB/create-iou
+     echo '{"value": "1"}' | curl -T - -H 'Content-Type: application/json' http://localhost:10007/api/example/NodeB/create-iou
 
 note the port number `10007` (NodeA) and `NodeB` referenced in the
 end-point path. This command instructs NodeA to create and send an order
@@ -204,7 +204,7 @@ details, e.g.
 and click "Create IOU". The modal dialogue should close.
 
 To check what validation is performed on the IOU data, have a look 
-at the `Place` class in `IOUContract.kt`. For example, Entering a
+at the `Create` class in `IOUContract`. For example, Entering a
 'Country Code' other than 'UK' will cause the verify function to return an
 Exception and you should rceeive an error message in response.
 
@@ -232,7 +232,9 @@ terminal windows for NodeA and NodeB:
 *NodeC:*
 
      You shouldn't see any activity.
-     
+
+..note:: These progress tracking messages are not currently visible in the Nodes, but they are visible on the NodeA WebServer terminal. Running the nodes with log-level DEBUG or TRACE should reveal extra activity when creating a new IOU.
+
 Alternatively, try adding an IOU with a delivery date in the past 
 or a delivery country other than the UK.
 
@@ -289,7 +291,7 @@ available tables and provides an interface for you to query them using SQL.
 
 ## Using the Example RPC Client
 
-The `ExampleClientRPC.kt` file is a simple utility which uses the client
+`ExampleClientRPC` is a simple utility class which uses the client
 RPC library to connect to a node and log the 'placed' IOUs.
 It will log any existing IOUs and listen for any future
 IOUs. To build the client use the following gradle task:

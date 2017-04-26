@@ -6,13 +6,19 @@ import com.example.model.IOU;
 import com.example.state.IOUState;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import kotlin.Pair;
 import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.crypto.Party;
 import net.corda.core.messaging.CordaRPCOps;
+import net.corda.core.messaging.FlowProgressHandle;
+import net.corda.core.node.NodeInfo;
+import net.corda.core.node.services.NetworkMapCache;
+import net.corda.core.node.services.Vault;
 import net.corda.core.transactions.SignedTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -22,6 +28,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import static java.util.stream.Collectors.toList;
+import static net.corda.client.rpc.UtilsKt.notUsed;
 
 // This API is accessible from /api/example. All paths specified below are relative to it.
 @Path("example")
@@ -53,9 +60,11 @@ public class ExampleApi {
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, List<String>> getPeers() {
+        Pair<List<NodeInfo>, Observable<NetworkMapCache.MapChange>> nodeInfo = services.networkMapUpdates();
+        notUsed(nodeInfo.getSecond());
         return ImmutableMap.of(
                 "peers",
-                services.networkMapUpdates().getFirst()
+                nodeInfo.getFirst()
                         .stream()
                         .map(node -> node.getLegalIdentity().getName())
                         .filter(name -> !name.equals(myLegalName) && !(notaryNames.contains(name)))
@@ -68,7 +77,11 @@ public class ExampleApi {
     @GET
     @Path("ious")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<StateAndRef<ContractState>> getIOUs() { return services.vaultAndUpdates().getFirst(); }
+    public List<StateAndRef<ContractState>> getIOUs() {
+        Pair<List<StateAndRef<ContractState>>, Observable<Vault.Update>> vaultUpdates = services.vaultAndUpdates();
+        notUsed(vaultUpdates.getSecond());
+        return vaultUpdates.getFirst();
+    }
 
     /**
      * Initiates a flow to agree an IOU between two parties.
@@ -99,9 +112,12 @@ public class ExampleApi {
         Response.Status status;
         String msg;
         try {
+            FlowProgressHandle<SignedTransaction> flowHandle = services
+                    .startTrackedFlowDynamic(ExampleFlow.Initiator.class, state, otherParty);
+            flowHandle.getProgress().subscribe(evt -> System.out.printf(">> %s\n", evt));
+
             // The line below blocks and waits for the flow to return.
-            final SignedTransaction result = services
-                    .startFlowDynamic(ExampleFlow.Initiator.class, state, otherParty)
+            final SignedTransaction result = flowHandle
                     .getReturnValue()
                     .get();
 

@@ -44,7 +44,7 @@ public class ExampleClientRPC {
                         transaction.getTx().getOutputs().forEach(
                                 output -> {
                                     final IOUState iouState = (IOUState) output.getData();
-                                    logger.info(iouState.toString());
+                                    logger.info(iouState.getIOU().toString());
                                 })
         );
     }
