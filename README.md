@@ -80,9 +80,9 @@ Change directories to the newly cloned repo:
 
      cd cordapp-tutorial
      
-Check out the latest milestone release (currently `release-M9.2`):
+Check out the latest milestone release (currently `release-M11`):
 
-     git checkout release-M9.2
+     git checkout release-M11
      
 Non-milestone releases are development branches, and can be unstable 
 or even broken. You should develop against a milestone release.
@@ -92,7 +92,7 @@ or even broken. You should develop against a milestone release.
 **NOTE: Building the example CorDapp from master WILL fail without 
 first running `/gradlew install` (or `gradlew.bat install`) from the master 
 branch of the [corda repository](https://github.com/corda/corda). Make sure
-you have checked out the M9.2 release tag from this repository before you build,
+you have checked out the M11 release tag from this repository before you build,
 UNLESS you wish to build from a SNAPSHOT release.**
  
 **Unix:** 
@@ -128,14 +128,14 @@ run the nodes with:
 
 **Unix:**
 
-     sh runnodes
+     sh runnodes --log-to-console --logging-level=DEBUG
 
 **Windows:**
 
-    runnodes.bat
+    runnodes.bat --log-to-console --logging-level=DEBUG
 
 You should now have four Corda nodes running on your machine serving 
-the example CorDapp.
+the example CorDapp. (There are other logging levels, i.e. INFO and TRACE.)
 
 When the nodes have booted up you should see a message like: 
 
@@ -186,7 +186,7 @@ not copy such code directly into products meant for production use.**
 
 To create an IOU from NodeA to NodeB, use:
 
-     echo '{"value": "1"}' | cURL -T - -H 'Content-Type: application/json' http://localhost:10007/api/example/NodeB/create-iou
+     echo '{"value": "1"}' | curl -T - -H 'Content-Type: application/json' http://localhost:10007/api/example/NodeB/create-iou
 
 note the port number `10007` (NodeA) and `NodeB` referenced in the
 end-point path. This command instructs NodeA to create and send an order
@@ -232,7 +232,9 @@ terminal windows for NodeA and NodeB:
 *NodeC:*
 
      You shouldn't see any activity.
-     
+
+..note:: These progress tracking messages are not currently visible in the Nodes, but they are visible on the NodeA WebServer terminal. Running the nodes with log-level DEBUG or TRACE should reveal extra activity when creating a new IOU.
+
 Alternatively, try adding an IOU with a delivery date in the past 
 or a delivery country other than the UK.
 
