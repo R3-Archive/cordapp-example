@@ -7,6 +7,7 @@ import net.corda.node.driver.NodeHandle;
 import net.corda.node.services.config.VerifierType;
 import net.corda.node.services.transactions.ValidatingNotaryService;
 import net.corda.nodeapi.User;
+import org.bouncycastle.asn1.x500.X500Name;
 
 import static java.util.Collections.*;
 import static net.corda.node.driver.Driver.driver;
@@ -33,7 +34,7 @@ public class Main {
                 true,
                 dsl -> {
                     dsl.startNode("Controller",
-                            ImmutableSet.of(new ServiceInfo(ValidatingNotaryService.Companion.getType(), null)),
+                            ImmutableSet.of(new ServiceInfo(ValidatingNotaryService.Companion.getType(), (X500Name) null)),
                             emptyList(),
                             VerifierType.InMemory,
                             emptyMap());
