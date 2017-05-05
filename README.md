@@ -82,7 +82,7 @@ Change directories to the newly cloned repo:
      
 Check out the latest milestone release (currently `release-M11`):
 
-     git checkout release-M11
+     git checkout release-M11.0
      
 Non-milestone releases are development branches, and can be unstable 
 or even broken. You should develop against a milestone release.
