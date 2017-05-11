@@ -7,9 +7,10 @@ import com.google.common.collect.ImmutableSet;
 import net.corda.core.contracts.Command;
 import net.corda.core.contracts.TransactionType;
 import net.corda.core.crypto.DigitalSignature;
-import net.corda.core.crypto.Party;
 import net.corda.core.flows.FlowException;
 import net.corda.core.flows.FlowLogic;
+import net.corda.core.flows.InitiatingFlow;
+import net.corda.core.identity.Party;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 import net.corda.core.transactions.WireTransaction;
@@ -33,6 +34,7 @@ import java.util.Set;
  * All methods called within the [FlowLogic] sub-class need to be annotated with the @Suspendable annotation.
  */
 public class ExampleFlow {
+    @InitiatingFlow
     public static class Initiator extends FlowLogic<SignedTransaction> {
 
         private final IOUState iou;

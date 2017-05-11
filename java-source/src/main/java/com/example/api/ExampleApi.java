@@ -9,13 +9,14 @@ import com.google.common.collect.Lists;
 import kotlin.Pair;
 import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.StateAndRef;
-import net.corda.core.crypto.Party;
+import net.corda.core.identity.Party;
 import net.corda.core.messaging.CordaRPCOps;
 import net.corda.core.messaging.FlowProgressHandle;
 import net.corda.core.node.NodeInfo;
 import net.corda.core.node.services.NetworkMapCache;
 import net.corda.core.node.services.Vault;
 import net.corda.core.transactions.SignedTransaction;
+import org.bouncycastle.asn1.x500.X500Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
@@ -34,8 +35,8 @@ import static net.corda.client.rpc.UtilsKt.notUsed;
 @Path("example")
 public class ExampleApi {
     private final CordaRPCOps services;
-    private final String myLegalName;
-    private final List<String> notaryNames = Lists.newArrayList("Controller", "NetworkMapService");
+    private final X500Name myLegalName;
+    private final List<X500Name> notaryNames = Lists.newArrayList(new X500Name("CN=Controller,O=R3,L=London,C=UK"), new X500Name("CN=NetworkMapService,O=R3,L=London,C=UK"));
 
     static private final Logger logger = LoggerFactory.getLogger(ExampleApi.class);
 
@@ -50,7 +51,7 @@ public class ExampleApi {
     @GET
     @Path("me")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, String> whoami() { return ImmutableMap.of("me", myLegalName); }
+    public Map<String, X500Name> whoami() { return ImmutableMap.of("me", myLegalName); }
 
     /**
      * Returns all parties registered with the [NetworkMapService]. These names can be used to look up identities
@@ -59,7 +60,7 @@ public class ExampleApi {
     @GET
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, List<String>> getPeers() {
+    public Map<String, List<X500Name>> getPeers() {
         Pair<List<NodeInfo>, Observable<NetworkMapCache.MapChange>> nodeInfo = services.networkMapUpdates();
         notUsed(nodeInfo.getSecond());
         return ImmutableMap.of(

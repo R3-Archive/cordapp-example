@@ -33,16 +33,16 @@ public class Main {
         driver(
                 true,
                 dsl -> {
-                    dsl.startNode("Controller",
+                    dsl.startNode(new X500Name("CN=Controller,O=R3,L=London,C=UK"),
                             ImmutableSet.of(new ServiceInfo(ValidatingNotaryService.Companion.getType(), (X500Name) null)),
                             emptyList(),
                             VerifierType.InMemory,
                             emptyMap());
 
                     try {
-                        NodeHandle nodeA = dsl.startNode("NodeA", emptySet(), ImmutableList.of(user), VerifierType.InMemory, emptyMap()).get();
-                        NodeHandle nodeB = dsl.startNode("NodeB", emptySet(), ImmutableList.of(user), VerifierType.InMemory, emptyMap()).get();
-                        NodeHandle nodeC = dsl.startNode("NodeC", emptySet(), ImmutableList.of(user), VerifierType.InMemory, emptyMap()).get();
+                        NodeHandle nodeA = dsl.startNode(new X500Name("CN=NodeA,O=R3,L=London,C=UK"), emptySet(), ImmutableList.of(user), VerifierType.InMemory, emptyMap()).get();
+                        NodeHandle nodeB = dsl.startNode(new X500Name("CN=NodeB,O=R3,L=London,C=UK"), emptySet(), ImmutableList.of(user), VerifierType.InMemory, emptyMap()).get();
+                        NodeHandle nodeC = dsl.startNode(new X500Name("CN=NodeC,O=R3,L=London,C=UK"), emptySet(), ImmutableList.of(user), VerifierType.InMemory, emptyMap()).get();
 
                         dsl.startWebserver(nodeA);
                         dsl.startWebserver(nodeB);

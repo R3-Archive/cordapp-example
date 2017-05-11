@@ -15,6 +15,6 @@ import net.corda.core.node.PluginServiceHub;
  */
 public class ExampleService {
     public ExampleService(PluginServiceHub services) {
-        services.registerFlowInitiator(ExampleFlow.Initiator.class, ExampleFlow.Acceptor::new);
+        services.registerServiceFlow(ExampleFlow.Initiator.class, ExampleFlow.Acceptor::new);
     }
 }

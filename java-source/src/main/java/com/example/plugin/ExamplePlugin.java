@@ -7,7 +7,7 @@ import com.example.state.IOUState;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import net.corda.core.crypto.Party;
+import net.corda.core.identity.Party;
 import net.corda.core.messaging.CordaRPCOps;
 import net.corda.core.node.CordaPluginRegistry;
 import net.corda.core.node.PluginServiceHub;

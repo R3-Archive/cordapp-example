@@ -11,17 +11,18 @@ import net.corda.core.getOrThrow
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.startTrackedFlow
 import net.corda.core.utilities.loggerFor
+import org.bouncycastle.asn1.x500.X500Name
 import org.slf4j.Logger
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
-val NOTARY_NAMES = listOf("Controller", "NetworkMapService")
+val NOTARY_NAMES = listOf(X500Name("CN=Controller,O=R3,L=London,C=UK"), X500Name("CN=NetworkMapService,O=R3,L=London,C=UK"))
 
 // This API is accessible from /api/example. All paths specified below are relative to it.
 @Path("example")
 class ExampleApi(val services: CordaRPCOps) {
-    private val myLegalName: String = services.nodeIdentity().legalIdentity.name
+    private val myLegalName: X500Name = services.nodeIdentity().legalIdentity.name
 
     companion object {
         private val logger: Logger = loggerFor<ExampleApi>()
@@ -42,7 +43,7 @@ class ExampleApi(val services: CordaRPCOps) {
     @GET
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getPeers(): Map<String, List<String>> {
+    fun getPeers(): Map<String, List<X500Name>> {
         val (nodeInfo, nodeUpdates) = services.networkMapUpdates()
         nodeUpdates.notUsed()
         return mapOf("peers" to nodeInfo
@@ -75,8 +76,8 @@ class ExampleApi(val services: CordaRPCOps) {
      */
     @PUT
     @Path("{party}/create-iou")
-    fun createIOU(iou: IOU, @PathParam("party") partyName: String): Response {
-        val otherParty = services.partyFromName(partyName)
+    fun createIOU(iou: IOU, @PathParam("party") partyName: X500Name): Response {
+        val otherParty = services.partyFromX500Name(partyName)
         if (otherParty == null) {
             return Response.status(Response.Status.BAD_REQUEST).build()
         }
