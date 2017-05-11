@@ -2,7 +2,7 @@ package com.example.contract;
 
 import com.example.model.IOU;
 import com.example.state.IOUState;
-import net.corda.core.crypto.Party;
+import net.corda.core.identity.Party;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

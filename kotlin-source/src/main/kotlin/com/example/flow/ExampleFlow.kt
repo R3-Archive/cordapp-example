@@ -7,9 +7,10 @@ import com.example.flow.ExampleFlow.Initiator
 import com.example.state.IOUState
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.TransactionType
-import net.corda.core.crypto.Party
-import net.corda.core.crypto.signWithECDSA
+import net.corda.core.crypto.sign
 import net.corda.core.flows.FlowLogic
+import net.corda.core.flows.InitiatingFlow
+import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.unwrap
@@ -27,6 +28,7 @@ import net.corda.flows.FinalityFlow
  * All methods called within the [FlowLogic] sub-class need to be annotated with the @Suspendable annotation.
  */
 object ExampleFlow {
+    @InitiatingFlow
     class Initiator(val iou: IOUState,
                     val otherParty: Party): FlowLogic<SignedTransaction>() {
         /**
@@ -139,7 +141,7 @@ object ExampleFlow {
             // Sign the transaction with our key pair and add it to the transaction.
             // We now have 'validation consensus'. We still require uniqueness consensus.
             // Technically validation consensus for this type of agreement implicitly provides uniqueness consensus.
-            val mySig = keyPair.signWithECDSA(partSignedTx.id.bytes)
+            val mySig = keyPair.sign(partSignedTx.id.bytes)
             // Add our signature to the transaction.
             val signedTx = partSignedTx + mySig
 

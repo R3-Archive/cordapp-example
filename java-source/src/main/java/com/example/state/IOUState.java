@@ -5,7 +5,7 @@ import com.example.model.IOU;
 import net.corda.core.contracts.LinearState;
 import net.corda.core.contracts.UniqueIdentifier;
 import static net.corda.core.crypto.CryptoUtils.getKeys;
-import net.corda.core.crypto.Party;
+import net.corda.core.identity.Party;
 
 import java.security.PublicKey;
 import java.util.List;
@@ -19,11 +19,6 @@ import static java.util.stream.Collectors.toList;
  * The state object recording IOU agreements between two parties.
  *
  * A state must implement [ContractState] or one of its descendants.
- *
- * @param iou details of the IOU.
- * @param sender the party issuing the IOU.
- * @param recipient the party receiving and approving the IOU.
- * @param contract the contract which governs which transactions are valid for this state object.
  */
 public class IOUState implements LinearState {
     private final IOU iou;
@@ -32,6 +27,12 @@ public class IOUState implements LinearState {
     private final IOUContract contract;
     private final UniqueIdentifier linearId;
 
+    /**
+     * @param iou details of the IOU.
+     * @param sender the party issuing the IOU.
+     * @param recipient the party receiving and approving the IOU.
+     * @param contract the contract which governs which transactions are valid for this state object.
+     */
     public IOUState(IOU iou,
                     Party sender,
                     Party recipient,

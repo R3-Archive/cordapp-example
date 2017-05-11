@@ -4,8 +4,8 @@ import com.example.flow.ExampleFlow
 import com.example.model.IOU
 import com.example.state.IOUState
 import net.corda.core.contracts.TransactionVerificationException
+import net.corda.core.flows.FlowSessionException
 import net.corda.core.getOrThrow
-import net.corda.node.services.statemachine.FlowSessionException
 import net.corda.testing.node.MockNetwork
 import org.junit.After
 import org.junit.Before

@@ -4,7 +4,7 @@ import com.example.api.ExampleApi
 import com.example.flow.ExampleFlow
 import com.example.service.ExampleService
 import com.example.state.IOUState
-import net.corda.core.crypto.Party
+import net.corda.core.identity.Party
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.node.CordaPluginRegistry
 import net.corda.core.node.PluginServiceHub

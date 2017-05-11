@@ -6,6 +6,7 @@ import net.corda.core.node.services.ServiceInfo
 import net.corda.node.driver.driver
 import net.corda.nodeapi.User
 import net.corda.node.services.transactions.ValidatingNotaryService
+import org.bouncycastle.asn1.x500.X500Name
 
 /**
  * This file is exclusively for being able to run your nodes through an IDE (as opposed to running deployNodes)
@@ -25,11 +26,11 @@ fun main(args: Array<String>) {
     // No permissions required as we are not invoking flows.
     val user = User("user1", "test", permissions = setOf())
     driver(isDebug = true) {
-        startNode("Controller", setOf(ServiceInfo(ValidatingNotaryService.type)))
+        startNode(X500Name("CN=Controller,O=R3,L=London,C=UK"), setOf(ServiceInfo(ValidatingNotaryService.type)))
         val (nodeA, nodeB, nodeC) = Futures.allAsList(
-                startNode("NodeA", rpcUsers = listOf(user)),
-                startNode("NodeB", rpcUsers = listOf(user)),
-                startNode("NodeC", rpcUsers = listOf(user))).getOrThrow()
+                startNode(X500Name("CN=NodeA,O=R3,L=London,C=UK"), rpcUsers = listOf(user)),
+                startNode(X500Name("CN=NodeB,O=R3,L=London,C=UK"), rpcUsers = listOf(user)),
+                startNode(X500Name("CN=NodeB,O=R3,L=London,C=UK"), rpcUsers = listOf(user))).getOrThrow()
 
         startWebserver(nodeA)
         startWebserver(nodeB)

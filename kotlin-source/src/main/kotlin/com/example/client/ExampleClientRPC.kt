@@ -28,8 +28,7 @@ private class ExampleClientRPC {
         val client = CordaRPCClient(nodeAddress)
 
         // Can be amended in the com.example.MainKt file.
-        client.start("user1", "test")
-        val proxy = client.proxy()
+        val proxy = client.start("user1", "test").proxy
 
         // Grab all signed transactions and all future signed transactions.
         val (transactions: List<SignedTransaction>, futureTransactions: Observable<SignedTransaction>) =

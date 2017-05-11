@@ -2,6 +2,7 @@ package com.example.schema
 
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
+import org.bouncycastle.asn1.x500.X500Name
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Table
@@ -16,10 +17,10 @@ object IOUSchemaV1 : MappedSchema(
     @Table(name = "iou_states")
     class PersistentIOU(
             @Column(name = "sender_name")
-            var senderName: String,
+            var senderName: X500Name,
 
             @Column(name = "recipient_name")
-            var recipientName: String,
+            var recipientName: X500Name,
 
             @Column(name = "delivery_date")
             var value: Int
