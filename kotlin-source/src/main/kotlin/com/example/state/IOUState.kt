@@ -39,8 +39,8 @@ data class IOUState(val iou: IOU,
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         return when (schema) {
             is IOUSchemaV1 -> IOUSchemaV1.PersistentIOU(
-                    senderName = this.sender.name,
-                    recipientName = this.recipient.name,
+                    senderName = this.sender.name.toString(),
+                    recipientName = this.recipient.name.toString(),
                     value = this.iou.value
             )
             else -> throw IllegalArgumentException("Unrecognised schema $schema")

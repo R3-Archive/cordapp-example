@@ -17,10 +17,10 @@ object IOUSchemaV1 : MappedSchema(
     @Table(name = "iou_states")
     class PersistentIOU(
             @Column(name = "sender_name")
-            var senderName: X500Name,
+            var senderName: String,
 
             @Column(name = "recipient_name")
-            var recipientName: X500Name,
+            var recipientName: String,
 
             @Column(name = "delivery_date")
             var value: Int
