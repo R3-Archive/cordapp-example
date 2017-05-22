@@ -6,6 +6,9 @@ import net.corda.core.contracts.CommandData;
 import net.corda.core.contracts.Contract;
 import net.corda.core.contracts.TransactionForContract;
 import net.corda.core.crypto.SecureHash;
+import net.corda.core.identity.AbstractParty;
+
+import java.util.stream.Collectors;
 
 import static net.corda.core.contracts.ContractsDSL.requireSingleCommand;
 import static net.corda.core.contracts.ContractsDSL.requireThat;
@@ -40,7 +43,7 @@ public class IOUContract implements Contract {
             require.using("The sender and the recipient cannot be the same entity.",
                     out.getSender() != out.getRecipient());
             require.using("All of the participants must be signers.",
-                    command.getSigners().containsAll(out.getParticipants()));
+                    command.getSigners().containsAll(out.getParticipants().stream().map(AbstractParty::getOwningKey).collect(Collectors.toList())));
 
             // IOU-specific constraints.
             require.using("The IOU's value must be non-negative.",

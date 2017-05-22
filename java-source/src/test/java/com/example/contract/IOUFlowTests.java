@@ -95,7 +95,7 @@ public class IOUFlowTests {
         net.runNetwork();
 
         SignedTransaction signedTx = future.get();
-        signedTx.verifySignatures(b.getServices().getLegalIdentityKey().getPublic());
+        signedTx.verifySignatures(b.getServices().getLegalIdentityKey());
     }
 
     @Test
@@ -110,7 +110,7 @@ public class IOUFlowTests {
         net.runNetwork();
 
         SignedTransaction signedTx = future.get();
-        signedTx.verifySignatures(a.getServices().getLegalIdentityKey().getPublic());
+        signedTx.verifySignatures(a.getServices().getLegalIdentityKey());
     }
 
     @Test

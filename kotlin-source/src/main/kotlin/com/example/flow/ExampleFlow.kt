@@ -56,18 +56,13 @@ object ExampleFlow {
          */
         @Suspendable
         override fun call(): SignedTransaction {
-            // Prep.
-            // Obtain a reference to our key pair. Currently, the only key pair used is the one which is registered
-            // with the NetWorkMapService. In a future milestone release we'll implement HD key generation so that
-            // new keys can be generated for each transaction.
-            val keyPair = serviceHub.legalIdentityKey
             // Obtain a reference to the notary we want to use.
             val notary = serviceHub.networkMapCache.notaryNodes.single().notaryIdentity
 
             // Stage 1.
             progressTracker.currentStep = GENERATING_TRANSACTION
             // Generate an unsigned transaction.
-            val txCommand = Command(IOUContract.Commands.Create(), iou.participants)
+            val txCommand = Command(IOUContract.Commands.Create(), iou.participants.map { it.owningKey })
             val unsignedTx = TransactionType.General.Builder(notary).withItems(iou, txCommand)
 
             // Stage 2.
@@ -77,7 +72,7 @@ object ExampleFlow {
 
             // Stage 3.
             progressTracker.currentStep = SIGNING_TRANSACTION
-            val partSignedTx = unsignedTx.signWith(keyPair).toSignedTransaction(checkSufficientSignatures = false)
+            val partSignedTx = serviceHub.signInitialTransaction(unsignedTx)
 
             // Stage 4.
             progressTracker.currentStep = SENDING_TRANSACTION
@@ -111,8 +106,8 @@ object ExampleFlow {
         @Suspendable
         override fun call() {
             // Prep.
-            // Obtain a reference to our key pair.
-            val keyPair = serviceHub.legalIdentityKey
+            // Obtain a reference to our public key.
+            val publicKey = serviceHub.legalIdentityKey
             // Obtain a reference to the notary we want to use and its public key.
             val notary = serviceHub.networkMapCache.notaryNodes.single().notaryIdentity
             val notaryPubKey = notary.owningKey
@@ -127,7 +122,7 @@ object ExampleFlow {
                 // Check that the signature of the other party is valid.
                 // Our signature and the notary's signature are allowed to be omitted at this stage as this is only
                 // a partially signed transaction.
-                val wireTx = partSignedTx.verifySignatures(keyPair.public, notaryPubKey)
+                val wireTx = partSignedTx.verifySignatures(publicKey, notaryPubKey)
                 // Run the contract's verify function.
                 // We want to be sure that the agreed-upon IOU is valid under the rules of the contract.
                 // To do this we need to run the contract's verify() function.
@@ -141,7 +136,7 @@ object ExampleFlow {
             // Sign the transaction with our key pair and add it to the transaction.
             // We now have 'validation consensus'. We still require uniqueness consensus.
             // Technically validation consensus for this type of agreement implicitly provides uniqueness consensus.
-            val mySig = keyPair.sign(partSignedTx.id.bytes)
+            val mySig = serviceHub.createSignature(partSignedTx)
             // Add our signature to the transaction.
             val signedTx = partSignedTx + mySig
 
