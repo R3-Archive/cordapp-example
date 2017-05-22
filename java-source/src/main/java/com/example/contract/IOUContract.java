@@ -7,9 +7,7 @@ import net.corda.core.contracts.Contract;
 import net.corda.core.contracts.TransactionForContract;
 import net.corda.core.crypto.SecureHash;
 import net.corda.core.identity.AbstractParty;
-
 import java.util.stream.Collectors;
-
 import static net.corda.core.contracts.ContractsDSL.requireSingleCommand;
 import static net.corda.core.contracts.ContractsDSL.requireThat;
 

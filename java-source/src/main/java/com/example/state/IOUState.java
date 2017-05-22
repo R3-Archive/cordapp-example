@@ -5,10 +5,8 @@ import com.example.model.IOU;
 import net.corda.core.contracts.LinearState;
 import net.corda.core.contracts.UniqueIdentifier;
 import static net.corda.core.crypto.CryptoUtils.getKeys;
-
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
-
 import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.List;

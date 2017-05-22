@@ -17,13 +17,10 @@ import net.corda.core.transactions.TransactionBuilder;
 import net.corda.core.transactions.WireTransaction;
 import net.corda.core.utilities.ProgressTracker;
 import net.corda.flows.FinalityFlow;
-
-import java.security.KeyPair;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * This flow allows two parties (the [Initiator] and the [Acceptor]) to come to an agreement about the IOU encapsulated

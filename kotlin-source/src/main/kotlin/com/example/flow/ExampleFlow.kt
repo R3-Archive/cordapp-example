@@ -7,7 +7,6 @@ import com.example.flow.ExampleFlow.Initiator
 import com.example.state.IOUState
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.TransactionType
-import net.corda.core.crypto.sign
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.InitiatingFlow
 import net.corda.core.identity.Party
