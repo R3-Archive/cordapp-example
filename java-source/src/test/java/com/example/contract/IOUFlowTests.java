@@ -38,6 +38,10 @@ public class IOUFlowTests {
         a = nodes.getPartyNodes().get(0);
         b = nodes.getPartyNodes().get(1);
         c = nodes.getPartyNodes().get(2);
+        // For real nodes this happens automatically, but we have to manually register the flow for tests
+        for (MockNode node: nodes.getPartyNodes()) {
+            node.registerInitiatedFlow(ExampleFlow.Acceptor.class);
+        }
         net.runNetwork();
     }
 
