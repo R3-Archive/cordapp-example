@@ -16,23 +16,6 @@ class ExamplePlugin : CordaPluginRegistry() {
     override val webApis: List<Function<CordaRPCOps, out Any>> = listOf(Function(::ExampleApi))
 
     /**
-     * A list of flows required for this CorDapp. Any flow which is invoked from from the web API needs to be
-     * registered as an entry into this map. The map takes the form:
-     *
-     * Name of the flow to be invoked -> Set of the parameter types passed into the flow.
-     *
-     * E.g. In the case of this CorDapp:
-     *
-     * "ExampleFlow.Initiator" -> Set(IOUState, Party)
-     *
-     * This map also acts as a white list. If a flow is invoked via the API and not registered correctly
-     * here, then the flow state machine will _not_ invoke the flow. Instead, an exception will be raised.
-     */
-    override val requiredFlows: Map<String, Set<String>> = mapOf(
-            ExampleFlow.Initiator::class.java.name to setOf(IOUState::class.java.name, Party::class.java.name)
-    )
-
-    /**
      * A list of directories in the resources directory that will be served by Jetty under /web.
      */
     override val staticServeDirs: Map<String, String> = mapOf(

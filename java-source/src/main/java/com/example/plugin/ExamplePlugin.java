@@ -24,26 +24,6 @@ public class ExamplePlugin extends CordaPluginRegistry {
     private final List<Function<CordaRPCOps, ?>> webApis = ImmutableList.of(ExampleApi::new);
 
     /**
-     * A list of flows required for this CorDapp. Any flow which is invoked from from the web API needs to be
-     * registered as an entry into this map. The map takes the form:
-     *
-     * Name of the flow to be invoked -> Set of the parameter types passed into the flow.
-     *
-     * E.g. In the case of this CorDapp:
-     *
-     * "ExampleFlow.Initiator" -> Set(IOUState, Party)
-     *
-     * This map also acts as a white list. If a flow is invoked via the API and not registered correctly
-     * here, then the flow state machine will _not_ invoke the flow. Instead, an exception will be raised.
-     */
-    private final Map<String, Set<String>> requiredFlows = ImmutableMap.of(
-            ExampleFlow.Initiator.class.getName(),
-            ImmutableSet.of(
-                    IOUState.class.getName(),
-                    Party.class.getName()
-            ));
-
-    /**
      * A list of directories in the resources directory that will be served by Jetty under /web.
      */
     private final Map<String, String> staticServeDirs = ImmutableMap.of(
@@ -52,6 +32,5 @@ public class ExamplePlugin extends CordaPluginRegistry {
     );
 
     @Override public List<Function<CordaRPCOps, ?>> getWebApis() { return webApis; }
-    @Override public Map<String, Set<String>> getRequiredFlows() { return requiredFlows; }
     @Override public Map<String, String> getStaticServeDirs() { return staticServeDirs; }
 }
