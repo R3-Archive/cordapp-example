@@ -8,7 +8,9 @@ import com.example.state.IOUState
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.TransactionType
 import net.corda.core.flows.FlowLogic
+import net.corda.core.flows.InitiatedBy
 import net.corda.core.flows.InitiatingFlow
+import net.corda.core.flows.StartableByRPC
 import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.utilities.ProgressTracker
@@ -28,6 +30,7 @@ import net.corda.flows.FinalityFlow
  */
 object ExampleFlow {
     @InitiatingFlow
+    @StartableByRPC
     class Initiator(val iou: IOUState,
                     val otherParty: Party): FlowLogic<SignedTransaction>() {
         /**
@@ -85,6 +88,7 @@ object ExampleFlow {
         }
     }
 
+    @InitiatedBy(Initiator::class)
     class Acceptor(val otherParty: Party) : FlowLogic<Unit>() {
         companion object {
             object RECEIVING_TRANSACTION : ProgressTracker.Step("Receiving proposed transaction from sender.")

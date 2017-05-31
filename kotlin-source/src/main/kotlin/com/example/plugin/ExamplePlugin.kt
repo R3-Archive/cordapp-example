@@ -2,7 +2,6 @@ package com.example.plugin
 
 import com.example.api.ExampleApi
 import com.example.flow.ExampleFlow
-import com.example.service.ExampleService
 import com.example.state.IOUState
 import net.corda.core.identity.Party
 import net.corda.core.messaging.CordaRPCOps
@@ -38,7 +37,7 @@ class ExamplePlugin : CordaPluginRegistry() {
      * factories that would be used when an initiating party attempts to communicate with our node using a particular
      * flow. See the [ExampleService.Service] class for an implementation which sets up a
      */
-    override val servicePlugins: List<Function<PluginServiceHub, out Any>> = listOf(Function(ExampleService::Service))
+    override val servicePlugins: List<Function<PluginServiceHub, out Any>> = emptyList()
 
     /**
      * A list of directories in the resources directory that will be served by Jetty under /web.

@@ -2,7 +2,6 @@ package com.example.plugin;
 
 import com.example.api.ExampleApi;
 import com.example.flow.ExampleFlow;
-import com.example.service.ExampleService;
 import com.example.state.IOUState;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -12,6 +11,7 @@ import net.corda.core.messaging.CordaRPCOps;
 import net.corda.core.node.CordaPluginRegistry;
 import net.corda.core.node.PluginServiceHub;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,7 +48,7 @@ public class ExamplePlugin extends CordaPluginRegistry {
      * factories that would be used when an initiating party attempts to communicate with our node using a particular
      * flow. See the [ExampleService.Service] class for an implementation which sets up a
      */
-    private final List<Function<PluginServiceHub, ?>> servicePlugins = ImmutableList.of(ExampleService::new);
+    private final List<Function<PluginServiceHub, ?>> servicePlugins = Collections.emptyList();
 
     /**
      * A list of directories in the resources directory that will be served by Jetty under /web.
