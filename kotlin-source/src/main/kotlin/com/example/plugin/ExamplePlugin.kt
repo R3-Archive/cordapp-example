@@ -33,13 +33,6 @@ class ExamplePlugin : CordaPluginRegistry() {
     )
 
     /**
-     * A list of long lived services to be hosted within the node. Typically you would use these to register flow
-     * factories that would be used when an initiating party attempts to communicate with our node using a particular
-     * flow. See the [ExampleService.Service] class for an implementation which sets up a
-     */
-    override val servicePlugins: List<Function<PluginServiceHub, out Any>> = emptyList()
-
-    /**
      * A list of directories in the resources directory that will be served by Jetty under /web.
      */
     override val staticServeDirs: Map<String, String> = mapOf(

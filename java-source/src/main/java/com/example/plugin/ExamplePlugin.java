@@ -44,13 +44,6 @@ public class ExamplePlugin extends CordaPluginRegistry {
             ));
 
     /**
-     * A list of long lived services to be hosted within the node. Typically you would use these to register flow
-     * factories that would be used when an initiating party attempts to communicate with our node using a particular
-     * flow. See the [ExampleService.Service] class for an implementation which sets up a
-     */
-    private final List<Function<PluginServiceHub, ?>> servicePlugins = Collections.emptyList();
-
-    /**
      * A list of directories in the resources directory that will be served by Jetty under /web.
      */
     private final Map<String, String> staticServeDirs = ImmutableMap.of(
@@ -60,6 +53,5 @@ public class ExamplePlugin extends CordaPluginRegistry {
 
     @Override public List<Function<CordaRPCOps, ?>> getWebApis() { return webApis; }
     @Override public Map<String, Set<String>> getRequiredFlows() { return requiredFlows; }
-    @Override public List<Function<PluginServiceHub, ?>> getServicePlugins() { return servicePlugins; }
     @Override public Map<String, String> getStaticServeDirs() { return staticServeDirs; }
 }
