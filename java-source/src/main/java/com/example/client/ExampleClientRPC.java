@@ -4,6 +4,7 @@ import com.example.state.IOUState;
 import com.google.common.net.HostAndPort;
 import kotlin.Pair;
 import net.corda.client.rpc.CordaRPCClient;
+import net.corda.client.rpc.CordaRPCClientConfiguration;
 import net.corda.core.messaging.CordaRPCOps;
 import net.corda.core.transactions.SignedTransaction;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -26,7 +27,7 @@ public class ExampleClientRPC {
 
         final Logger logger = LoggerFactory.getLogger(ExampleClientRPC.class);
         final HostAndPort nodeAddress = HostAndPort.fromString(args[0]);
-        final CordaRPCClient client = new CordaRPCClient(nodeAddress, null, null);
+        final CordaRPCClient client = new CordaRPCClient(nodeAddress, null, CordaRPCClientConfiguration.getDefault());
 
         // Can be amended in the com.example.Main file.
         final CordaRPCOps proxy = client.start("user1", "test").getProxy();
