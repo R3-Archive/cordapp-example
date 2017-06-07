@@ -7,20 +7,18 @@ import com.google.common.collect.ImmutableSet;
 import net.corda.core.contracts.Command;
 import net.corda.core.contracts.TransactionType;
 import net.corda.core.crypto.DigitalSignature;
-import net.corda.core.flows.FlowException;
-import net.corda.core.flows.FlowLogic;
-import net.corda.core.flows.InitiatingFlow;
+import net.corda.core.flows.*;
+import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 import net.corda.core.transactions.WireTransaction;
 import net.corda.core.utilities.ProgressTracker;
 import net.corda.flows.FinalityFlow;
-
-import java.security.KeyPair;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * This flow allows two parties (the [Initiator] and the [Acceptor]) to come to an agreement about the IOU encapsulated
@@ -35,6 +33,7 @@ import java.util.Set;
  */
 public class ExampleFlow {
     @InitiatingFlow
+    @StartableByRPC
     public static class Initiator extends FlowLogic<SignedTransaction> {
 
         private final IOUState iou;
@@ -75,18 +74,14 @@ public class ExampleFlow {
         @Suspendable
         @Override
         public SignedTransaction call() throws FlowException {
-            // Prep.
-            // Obtain a reference to our key pair. Currently, the only key pair used is the one which is registered with
-            // the NetWorkMapService. In a future milestone release we'll implement HD key generation such that new keys
-            // can be generated for each transaction.
-            final KeyPair keyPair = getServiceHub().getLegalIdentityKey();
             // Obtain a reference to the notary we want to use.
             final Party notary = getServiceHub().getNetworkMapCache().getNotaryNodes().get(0).getNotaryIdentity();
 
             // Stage 1.
             progressTracker.setCurrentStep(GENERATING_TRANSACTION);
             // Generate an unsigned transaction.
-            final Command txCommand = new Command(new IOUContract.Commands.Create(), iou.getParticipants());
+            final Command txCommand = new Command(new IOUContract.Commands.Create(),
+                    iou.getParticipants().stream().map(AbstractParty::getOwningKey).collect(Collectors.toList()));
             final TransactionBuilder unsignedTx = new TransactionType.General.Builder(notary).withItems(iou, txCommand);
 
             // Stage 2.
@@ -96,8 +91,8 @@ public class ExampleFlow {
 
             // Stage 3.
             progressTracker.setCurrentStep(SIGNING_TRANSACTION);
-            final SignedTransaction partSignedTx = unsignedTx.signWith(keyPair).toSignedTransaction(false);
-    
+            final SignedTransaction partSignedTx = getServiceHub().signInitialTransaction(unsignedTx);
+
             // Stage 4.
             progressTracker.setCurrentStep(SENDING_TRANSACTION);
             // Send the state across the wire to the designated counterparty.
@@ -110,6 +105,7 @@ public class ExampleFlow {
         }
     }
 
+    @InitiatedBy(Initiator.class)
     public static class Acceptor extends FlowLogic<Void> {
 
         private final Party otherParty;
@@ -142,8 +138,8 @@ public class ExampleFlow {
         @Override
         public Void call() throws FlowException {
             // Prep.
-            // Obtain a reference to our key pair.
-            final KeyPair keyPair = getServiceHub().getLegalIdentityKey();
+            // Obtain a reference to our public key.
+            final PublicKey publicKey = getServiceHub().getLegalIdentityKey();
             final Party notary = getServiceHub().getNetworkMapCache().getNotaryNodes().get(0).getNotaryIdentity();
             // Obtain a reference to the notary we want to use and its public key.
             final PublicKey notaryPubKey = notary.getOwningKey();
@@ -162,7 +158,7 @@ public class ExampleFlow {
                             // Check that the signature of the other party is valid.
                             // Our signature and the notary's signature are allowed to be omitted at this stage as
                             // this is only a partially signed transaction.
-                            final WireTransaction wireTx = tx.verifySignatures(keyPair.getPublic(), notaryPubKey);
+                            final WireTransaction wireTx = tx.verifySignatures(publicKey, notaryPubKey);
 
                             // Run the contract's verify function.
                             // We want to be sure that the agreed-upon IOU is valid under the rules of the contract.
@@ -179,7 +175,7 @@ public class ExampleFlow {
             // Sign the transaction with our key pair and add it to the transaction.
             // We now have 'validation consensus'. We still require uniqueness consensus.
             // Technically validation consensus for this type of agreement implicitly provides uniqueness consensus.
-            final DigitalSignature.WithKey mySig = partSignedTx.signWithECDSA(keyPair);
+            final DigitalSignature.WithKey mySig = getServiceHub().createSignature(partSignedTx);
             // Add our signature to the transaction.
             final SignedTransaction signedTx = partSignedTx.plus(mySig);
 

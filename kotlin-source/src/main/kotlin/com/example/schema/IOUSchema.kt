@@ -22,7 +22,7 @@ object IOUSchemaV1 : MappedSchema(
             @Column(name = "recipient_name")
             var recipientName: String,
 
-            @Column(name = "delivery_date")
+            @Column(name = "value")
             var value: Int
     ) : PersistentState()
 }

@@ -26,6 +26,8 @@ class IOUFlowTests {
         a = nodes.partyNodes[0]
         b = nodes.partyNodes[1]
         c = nodes.partyNodes[2]
+        // For real nodes this happens automatically, but we have to manually register the flow for tests
+        nodes.partyNodes.forEach { it.registerInitiatedFlow(com.example.flow.ExampleFlow.Acceptor::class.java) }
         net.runNetwork()
     }
 
@@ -76,7 +78,7 @@ class IOUFlowTests {
         net.runNetwork()
 
         val signedTx = future.getOrThrow()
-        signedTx.verifySignatures(b.services.legalIdentityKey.public)
+        signedTx.verifySignatures(b.services.legalIdentityKey)
     }
 
     @Test
@@ -91,7 +93,7 @@ class IOUFlowTests {
         net.runNetwork()
 
         val signedTx = future.getOrThrow()
-        signedTx.verifySignatures(a.services.legalIdentityKey.public)
+        signedTx.verifySignatures(a.services.legalIdentityKey)
     }
 
     @Test
