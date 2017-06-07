@@ -5,9 +5,10 @@ import com.example.model.IOU;
 import net.corda.core.contracts.LinearState;
 import net.corda.core.contracts.UniqueIdentifier;
 import static net.corda.core.crypto.CryptoUtils.getKeys;
+import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
-
 import java.security.PublicKey;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -50,10 +51,8 @@ public class IOUState implements LinearState {
     public Party getRecipient() { return recipient; }
     @Override public IOUContract getContract() { return contract; }
     @Override public UniqueIdentifier getLinearId() { return linearId; }
-    @Override public List<PublicKey> getParticipants() {
-        return Stream.of(sender, recipient)
-                .map(Party::getOwningKey)
-                .collect(toList());
+    @Override public List<AbstractParty> getParticipants() {
+        return Arrays.asList(sender, recipient);
     }
 
     /**

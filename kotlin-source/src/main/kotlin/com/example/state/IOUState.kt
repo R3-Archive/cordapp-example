@@ -7,6 +7,7 @@ import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.LinearState
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.crypto.keys
+import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
@@ -31,10 +32,10 @@ data class IOUState(val iou: IOU,
         LinearState, QueryableState {
 
     /** The public keys of the involved parties. */
-    override val participants: List<PublicKey> get() = listOf(sender, recipient).map { it.owningKey }
+    override val participants: List<AbstractParty> get() = listOf(sender, recipient)
 
     /** Tells the vault to track a state if we are one of the parties involved. */
-    override fun isRelevant(ourKeys: Set<PublicKey>) = ourKeys.intersect(participants.flatMap { it.keys }).isNotEmpty()
+    override fun isRelevant(ourKeys: Set<PublicKey>) = ourKeys.intersect(participants.flatMap { it.owningKey.keys }).isNotEmpty()
 
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         return when (schema) {

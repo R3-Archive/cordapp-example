@@ -80,7 +80,7 @@ Change directories to the newly cloned repo:
 
      cd cordapp-tutorial
      
-Check out the latest milestone release (currently `release-M11.1`):
+Check out the latest milestone release (currently `release-M12`):
 
      git checkout release-M11.1
      
@@ -90,7 +90,7 @@ or even broken. You should develop against a milestone release.
 ## Build the example CorDapp
 
 **NOTE: Building the example CorDapp from master WILL fail without 
-first running `/gradlew install` (or `gradlew.bat install`) from the master 
+first running `./gradlew install` (or `gradlew.bat install`) from the master
 branch of the [corda repository](https://github.com/corda/corda). Make sure
 you have checked out the M11 release tag from this repository before you build,
 UNLESS you wish to build from a SNAPSHOT release.**
@@ -233,7 +233,8 @@ terminal windows for NodeA and NodeB:
 
      You shouldn't see any activity.
 
-..note:: These progress tracking messages are not currently visible in the Nodes, but they are visible on the NodeA WebServer terminal. Running the nodes with log-level DEBUG or TRACE should reveal extra activity when creating a new IOU.
+
+**NOTE: These progress tracking messages are not currently visible in the Nodes, but they are visible on the NodeA WebServer terminal. Running the nodes with log-level DEBUG or TRACE should reveal extra activity when creating a new IOU.**
 
 Alternatively, try adding an IOU with a delivery date in the past 
 or a delivery country other than the UK.
