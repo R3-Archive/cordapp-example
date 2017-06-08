@@ -82,7 +82,7 @@ Change directories to the newly cloned repo:
      
 Check out the latest milestone release (currently `release-M12`):
 
-     git checkout release-M11.1
+     git checkout release-M12
      
 Non-milestone releases are development branches, and can be unstable 
 or even broken. You should develop against a milestone release.
@@ -186,9 +186,9 @@ not copy such code directly into products meant for production use.**
 
 To create an IOU from NodeA to NodeB, use:
 
-     echo '{"value": "1"}' | curl -T - -H 'Content-Type: application/json' http://localhost:10007/api/example/NodeB/create-iou
+     echo '{"value": "1"}' | curl -T - -H 'Content-Type: application/json' http://localhost:10007/api/example/CN=NodeB,O=NodeB,L=New%20York,C=US/create-iou
 
-note the port number `10007` (NodeA) and `NodeB` referenced in the
+note the port number `10007` (NodeA) and `CN=NodeB,O=NodeB,L=New York,C=US` referenced in the
 end-point path. This command instructs NodeA to create and send an order
 to NodeB. Upon verification and completion of the process, both nodes
 (but not NodeC) will have a signed, notarised copy of the IOU.
@@ -198,7 +198,7 @@ to NodeB. Upon verification and completion of the process, both nodes
 Click the "Create IOU" button at the top left of the page and enter the IOU 
 details, e.g.
 
-     Counter-party: Node B
+     Counter-party: CN=NodeB,O=NodeB,L=New York,C=US
      Value:  1
 
 and click "Create IOU". The modal dialogue should close.
@@ -297,7 +297,7 @@ RPC library to connect to a node and log the 'placed' IOUs.
 It will log any existing IOUs and listen for any future
 IOUs. To build the client use the following gradle task:
 
-     ./gradlew runExampleClientRPC
+     ../gradlew runExampleClientRPC
      
 To run the client:
 
@@ -311,8 +311,9 @@ client.
 
 Run the following gradle task:
 
-     ./gradlew runExampleClientRPC
+     ../gradlew runExampleClientRPC
      
+From either `kotlin-source` or `java-source` directory depending which one you are running.
 The RPC client should output some IOUs to the console.
 
 ## Running the Nodes Across Multiple Machines
