@@ -80,9 +80,9 @@ Change directories to the newly cloned repo:
 
      cd cordapp-tutorial
      
-Check out the latest milestone release (currently `release-M12`):
+Check out the latest milestone release tag (currently `release-M12.1`):
 
-     git checkout release-M12
+     git checkout -b [your-branch-name] release-M12.1
      
 Non-milestone releases are development branches, and can be unstable 
 or even broken. You should develop against a milestone release.
