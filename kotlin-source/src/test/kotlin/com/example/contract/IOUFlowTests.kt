@@ -97,34 +97,6 @@ class IOUFlowTests {
     }
 
     @Test
-    fun `flow rejects IOUs that are not signed by the sender`() {
-        val state = IOUState(
-                IOU(1),
-                c.info.legalIdentity,
-                b.info.legalIdentity,
-                IOUContract())
-        val flow = ExampleFlow.Initiator(state, b.info.legalIdentity)
-        val future = a.services.startFlow(flow).resultFuture
-        net.runNetwork()
-
-        assertFailsWith<FlowSessionException> { future.getOrThrow() }
-    }
-
-    @Test
-    fun `flow rejects IOUs that are not signed by the recipient`() {
-        val state = IOUState(
-                IOU(1),
-                a.info.legalIdentity,
-                c.info.legalIdentity,
-                IOUContract())
-        val flow = ExampleFlow.Initiator(state, b.info.legalIdentity)
-        val future = a.services.startFlow(flow).resultFuture
-        net.runNetwork()
-
-        assertFailsWith<FlowSessionException> { future.getOrThrow() }
-    }
-
-    @Test
     fun `flow records a transaction in both parties' vaults`() {
         val state = IOUState(
                 IOU(1),

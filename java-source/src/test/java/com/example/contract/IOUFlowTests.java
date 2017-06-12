@@ -118,38 +118,6 @@ public class IOUFlowTests {
     }
 
     @Test
-    public void flowRejectsIOUsThatAreNotSignedByTheSender() throws Exception {
-        IOUState state = new IOUState(
-                new IOU(1),
-                c.info.getLegalIdentity(),
-                b.info.getLegalIdentity(),
-                new IOUContract());
-
-        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(state, b.info.getLegalIdentity());
-        ListenableFuture<SignedTransaction> future = a.getServices().startFlow(flow).getResultFuture();
-        net.runNetwork();
-
-        exception.expectCause(instanceOf(FlowException.class));
-        future.get();
-    }
-
-    @Test
-    public void flowRejectsIOUsThatAreNotSignedByTheRecipient() throws Exception {
-        IOUState state = new IOUState(
-                new IOU(1),
-                a.info.getLegalIdentity(),
-                c.info.getLegalIdentity(),
-                new IOUContract());
-
-        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(state, b.info.getLegalIdentity());
-        ListenableFuture<SignedTransaction> future = a.getServices().startFlow(flow).getResultFuture();
-        net.runNetwork();
-
-        exception.expectCause(instanceOf(FlowException.class));
-        future.get();
-    }
-
-    @Test
     public void flowRecordsATransactionInBothPartiesVaults() throws Exception {
         IOUState state = new IOUState(
                 new IOU(1),
