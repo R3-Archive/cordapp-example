@@ -186,10 +186,10 @@ not copy such code directly into products meant for production use.**
 
 To create an IOU from NodeA to NodeB, use:
 
-     echo '{"value": "1"}' | curl -T - -H 'Content-Type: application/json' http://localhost:10007/api/example/CN=NodeB,O=NodeB,L=New%20York,C=US/create-iou
+     curl -X PUT 'http://localhost:10007/api/example/create-iou?iouValue=99&partyName=CN%3DNodeB%2CO%3DNodeB%2CL%3DNew%20York%2CC%3DUS'
 
-note the port number `10007` (NodeA) and `CN=NodeB,O=NodeB,L=New York,C=US` referenced in the
-end-point path. This command instructs NodeA to create and send an order
+Note the port number `10007` (NodeA), the IOU value `99` and the counterparty name `CN=NodeB,O=NodeB,L=New York,C=US` 
+referenced in the end-point path. This command instructs NodeA to create and send an IOU
 to NodeB. Upon verification and completion of the process, both nodes
 (but not NodeC) will have a signed, notarised copy of the IOU.
 
