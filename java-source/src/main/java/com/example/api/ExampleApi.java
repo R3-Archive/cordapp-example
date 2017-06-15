@@ -1,11 +1,8 @@
 package com.example.api;
 
-import com.example.contract.IOUContract;
 import com.example.flow.ExampleFlow;
-import com.example.model.IOU;
-import com.example.state.IOUState;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import kotlin.Pair;
 import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.StateAndRef;
@@ -36,7 +33,7 @@ import static net.corda.client.rpc.UtilsKt.notUsed;
 public class ExampleApi {
     private final CordaRPCOps services;
     private final X500Name myLegalName;
-    private final List<X500Name> notaryNames = Lists.newArrayList(new X500Name("CN=Controller,O=R3,L=London,C=UK"), new X500Name("CN=NetworkMapService,O=R3,L=London,C=UK"));
+    private final String notaryName = "CN=Controller,O=R3,OU=corda,L=London,C=UK";
 
     static private final Logger logger = LoggerFactory.getLogger(ExampleApi.class);
 
@@ -68,7 +65,7 @@ public class ExampleApi {
                 nodeInfo.getFirst()
                         .stream()
                         .map(node -> node.getLegalIdentity().getName())
-                        .filter(name -> !name.equals(myLegalName) && !(notaryNames.contains(name)))
+                        .filter(name -> !name.equals(myLegalName) && !(name.toString().equals(notaryName)))
                         .collect(toList()));
     }
 
@@ -96,25 +93,19 @@ public class ExampleApi {
      * The flow is invoked asynchronously. It returns a future when the flow's call() method returns.
      */
     @PUT
-    @Path("{party}/create-iou")
-    public Response createIOU(IOU iou, @PathParam("party") String partyName) throws InterruptedException, ExecutionException {
-        final Party otherParty = services.partyFromName(partyName);
+    @Path("create-iou")
+    public Response createIOU(@QueryParam("iouValue") int iouValue, @QueryParam("partyName") X500Name partyName) throws InterruptedException, ExecutionException {
+        final Party otherParty = services.partyFromX500Name(partyName);
 
         if (otherParty == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
-        final IOUState state = new IOUState(
-                iou,
-                services.nodeIdentity().getLegalIdentity(),
-                otherParty,
-                new IOUContract());
-
         Response.Status status;
         String msg;
         try {
             FlowProgressHandle<SignedTransaction> flowHandle = services
-                    .startTrackedFlowDynamic(ExampleFlow.Initiator.class, state, otherParty);
+                    .startTrackedFlowDynamic(ExampleFlow.Initiator.class, iouValue, otherParty);
             flowHandle.getProgress().subscribe(evt -> System.out.printf(">> %s\n", evt));
 
             // The line below blocks and waits for the flow to return.

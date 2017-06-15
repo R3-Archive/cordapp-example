@@ -1,9 +1,6 @@
 package com.example.api
 
-import com.example.contract.IOUContract
 import com.example.flow.ExampleFlow.Initiator
-import com.example.model.IOU
-import com.example.state.IOUState
 import net.corda.client.rpc.notUsed
 import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.StateAndRef
@@ -17,7 +14,7 @@ import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
-val NOTARY_NAMES = listOf(X500Name("CN=Controller,O=R3,L=London,C=UK"), X500Name("CN=NetworkMapService,O=R3,L=London,C=UK"))
+val NOTARY_NAME = "CN=Controller,O=R3,OU=corda,L=London,C=UK"
 
 // This API is accessible from /api/example. All paths specified below are relative to it.
 @Path("example")
@@ -48,7 +45,7 @@ class ExampleApi(val services: CordaRPCOps) {
         nodeUpdates.notUsed()
         return mapOf("peers" to nodeInfo
                 .map { it.legalIdentity.name }
-                .filter { it != myLegalName && it !in NOTARY_NAMES })
+                .filter { it != myLegalName && it.toString() != NOTARY_NAME })
     }
 
     /**
@@ -75,22 +72,13 @@ class ExampleApi(val services: CordaRPCOps) {
      * The flow is invoked asynchronously. It returns a future when the flow's call() method returns.
      */
     @PUT
-    @Path("{party}/create-iou")
-    fun createIOU(iou: IOU, @PathParam("party") partyName: X500Name): Response {
-        val otherParty = services.partyFromX500Name(partyName)
-        if (otherParty == null) {
-            return Response.status(Response.Status.BAD_REQUEST).build()
-        }
-
-        val state = IOUState(
-                iou,
-                services.nodeIdentity().legalIdentity,
-                otherParty,
-                IOUContract())
+    @Path("create-iou")
+    fun createIOU(@QueryParam("iouValue") iouValue: Int, @QueryParam("partyName") partyName: X500Name): Response {
+        val otherParty = services.partyFromX500Name(partyName) ?:
+                return Response.status(Response.Status.BAD_REQUEST).build()
 
         val (status, msg) = try {
-            val flowHandle = services
-                    .startTrackedFlow(::Initiator, state, otherParty)
+            val flowHandle = services.startTrackedFlow(::Initiator, iouValue, otherParty)
             flowHandle.progress.subscribe { println(">> $it") }
 
             // The line below blocks and waits for the future to resolve.

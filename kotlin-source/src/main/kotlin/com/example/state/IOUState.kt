@@ -27,9 +27,9 @@ import java.security.PublicKey
 data class IOUState(val iou: IOU,
                     val sender: Party,
                     val recipient: Party,
-                    override val contract: IOUContract,
                     override val linearId: UniqueIdentifier = UniqueIdentifier()):
         LinearState, QueryableState {
+    override val contract get() = IOUContract()
 
     /** The public keys of the involved parties. */
     override val participants: List<AbstractParty> get() = listOf(sender, recipient)

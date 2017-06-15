@@ -2,26 +2,25 @@ package com.example.flow;
 
 import co.paralleluniverse.fibers.Suspendable;
 import com.example.contract.IOUContract;
+import com.example.model.IOU;
 import com.example.state.IOUState;
-import com.google.common.collect.ImmutableSet;
 import net.corda.core.contracts.Command;
+import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.TransactionType;
-import net.corda.core.crypto.DigitalSignature;
 import net.corda.core.flows.*;
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
-import net.corda.core.transactions.WireTransaction;
 import net.corda.core.utilities.ProgressTracker;
+import net.corda.core.utilities.ProgressTracker.Step;
 import net.corda.flows.CollectSignaturesFlow;
 import net.corda.flows.FinalityFlow;
 import net.corda.flows.SignTransactionFlow;
 
-import java.security.PublicKey;
-import java.security.SignatureException;
-import java.util.Set;
 import java.util.stream.Collectors;
+
+import static net.corda.core.contracts.ContractsDSL.requireThat;
 
 /**
  * This flow allows two parties (the [Initiator] and the [Acceptor]) to come to an agreement about the IOU encapsulated
@@ -39,7 +38,7 @@ public class ExampleFlow {
     @StartableByRPC
     public static class Initiator extends FlowLogic<SignedTransaction> {
 
-        private final IOUState iou;
+        private final int iouValue;
         private final Party otherParty;
 
         // The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
@@ -53,19 +52,22 @@ public class ExampleFlow {
                 FINALISING_TRANSACTION
         );
 
-        private static final ProgressTracker.Step GENERATING_TRANSACTION = new ProgressTracker.Step(
-                "Generating transaction based on new IOU.");
-        private static final ProgressTracker.Step VERIFYING_TRANSACTION = new ProgressTracker.Step(
-                "Verifying contract constraints.");
-        private static final ProgressTracker.Step SIGNING_TRANSACTION = new ProgressTracker.Step(
-                "Signing transaction with our private key.");
-        private static final ProgressTracker.Step GATHERING_SIGS = new ProgressTracker.Step(
-                "Gathering the counterparty's signature.");
-        private static final ProgressTracker.Step FINALISING_TRANSACTION = new ProgressTracker.Step(
-                "Obtaining notary signature and recording transaction.");
+        private static final Step GENERATING_TRANSACTION = new Step("Generating transaction based on new IOU.");
+        private static final Step VERIFYING_TRANSACTION = new Step("Verifying contract constraints.");
+        private static final Step SIGNING_TRANSACTION = new Step("Signing transaction with our private key.");
+        private static final Step GATHERING_SIGS = new Step("Gathering the counterparty's signature.") {
+            @Override public ProgressTracker childProgressTracker() {
+                return CollectSignaturesFlow.Companion.tracker();
+            }
+        };
+        private static final Step FINALISING_TRANSACTION = new Step("Obtaining notary signature and recording transaction.") {
+            @Override public ProgressTracker childProgressTracker() {
+                return FinalityFlow.Companion.tracker();
+            }
+        };
 
-        public Initiator(IOUState iou, Party otherParty) {
-            this.iou = iou;
+        public Initiator(int iouValue, Party otherParty) {
+            this.iouValue = iouValue;
             this.otherParty = otherParty;
         }
 
@@ -86,9 +88,10 @@ public class ExampleFlow {
             // Stage 1.
             progressTracker.setCurrentStep(GENERATING_TRANSACTION);
             // Generate an unsigned transaction.
+            IOUState iouState = new IOUState(new IOU(iouValue), getServiceHub().getMyInfo().getLegalIdentity(), otherParty);
             final Command txCommand = new Command(new IOUContract.Commands.Create(),
-                    iou.getParticipants().stream().map(AbstractParty::getOwningKey).collect(Collectors.toList()));
-            final TransactionBuilder txBuilder = new TransactionType.General.Builder(notary).withItems(iou, txCommand);
+                    iouState.getParticipants().stream().map(AbstractParty::getOwningKey).collect(Collectors.toList()));
+            final TransactionBuilder txBuilder = new TransactionType.General.Builder(notary).withItems(iouState, txCommand);
 
             // Stage 2.
             progressTracker.setCurrentStep(VERIFYING_TRANSACTION);
@@ -131,8 +134,14 @@ public class ExampleFlow {
                 }
 
                 @Override
-                protected void checkTransaction(SignedTransaction signedTransaction) {
-                    // Define custom verification logic.
+                protected void checkTransaction(SignedTransaction stx) {
+                    requireThat(require -> {
+                        ContractState output = stx.getTx().getOutputs().get(0).getData();
+                        require.using("This must be an IOU transaction.", output instanceof IOUState);
+                        IOUState iou = (IOUState) output;
+                        require.using("The IOU's value can't be too high.", iou.getIOU().getValue() < 100);
+                        return null;
+                    });
                 }
             }
 
