@@ -5,7 +5,7 @@ import com.example.state.IOUState
 import net.corda.testing.*
 import org.junit.Test
 
-class IOUTransactionTests {
+class IOUContractTests {
     @Test
     fun `transaction must include Create command`() {
         val iou = IOU(1)

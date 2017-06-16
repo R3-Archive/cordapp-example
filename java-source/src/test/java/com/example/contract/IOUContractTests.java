@@ -10,13 +10,12 @@ import java.security.PublicKey;
 
 import static net.corda.testing.CoreTestUtils.*;
 
-public class IOUTransactionTests {
+public class IOUContractTests {
     static private final Party miniCorp = getMINI_CORP();
     static private final Party megaCorp = getMEGA_CORP();
     static private final PublicKey[] keys = new PublicKey[2];
 
-    @BeforeClass
-    public static void setUpClass() {
+    {
         keys[0] = getMEGA_CORP_PUBKEY();
         keys[1] = getMINI_CORP_PUBKEY();
     }

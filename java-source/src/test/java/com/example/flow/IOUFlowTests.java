@@ -1,14 +1,11 @@
-package com.example.contract;
+package com.example.flow;
 
-import com.example.flow.ExampleFlow;
-import com.example.model.IOU;
 import com.example.state.IOUState;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
 import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.TransactionState;
 import net.corda.core.contracts.TransactionVerificationException;
-import net.corda.core.flows.FlowException;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.testing.node.MockNetwork;
 import net.corda.testing.node.MockNetwork.BasketOfNodes;
@@ -24,20 +21,17 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 
-
 public class IOUFlowTests {
     private MockNetwork net;
     private MockNode a;
     private MockNode b;
-    private MockNode c;
 
     @Before
     public void setup() {
         net = new MockNetwork();
-        BasketOfNodes nodes = net.createSomeNodes(3);
+        BasketOfNodes nodes = net.createSomeNodes(2);
         a = nodes.getPartyNodes().get(0);
         b = nodes.getPartyNodes().get(1);
-        c = nodes.getPartyNodes().get(2);
         // For real nodes this happens automatically, but we have to manually register the flow for tests
         for (MockNode node: nodes.getPartyNodes()) {
             node.registerInitiatedFlow(ExampleFlow.Acceptor.class);

@@ -1,6 +1,5 @@
-package com.example.contract
+package com.example.flow
 
-import com.example.flow.ExampleFlow
 import com.example.state.IOUState
 import net.corda.core.contracts.TransactionVerificationException
 import net.corda.core.getOrThrow
@@ -15,17 +14,15 @@ class IOUFlowTests {
     lateinit var net: MockNetwork
     lateinit var a: MockNetwork.MockNode
     lateinit var b: MockNetwork.MockNode
-    lateinit var c: MockNetwork.MockNode
 
     @Before
     fun setup() {
         net = MockNetwork()
-        val nodes = net.createSomeNodes(3)
+        val nodes = net.createSomeNodes(2)
         a = nodes.partyNodes[0]
         b = nodes.partyNodes[1]
-        c = nodes.partyNodes[2]
         // For real nodes this happens automatically, but we have to manually register the flow for tests
-        nodes.partyNodes.forEach { it.registerInitiatedFlow(com.example.flow.ExampleFlow.Acceptor::class.java) }
+        nodes.partyNodes.forEach { it.registerInitiatedFlow(ExampleFlow.Acceptor::class.java) }
         net.runNetwork()
     }
 
@@ -41,7 +38,7 @@ class IOUFlowTests {
         net.runNetwork()
 
         // The IOUContract specifies that IOUs cannot have negative values.
-        assertFailsWith<TransactionVerificationException> {future.getOrThrow()}
+        assertFailsWith<TransactionVerificationException> { future.getOrThrow() }
     }
 
     @Test
