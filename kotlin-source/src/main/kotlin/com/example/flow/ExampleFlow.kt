@@ -15,6 +15,7 @@ import net.corda.core.flows.InitiatingFlow
 import net.corda.core.flows.StartableByRPC
 import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
+import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import net.corda.flows.CollectSignaturesFlow
@@ -78,7 +79,7 @@ object ExampleFlow {
             // Generate an unsigned transaction.
             val iouState = IOUState(IOU(iouValue), serviceHub.myInfo.legalIdentity, otherParty)
             val txCommand = Command(IOUContract.Commands.Create(), iouState.participants.map { it.owningKey })
-            val txBuilder = TransactionType.General.Builder(notary).withItems(iouState, txCommand)
+            val txBuilder = TransactionBuilder(TransactionType.General, notary).withItems(iouState, txCommand)
 
             // Stage 2.
             progressTracker.currentStep = VERIFYING_TRANSACTION
@@ -103,9 +104,9 @@ object ExampleFlow {
     }
 
     @InitiatedBy(Initiator::class)
-    class Acceptor(val otherParty: Party) : FlowLogic<Unit>() {
+    class Acceptor(val otherParty: Party) : FlowLogic<SignedTransaction>() {
         @Suspendable
-        override fun call() {
+        override fun call(): SignedTransaction {
             val signTransactionFlow = object : SignTransactionFlow(otherParty) {
                 override fun checkTransaction(stx: SignedTransaction) = requireThat {
                     val output = stx.tx.outputs.single().data
@@ -115,7 +116,7 @@ object ExampleFlow {
                 }
             }
 
-            subFlow(signTransactionFlow)
+            return subFlow(signTransactionFlow)
         }
     }
 }

@@ -118,8 +118,8 @@ public class ExampleApi {
 
         } catch (Throwable ex) {
             status = Response.Status.BAD_REQUEST;
-            msg = "Transaction failed.";
-            logger.error(ex.getMessage(), ex);
+            msg = ex.getMessage();
+            logger.error(msg, ex);
         }
 
         return Response

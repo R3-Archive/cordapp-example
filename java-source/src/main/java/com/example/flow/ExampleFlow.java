@@ -117,7 +117,7 @@ public class ExampleFlow {
     }
 
     @InitiatedBy(Initiator.class)
-    public static class Acceptor extends FlowLogic<Void> {
+    public static class Acceptor extends FlowLogic<SignedTransaction> {
 
         private final Party otherParty;
 
@@ -127,7 +127,7 @@ public class ExampleFlow {
 
         @Suspendable
         @Override
-        public Void call() throws FlowException {
+        public SignedTransaction call() throws FlowException {
             class signTxFlow extends SignTransactionFlow {
                 private signTxFlow(Party otherParty, ProgressTracker progressTracker) {
                     super(otherParty, progressTracker);
@@ -145,9 +145,7 @@ public class ExampleFlow {
                 }
             }
 
-            subFlow(new signTxFlow(otherParty, SignTransactionFlow.Companion.tracker()));
-
-            return null;
+            return subFlow(new signTxFlow(otherParty, SignTransactionFlow.Companion.tracker()));
         }
     }
 }

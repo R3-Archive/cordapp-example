@@ -77,7 +77,9 @@ class ExampleApi(val services: CordaRPCOps) {
         val otherParty = services.partyFromX500Name(partyName) ?:
                 return Response.status(Response.Status.BAD_REQUEST).build()
 
-        val (status, msg) = try {
+        var status: Response.Status
+        var msg: String
+        try {
             val flowHandle = services.startTrackedFlow(::Initiator, iouValue, otherParty)
             flowHandle.progress.subscribe { println(">> $it") }
 
@@ -86,11 +88,13 @@ class ExampleApi(val services: CordaRPCOps) {
                     .returnValue
                     .getOrThrow()
 
-            Response.Status.CREATED to "Transaction id ${result.id} committed to ledger."
+            status = Response.Status.CREATED
+            msg = "Transaction id ${result.id} committed to ledger."
 
         } catch (ex: Throwable) {
-            logger.error(ex.message, ex)
-            Response.Status.BAD_REQUEST to "Transaction failed."
+            status = Response.Status.BAD_REQUEST
+            msg = ex.message!!
+            logger.error(msg, ex)
         }
 
         return Response.status(status).entity(msg).build()
