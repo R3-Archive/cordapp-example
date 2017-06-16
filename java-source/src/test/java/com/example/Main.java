@@ -3,14 +3,14 @@ package com.example;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import net.corda.core.node.services.ServiceInfo;
-import net.corda.node.driver.NodeHandle;
 import net.corda.node.services.config.VerifierType;
 import net.corda.node.services.transactions.ValidatingNotaryService;
 import net.corda.nodeapi.User;
+import net.corda.testing.driver.NodeHandle;
 import org.bouncycastle.asn1.x500.X500Name;
 
 import static java.util.Collections.*;
-import static net.corda.node.driver.Driver.driver;
+import static net.corda.testing.driver.Driver.driver;
 
 /**
  * This file is exclusively for being able to run your nodes through an IDE (as opposed to running deployNodes)

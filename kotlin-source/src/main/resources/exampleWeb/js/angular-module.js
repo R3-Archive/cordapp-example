@@ -70,19 +70,12 @@ app.controller('ModalInstanceCtrl', function ($http, $location, $uibModalInstanc
         } else {
             modalInstance.formError = false;
 
-            const iou = {
-                value: modalInstance.form.value,
-            };
-
             $uibModalInstance.close();
 
-            const createIOUEndpoint =
-                apiBaseURL +
-                modalInstance.form.counterparty +
-                "/create-iou";
+            const createIOUEndpoint = `${apiBaseURL}create-iou?partyName=${modalInstance.form.counterparty}&iouValue=${modalInstance.form.value}`;
 
             // Create PO and handle success / fail responses.
-            $http.put(createIOUEndpoint, angular.toJson(iou)).then(
+            $http.put(createIOUEndpoint).then(
                 (result) => modalInstance.displayMessage(result),
                 (result) => modalInstance.displayMessage(result)
             );
