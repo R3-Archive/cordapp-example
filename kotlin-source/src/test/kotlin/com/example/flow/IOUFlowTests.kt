@@ -1,8 +1,10 @@
 package com.example.contract
 
 import com.example.flow.ExampleFlow
+import com.example.model.IOU
 import com.example.state.IOUState
 import net.corda.core.contracts.TransactionVerificationException
+import net.corda.core.flows.FlowSessionException
 import net.corda.core.getOrThrow
 import net.corda.testing.node.MockNetwork
 import org.junit.After
@@ -36,7 +38,12 @@ class IOUFlowTests {
 
     @Test
     fun `flow rejects invalid IOUs`() {
-        val flow = ExampleFlow.Initiator(-1, b.info.legalIdentity)
+        val state = IOUState(
+                IOU(-1),
+                a.info.legalIdentity,
+                b.info.legalIdentity,
+                IOUContract())
+        val flow = ExampleFlow.Initiator(state, b.info.legalIdentity)
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
 
@@ -45,8 +52,28 @@ class IOUFlowTests {
     }
 
     @Test
+    fun `flow rejects invalid IOU states`() {
+        val state = IOUState(
+                IOU(1),
+                a.info.legalIdentity,
+                a.info.legalIdentity,
+                IOUContract())
+        val flow = ExampleFlow.Initiator(state, b.info.legalIdentity)
+        val future = a.services.startFlow(flow).resultFuture
+        net.runNetwork()
+
+        // The IOUContract specifies that an IOU's sender and recipient cannot be the same.
+        assertFailsWith<TransactionVerificationException> {future.getOrThrow()}
+    }
+
+    @Test
     fun `SignedTransaction returned by the flow is signed by the initiator`() {
-        val flow = ExampleFlow.Initiator(1, b.info.legalIdentity)
+        val state = IOUState(
+                IOU(1),
+                a.info.legalIdentity,
+                b.info.legalIdentity,
+                IOUContract())
+        val flow = ExampleFlow.Initiator(state, b.info.legalIdentity)
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
 
@@ -56,7 +83,12 @@ class IOUFlowTests {
 
     @Test
     fun `SignedTransaction returned by the flow is signed by the acceptor`() {
-        val flow = ExampleFlow.Initiator(1, b.info.legalIdentity)
+        val state = IOUState(
+                IOU(1),
+                a.info.legalIdentity,
+                b.info.legalIdentity,
+                IOUContract())
+        val flow = ExampleFlow.Initiator(state, b.info.legalIdentity)
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
 
@@ -65,8 +97,41 @@ class IOUFlowTests {
     }
 
     @Test
+    fun `flow rejects IOUs that are not signed by the sender`() {
+        val state = IOUState(
+                IOU(1),
+                c.info.legalIdentity,
+                b.info.legalIdentity,
+                IOUContract())
+        val flow = ExampleFlow.Initiator(state, b.info.legalIdentity)
+        val future = a.services.startFlow(flow).resultFuture
+        net.runNetwork()
+
+        assertFailsWith<FlowSessionException> { future.getOrThrow() }
+    }
+
+    @Test
+    fun `flow rejects IOUs that are not signed by the recipient`() {
+        val state = IOUState(
+                IOU(1),
+                a.info.legalIdentity,
+                c.info.legalIdentity,
+                IOUContract())
+        val flow = ExampleFlow.Initiator(state, b.info.legalIdentity)
+        val future = a.services.startFlow(flow).resultFuture
+        net.runNetwork()
+
+        assertFailsWith<FlowSessionException> { future.getOrThrow() }
+    }
+
+    @Test
     fun `flow records a transaction in both parties' vaults`() {
-        val flow = ExampleFlow.Initiator(1, b.info.legalIdentity)
+        val state = IOUState(
+                IOU(1),
+                a.info.legalIdentity,
+                b.info.legalIdentity,
+                IOUContract())
+        val flow = ExampleFlow.Initiator(state, b.info.legalIdentity)
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
         val signedTx = future.getOrThrow()
@@ -79,8 +144,12 @@ class IOUFlowTests {
 
     @Test
     fun `recorded transaction has no inputs and a single output, the input IOU`() {
-        val iouValue = 1
-        val flow = ExampleFlow.Initiator(iouValue, b.info.legalIdentity)
+        val inputState = IOUState(
+                IOU(1),
+                a.info.legalIdentity,
+                b.info.legalIdentity,
+                IOUContract())
+        val flow = ExampleFlow.Initiator(inputState, b.info.legalIdentity)
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
         val signedTx = future.getOrThrow()
@@ -92,9 +161,10 @@ class IOUFlowTests {
             assert(txOutputs.size == 1)
 
             val recordedState = txOutputs[0].data as IOUState
-            assertEquals(recordedState.iou.value, iouValue)
-            assertEquals(recordedState.sender, a.info.legalIdentity)
-            assertEquals(recordedState.recipient, b.info.legalIdentity)
+            assertEquals(recordedState.iou, inputState.iou)
+            assertEquals(recordedState.sender, inputState.sender)
+            assertEquals(recordedState.recipient, inputState.recipient)
+            assertEquals(recordedState.linearId, inputState.linearId)
         }
     }
 }
