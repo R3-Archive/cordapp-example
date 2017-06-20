@@ -318,12 +318,11 @@ The RPC client should output some IOUs to the console.
 
 ## Running the Nodes Across Multiple Machines
 
-The nodes can also be set up to communicate between separate machines on the 
-same subnet.
+The nodes can also be set up to communicate between separate machines.
 
 After deploying the nodes, navigate to the build folder (`kotlin-source/build/
 nodes` or `java-source/build/nodes`) and move some of the individual node folders to
-separate machines on the same subnet (e.g. using a USB key). It is important 
+separate machines (e.g. using a USB key). It is important 
 that no nodes - including the controller node - end up on more than one 
 machine. Each computer should also have a copy of `runnodes` and 
 `runnodes.bat`.
@@ -337,14 +336,14 @@ You must now edit the configuration file for each node, including the
 controller. Open each node's config file (`[nodeName]/node.conf`), and make 
 the following changes:
 
-* Change the artemis address to the machine's ip address (e.g. 
-`artemisAddress="10.18.0.166:10006"`)
+* Change the P2P address, the RPC address and the web address to the machine's ip 
+address (e.g. `p2pAddress="10.18.0.166:10006"`)
 * Change the network map address to the ip address of the machine where the 
-controller node is running (e.g. `networkMapAddress="10.18.0.166:10002"`) 
-(please note that the controller will not have a network map address)
+controller node is running (e.g. `networkMapService { address="10.18.0.166:10002" ... }`) 
+(please note that the network map itself will not have a network map address)
 
 Each machine should now run its nodes using `runnodes` or `runnodes.bat` 
-files. Once they are up and running, the nodes should be able to place 
+files. Once they are up and running, the nodes should be able to agree 
 IOUs among themselves in the same way as when they were running on 
 the same machine.
 
