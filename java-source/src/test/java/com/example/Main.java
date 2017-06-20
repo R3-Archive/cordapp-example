@@ -34,15 +34,15 @@ public class Main {
                 true,
                 dsl -> {
                     dsl.startNode(new X500Name("CN=Controller,O=R3,OU=corda,L=London,C=UK"),
-                            ImmutableSet.of(new ServiceInfo(ValidatingNotaryService.Companion.getType(), (X500Name) null)),
+                            ImmutableSet.of(new ServiceInfo(ValidatingNotaryService.Companion.getType(), null)),
                             emptyList(),
                             VerifierType.InMemory,
-                            emptyMap());
+                            emptyMap(),null);
 
                     try {
-                        NodeHandle nodeA = dsl.startNode(new X500Name("CN=NodeA,O=NodeA,L=London,C=UK"), emptySet(), ImmutableList.of(user), VerifierType.InMemory, emptyMap()).get();
-                        NodeHandle nodeB = dsl.startNode(new X500Name("CN=NodeB,O=NodeB,L=New York,C=US"), emptySet(), ImmutableList.of(user), VerifierType.InMemory, emptyMap()).get();
-                        NodeHandle nodeC = dsl.startNode(new X500Name("CN=NodeC,O=NodeC,L=Paris,C=FR"), emptySet(), ImmutableList.of(user), VerifierType.InMemory, emptyMap()).get();
+                        NodeHandle nodeA = dsl.startNode(new X500Name("CN=NodeA,O=NodeA,L=London,C=UK"), emptySet(), ImmutableList.of(user), VerifierType.InMemory, emptyMap(), null).get();
+                        NodeHandle nodeB = dsl.startNode(new X500Name("CN=NodeB,O=NodeB,L=New York,C=US"), emptySet(), ImmutableList.of(user), VerifierType.InMemory, emptyMap(), null).get();
+                        NodeHandle nodeC = dsl.startNode(new X500Name("CN=NodeC,O=NodeC,L=Paris,C=FR"), emptySet(), ImmutableList.of(user), VerifierType.InMemory, emptyMap(), null).get();
 
                         dsl.startWebserver(nodeA);
                         dsl.startWebserver(nodeB);
