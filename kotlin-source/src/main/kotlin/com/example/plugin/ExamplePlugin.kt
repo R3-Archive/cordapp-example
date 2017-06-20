@@ -5,11 +5,11 @@ import com.example.flow.ExampleFlow
 import com.example.state.IOUState
 import net.corda.core.identity.Party
 import net.corda.core.messaging.CordaRPCOps
-import net.corda.core.node.CordaPluginRegistry
 import net.corda.core.node.PluginServiceHub
+import net.corda.webserver.services.WebServerPluginRegistry
 import java.util.function.Function
 
-class ExamplePlugin : CordaPluginRegistry() {
+class ExamplePlugin : WebServerPluginRegistry {
     /**
      * A list of classes that expose web APIs.
      */
