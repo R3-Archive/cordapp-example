@@ -8,8 +8,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import net.corda.core.identity.Party;
 import net.corda.core.messaging.CordaRPCOps;
-import net.corda.core.node.CordaPluginRegistry;
 import net.corda.core.node.PluginServiceHub;
+import net.corda.webserver.services.WebServerPluginRegistry;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-public class ExamplePlugin extends CordaPluginRegistry {
+public class ExamplePlugin implements WebServerPluginRegistry {
     /**
      * A list of classes that expose web APIs.
      */
