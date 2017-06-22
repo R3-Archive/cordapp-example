@@ -55,9 +55,8 @@ class ExampleApi(val services: CordaRPCOps) {
     @Path("ious")
     @Produces(MediaType.APPLICATION_JSON)
     fun getIOUs(): List<StateAndRef<ContractState>> {
-        val (vault, vaultUpdates) = services.vaultAndUpdates()
-        vaultUpdates.notUsed()
-        return vault
+        val vaultStates = services.vaultQueryBy<ContractState>()
+        return vaultStates.states
     }
 
     /**
