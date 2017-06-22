@@ -1,8 +1,8 @@
 package com.example.api
 
 import com.example.flow.ExampleFlow.Initiator
+import com.example.state.IOUState
 import net.corda.client.rpc.notUsed
-import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.getOrThrow
 import net.corda.core.messaging.CordaRPCOps
@@ -54,8 +54,8 @@ class ExampleApi(val services: CordaRPCOps) {
     @GET
     @Path("ious")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getIOUs(): List<StateAndRef<ContractState>> {
-        val vaultStates = services.vaultQueryBy<ContractState>()
+    fun getIOUs(): List<StateAndRef<IOUState>> {
+        val vaultStates = services.vaultQueryBy<IOUState>()
         return vaultStates.states
     }
 

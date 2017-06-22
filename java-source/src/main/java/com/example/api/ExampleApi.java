@@ -1,26 +1,32 @@
 package com.example.api;
 
-import com.example.flow.*;
-import com.google.common.collect.*;
-import kotlin.*;
-import net.corda.core.contracts.*;
-import net.corda.core.identity.*;
-import net.corda.core.messaging.*;
-import net.corda.core.node.*;
-import net.corda.core.node.services.*;
+import com.example.flow.ExampleFlow;
+import com.example.state.*;
+import com.google.common.collect.ImmutableMap;
+import kotlin.Pair;
+import net.corda.core.contracts.StateAndRef;
+import net.corda.core.identity.Party;
+import net.corda.core.messaging.CordaRPCOps;
+import net.corda.core.messaging.FlowProgressHandle;
+import net.corda.core.node.NodeInfo;
+import net.corda.core.node.services.NetworkMapCache;
+import net.corda.core.node.services.Vault;
 import net.corda.core.node.services.vault.*;
-import net.corda.core.transactions.*;
-import org.bouncycastle.asn1.x500.*;
-import org.slf4j.*;
+import net.corda.core.transactions.SignedTransaction;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import java.util.*;
-import java.util.concurrent.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
-import static java.util.stream.Collectors.*;
-import static net.corda.client.rpc.UtilsKt.*;
+import static java.util.stream.Collectors.toList;
+import static net.corda.client.rpc.UtilsKt.notUsed;
 
 // This API is accessible from /api/example. All paths specified below are relative to it.
 @Path("example")
@@ -69,8 +75,8 @@ public class ExampleApi {
     @GET
     @Path("ious")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<StateAndRef<ContractState>> getIOUs() {
-        Vault.Page<ContractState> vaultStates = services.vaultQueryByCriteria(new QueryCriteria.VaultQueryCriteria());
+    public List<StateAndRef<IOUState>> getIOUs() {
+        Vault.Page<IOUState> vaultStates = services.vaultQueryByCriteria(new QueryCriteria.VaultQueryCriteria());
         return vaultStates.getStates();
     }
 
