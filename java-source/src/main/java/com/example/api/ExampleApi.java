@@ -76,7 +76,7 @@ public class ExampleApi {
     @Path("ious")
     @Produces(MediaType.APPLICATION_JSON)
     public List<StateAndRef<IOUState>> getIOUs() {
-        Vault.Page<IOUState> vaultStates = services.vaultQueryByCriteria(new QueryCriteria.VaultQueryCriteria());
+        Vault.Page<IOUState> vaultStates = services.vaultQuery(IOUState.class);
         return vaultStates.getStates();
     }
 
