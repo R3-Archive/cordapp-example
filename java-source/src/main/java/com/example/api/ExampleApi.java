@@ -1,10 +1,9 @@
 package com.example.api;
 
 import com.example.flow.ExampleFlow;
-import com.google.common.collect.ImmutableList;
+import com.example.state.*;
 import com.google.common.collect.ImmutableMap;
 import kotlin.Pair;
-import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.identity.Party;
 import net.corda.core.messaging.CordaRPCOps;
@@ -12,6 +11,7 @@ import net.corda.core.messaging.FlowProgressHandle;
 import net.corda.core.node.NodeInfo;
 import net.corda.core.node.services.NetworkMapCache;
 import net.corda.core.node.services.Vault;
+import net.corda.core.node.services.vault.*;
 import net.corda.core.transactions.SignedTransaction;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.slf4j.Logger;
@@ -75,10 +75,9 @@ public class ExampleApi {
     @GET
     @Path("ious")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<StateAndRef<ContractState>> getIOUs() {
-        Pair<List<StateAndRef<ContractState>>, Observable<Vault.Update>> vaultUpdates = services.vaultAndUpdates();
-        notUsed(vaultUpdates.getSecond());
-        return vaultUpdates.getFirst();
+    public List<StateAndRef<IOUState>> getIOUs() {
+        Vault.Page<IOUState> vaultStates = services.vaultQuery(IOUState.class);
+        return vaultStates.getStates();
     }
 
     /**

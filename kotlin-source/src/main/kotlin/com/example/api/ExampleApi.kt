@@ -1,12 +1,13 @@
 package com.example.api
 
 import com.example.flow.ExampleFlow.Initiator
+import com.example.state.IOUState
 import net.corda.client.rpc.notUsed
-import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.getOrThrow
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.startTrackedFlow
+import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.utilities.loggerFor
 import org.bouncycastle.asn1.x500.X500Name
 import org.slf4j.Logger
@@ -54,10 +55,9 @@ class ExampleApi(val services: CordaRPCOps) {
     @GET
     @Path("ious")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getIOUs(): List<StateAndRef<ContractState>> {
-        val (vault, vaultUpdates) = services.vaultAndUpdates()
-        vaultUpdates.notUsed()
-        return vault
+    fun getIOUs(): List<StateAndRef<IOUState>> {
+        val vaultStates = services.vaultQueryBy<IOUState>()
+        return vaultStates.states
     }
 
     /**
