@@ -7,6 +7,7 @@ import kotlin.Pair;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.identity.Party;
 import net.corda.core.messaging.CordaRPCOps;
+import net.corda.core.messaging.DataFeed;
 import net.corda.core.messaging.FlowProgressHandle;
 import net.corda.core.node.NodeInfo;
 import net.corda.core.node.services.NetworkMapCache;
@@ -58,11 +59,11 @@ public class ExampleApi {
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, List<X500Name>> getPeers() {
-        Pair<List<NodeInfo>, Observable<NetworkMapCache.MapChange>> nodeInfo = services.networkMapUpdates();
-        notUsed(nodeInfo.getSecond());
+        DataFeed<List<NodeInfo>, NetworkMapCache.MapChange> nodeInfo = services.networkMapUpdates();
+        notUsed(nodeInfo.getUpdates());
         return ImmutableMap.of(
                 "peers",
-                nodeInfo.getFirst()
+                nodeInfo.getSnapshot()
                         .stream()
                         .map(node -> node.getLegalIdentity().getName())
                         .filter(name -> !name.equals(myLegalName) && !(name.toString().equals(notaryName)))
