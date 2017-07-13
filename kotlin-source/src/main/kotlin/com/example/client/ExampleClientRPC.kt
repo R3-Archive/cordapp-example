@@ -5,6 +5,7 @@ import com.google.common.net.HostAndPort
 import net.corda.client.rpc.CordaRPCClient
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.utilities.loggerFor
+import net.corda.core.utilities.parseNetworkHostAndPort
 import org.slf4j.Logger
 import rx.Observable
 
@@ -24,7 +25,7 @@ private class ExampleClientRPC {
 
     fun main(args: Array<String>) {
         require(args.size == 1) { "Usage: ExampleClientRPC <node address>" }
-        val nodeAddress = HostAndPort.fromString(args[0])
+        val nodeAddress = args[0].parseNetworkHostAndPort()
         val client = CordaRPCClient(nodeAddress)
 
         // Can be amended in the com.example.MainKt file.
@@ -32,7 +33,7 @@ private class ExampleClientRPC {
 
         // Grab all signed transactions and all future signed transactions.
         val (transactions: List<SignedTransaction>, futureTransactions: Observable<SignedTransaction>) =
-                proxy.verifiedTransactions()
+                proxy.verifiedTransactionsFeed()
 
         // Log the 'placed' IOU states and listen for new ones.
         futureTransactions.startWith(transactions).toBlocking().subscribe { transaction ->
