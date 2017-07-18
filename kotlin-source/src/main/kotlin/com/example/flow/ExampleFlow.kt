@@ -18,9 +18,9 @@ import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
-import net.corda.flows.CollectSignaturesFlow
-import net.corda.flows.FinalityFlow
-import net.corda.flows.SignTransactionFlow
+import net.corda.core.flows.CollectSignaturesFlow
+import net.corda.core.flows.FinalityFlow
+import net.corda.core.flows.SignTransactionFlow
 
 
 /**
