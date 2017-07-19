@@ -48,7 +48,7 @@ class IOUFlowTests {
         net.runNetwork()
 
         val signedTx = future.getOrThrow()
-        signedTx.verifySignatures(b.services.legalIdentityKey)
+        signedTx.verifySignaturesExcept(b.services.legalIdentityKey)
     }
 
     @Test
@@ -58,7 +58,7 @@ class IOUFlowTests {
         net.runNetwork()
 
         val signedTx = future.getOrThrow()
-        signedTx.verifySignatures(a.services.legalIdentityKey)
+        signedTx.verifySignaturesExcept(a.services.legalIdentityKey)
     }
 
     @Test
@@ -70,7 +70,7 @@ class IOUFlowTests {
 
         // We check the recorded transaction in both vaults.
         for (node in listOf(a, b)) {
-            assertEquals(signedTx, node.storage.validatedTransactions.getTransaction(signedTx.id))
+            assertEquals(signedTx, node.services.validatedTransactions.getTransaction(signedTx.id))
         }
     }
 
@@ -84,7 +84,7 @@ class IOUFlowTests {
 
         // We check the recorded transaction in both vaults.
         for (node in listOf(a, b)) {
-            val recordedTx = node.storage.validatedTransactions.getTransaction(signedTx.id)
+            val recordedTx = node.services.validatedTransactions.getTransaction(signedTx.id)
             val txOutputs = recordedTx!!.tx.outputs
             assert(txOutputs.size == 1)
 

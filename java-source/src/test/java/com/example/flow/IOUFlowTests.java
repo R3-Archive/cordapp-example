@@ -66,7 +66,7 @@ public class IOUFlowTests {
         net.runNetwork();
 
         SignedTransaction signedTx = future.get();
-        signedTx.verifySignatures(b.getServices().getLegalIdentityKey());
+        signedTx.verifySignaturesExcept(b.getServices().getLegalIdentityKey());
     }
 
     @Test
@@ -76,7 +76,7 @@ public class IOUFlowTests {
         net.runNetwork();
 
         SignedTransaction signedTx = future.get();
-        signedTx.verifySignatures(a.getServices().getLegalIdentityKey());
+        signedTx.verifySignaturesExcept(a.getServices().getLegalIdentityKey());
     }
 
     @Test
@@ -88,7 +88,7 @@ public class IOUFlowTests {
 
         // We check the recorded transaction in both vaults.
         for (MockNode node : ImmutableList.of(a, b)) {
-            assertEquals(signedTx, node.storage.getValidatedTransactions().getTransaction(signedTx.getId()));
+            assertEquals(signedTx, node.getServices().getValidatedTransactions().getTransaction(signedTx.getId()));
         }
     }
 
@@ -102,7 +102,7 @@ public class IOUFlowTests {
 
         // We check the recorded transaction in both vaults.
         for (MockNode node : ImmutableList.of(a, b)) {
-            SignedTransaction recordedTx = node.storage.getValidatedTransactions().getTransaction(signedTx.getId());
+            SignedTransaction recordedTx = node.getServices().getValidatedTransactions().getTransaction(signedTx.getId());
             List<TransactionState<ContractState>> txOutputs = recordedTx.getTx().getOutputs();
             assert(txOutputs.size() == 1);
 
