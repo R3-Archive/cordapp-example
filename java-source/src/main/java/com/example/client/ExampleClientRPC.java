@@ -30,7 +30,7 @@ public class ExampleClientRPC {
 
         final Logger logger = LoggerFactory.getLogger(ExampleClientRPC.class);
         final NetworkHostAndPort nodeAddress = NetworkHostAndPortKt.parseNetworkHostAndPort(args[0]);
-        final CordaRPCClient client = new CordaRPCClient(nodeAddress, null, CordaRPCClientConfiguration.getDefault());
+        final CordaRPCClient client = new CordaRPCClient(nodeAddress, null, CordaRPCClientConfiguration.getDefault(), true);
 
         // Can be amended in the com.example.Main file.
         final CordaRPCOps proxy = client.start("user1", "test").getProxy();

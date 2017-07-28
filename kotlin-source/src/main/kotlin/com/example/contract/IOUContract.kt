@@ -3,6 +3,7 @@ package com.example.contract
 import com.example.state.IOUState
 import net.corda.core.contracts.*
 import net.corda.core.crypto.SecureHash
+import net.corda.core.transactions.LedgerTransaction
 
 /**
  * A implementation of a basic smart contract in Corda.
@@ -21,7 +22,7 @@ open class IOUContract : Contract {
      * The verify() function of all the states' contracts must not throw an exception for a transaction to be
      * considered valid.
      */
-    override fun verify(tx: TransactionForContract) {
+    override fun verify(tx: LedgerTransaction) {
         val command = tx.commands.requireSingleCommand<Commands.Create>()
         requireThat {
             // Generic constraints around the IOU transaction.

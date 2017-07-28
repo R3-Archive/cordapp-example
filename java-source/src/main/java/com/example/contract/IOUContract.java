@@ -4,9 +4,10 @@ import com.example.state.IOUState;
 import net.corda.core.contracts.AuthenticatedObject;
 import net.corda.core.contracts.CommandData;
 import net.corda.core.contracts.Contract;
-import net.corda.core.contracts.TransactionForContract;
 import net.corda.core.crypto.SecureHash;
 import net.corda.core.identity.AbstractParty;
+import net.corda.core.transactions.LedgerTransaction;
+
 import java.util.stream.Collectors;
 import static net.corda.core.contracts.ContractsDSL.requireSingleCommand;
 import static net.corda.core.contracts.ContractsDSL.requireThat;
@@ -29,7 +30,7 @@ public class IOUContract implements Contract {
      * considered valid.
      */
     @Override
-    public void verify(TransactionForContract tx) {
+    public void verify(LedgerTransaction tx) {
         final AuthenticatedObject<Commands.Create> command = requireSingleCommand(tx.getCommands(), Commands.Create.class);
         requireThat(require -> {
             // Generic constraints around the IOU transaction.
@@ -37,7 +38,7 @@ public class IOUContract implements Contract {
                     tx.getInputs().isEmpty());
             require.using("Only one output state should be created.",
                     tx.getOutputs().size() == 1);
-            final IOUState out = (IOUState) tx.getOutputs().get(0);
+            final IOUState out = (IOUState) tx.getOutputs().get(0).component1();
             require.using("The sender and the recipient cannot be the same entity.",
                     out.getSender() != out.getRecipient());
             require.using("All of the participants must be signers.",
