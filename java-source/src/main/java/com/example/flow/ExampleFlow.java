@@ -6,7 +6,6 @@ import com.example.model.IOU;
 import com.example.state.IOUState;
 import net.corda.core.contracts.Command;
 import net.corda.core.contracts.ContractState;
-import net.corda.core.contracts.TransactionType;
 import net.corda.core.flows.*;
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
@@ -91,7 +90,7 @@ public class ExampleFlow {
             IOUState iouState = new IOUState(new IOU(iouValue), getServiceHub().getMyInfo().getLegalIdentity(), otherParty);
             final Command txCommand = new Command(new IOUContract.Commands.Create(),
                     iouState.getParticipants().stream().map(AbstractParty::getOwningKey).collect(Collectors.toList()));
-            final TransactionBuilder txBuilder = new TransactionType.General.Builder(notary).withItems(iouState, txCommand);
+            final TransactionBuilder txBuilder = new TransactionBuilder(notary).withItems(iouState, txCommand);
 
             // Stage 2.
             progressTracker.setCurrentStep(VERIFYING_TRANSACTION);
