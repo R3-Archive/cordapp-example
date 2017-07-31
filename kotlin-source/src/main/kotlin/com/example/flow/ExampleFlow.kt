@@ -7,7 +7,6 @@ import com.example.flow.ExampleFlow.Initiator
 import com.example.model.IOU
 import com.example.state.IOUState
 import net.corda.core.contracts.Command
-import net.corda.core.contracts.TransactionType
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.InitiatedBy
@@ -79,7 +78,7 @@ object ExampleFlow {
             // Generate an unsigned transaction.
             val iouState = IOUState(IOU(iouValue), serviceHub.myInfo.legalIdentity, otherParty)
             val txCommand = Command(IOUContract.Commands.Create(), iouState.participants.map { it.owningKey })
-            val txBuilder = TransactionBuilder(TransactionType.General, notary).withItems(iouState, txCommand)
+            val txBuilder = TransactionBuilder(notary).withItems(iouState, txCommand)
 
             // Stage 2.
             progressTracker.currentStep = VERIFYING_TRANSACTION
