@@ -28,7 +28,7 @@ open class IOUContract : Contract {
             // Generic constraints around the IOU transaction.
             "No inputs should be consumed when issuing an IOU." using (tx.inputs.isEmpty())
             "Only one output state should be created." using (tx.outputs.size == 1)
-            val out = tx.outputs.single() as IOUState
+            val out = tx.outputs.single().data as IOUState
             "The sender and the recipient cannot be the same entity." using (out.sender != out.recipient)
             "All of the participants must be signers." using (command.signers.containsAll(out.participants.map { it.owningKey }))
 
