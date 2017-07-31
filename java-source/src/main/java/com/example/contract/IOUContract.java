@@ -38,7 +38,7 @@ public class IOUContract implements Contract {
                     tx.getInputs().isEmpty());
             require.using("Only one output state should be created.",
                     tx.getOutputs().size() == 1);
-            final IOUState out = (IOUState) tx.getOutputs().get(0).component1();
+            final IOUState out = tx.outputsOfType(IOUState.class).get(0);
             require.using("The sender and the recipient cannot be the same entity.",
                     out.getSender() != out.getRecipient());
             require.using("All of the participants must be signers.",
