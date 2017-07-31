@@ -3,6 +3,7 @@ package com.example.contract
 import com.example.state.IOUState
 import net.corda.core.contracts.*
 import net.corda.core.crypto.SecureHash
+import net.corda.core.transactions.LedgerTransaction
 
 /**
  * A implementation of a basic smart contract in Corda.
@@ -21,13 +22,13 @@ open class IOUContract : Contract {
      * The verify() function of all the states' contracts must not throw an exception for a transaction to be
      * considered valid.
      */
-    override fun verify(tx: TransactionForContract) {
+    override fun verify(tx: LedgerTransaction) {
         val command = tx.commands.requireSingleCommand<Commands.Create>()
         requireThat {
             // Generic constraints around the IOU transaction.
             "No inputs should be consumed when issuing an IOU." using (tx.inputs.isEmpty())
             "Only one output state should be created." using (tx.outputs.size == 1)
-            val out = tx.outputs.single() as IOUState
+            val out = tx.outputsOfType<IOUState>().single()
             "The sender and the recipient cannot be the same entity." using (out.sender != out.recipient)
             "All of the participants must be signers." using (command.signers.containsAll(out.participants.map { it.owningKey }))
 
