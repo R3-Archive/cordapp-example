@@ -80,9 +80,9 @@ Change directories to the newly cloned repo:
 
      cd cordapp-tutorial
      
-Check out the latest milestone release tag (currently `release-M12.1`):
+Check out the latest milestone release tag (currently `release-M14.0`):
 
-     git checkout -b [your-branch-name] release-M12.1
+     git checkout -b [your-branch-name] release-M14.0
      
 Non-milestone releases are development branches, and can be unstable 
 or even broken. You should develop against a milestone release.
@@ -92,7 +92,7 @@ or even broken. You should develop against a milestone release.
 **NOTE: Building the example CorDapp from master WILL fail without 
 first running `./gradlew install` (or `gradlew.bat install`) from the master
 branch of the [corda repository](https://github.com/corda/corda). Make sure
-you have checked out the M11 release tag from this repository before you build,
+you have checked out the M14 release tag from this repository before you build,
 UNLESS you wish to build from a SNAPSHOT release.**
  
 **Unix:** 
