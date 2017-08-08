@@ -42,7 +42,7 @@ class ExampleApi(val services: CordaRPCOps) {
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
     fun getPeers(): Map<String, List<X500Name>> {
-        val (nodeInfo, nodeUpdates) = services.networkMapUpdates()
+        val (nodeInfo, nodeUpdates) = services.networkMapFeed()
         nodeUpdates.notUsed()
         return mapOf("peers" to nodeInfo
                 .map { it.legalIdentity.name }

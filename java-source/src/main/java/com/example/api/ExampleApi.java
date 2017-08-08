@@ -59,7 +59,7 @@ public class ExampleApi {
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, List<X500Name>> getPeers() {
-        DataFeed<List<NodeInfo>, NetworkMapCache.MapChange> nodeInfo = services.networkMapUpdates();
+        DataFeed<List<NodeInfo>, NetworkMapCache.MapChange> nodeInfo = services.networkMapFeed();
         notUsed(nodeInfo.getUpdates());
         return ImmutableMap.of(
                 "peers",
