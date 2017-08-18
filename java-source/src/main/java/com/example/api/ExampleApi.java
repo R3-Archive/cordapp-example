@@ -3,21 +3,16 @@ package com.example.api;
 import com.example.flow.ExampleFlow;
 import com.example.state.*;
 import com.google.common.collect.ImmutableMap;
-import kotlin.Pair;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.identity.Party;
 import net.corda.core.messaging.CordaRPCOps;
-import net.corda.core.messaging.DataFeed;
 import net.corda.core.messaging.FlowProgressHandle;
 import net.corda.core.node.NodeInfo;
-import net.corda.core.node.services.NetworkMapCache;
 import net.corda.core.node.services.Vault;
-import net.corda.core.node.services.vault.*;
 import net.corda.core.transactions.SignedTransaction;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.Observable;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -27,7 +22,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import static java.util.stream.Collectors.toList;
-import static net.corda.client.rpc.UtilsKt.notUsed;
 
 // This API is accessible from /api/example. All paths specified below are relative to it.
 @Path("example")
@@ -59,11 +53,10 @@ public class ExampleApi {
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, List<X500Name>> getPeers() {
-        DataFeed<List<NodeInfo>, NetworkMapCache.MapChange> nodeInfo = services.networkMapUpdates();
-        notUsed(nodeInfo.getUpdates());
+        List<NodeInfo> nodeInfoSnapshot = services.networkMapSnapshot();
         return ImmutableMap.of(
                 "peers",
-                nodeInfo.getSnapshot()
+                nodeInfoSnapshot
                         .stream()
                         .map(node -> node.getLegalIdentity().getName())
                         .filter(name -> !name.equals(myLegalName) && !(name.toString().equals(notaryName)))

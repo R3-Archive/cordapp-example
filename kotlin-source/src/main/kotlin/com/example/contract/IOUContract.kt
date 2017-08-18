@@ -2,7 +2,6 @@ package com.example.contract
 
 import com.example.state.IOUState
 import net.corda.core.contracts.*
-import net.corda.core.crypto.SecureHash
 import net.corda.core.transactions.LedgerTransaction
 
 /**
@@ -43,7 +42,4 @@ open class IOUContract : Contract {
     interface Commands : CommandData {
         class Create : Commands
     }
-
-    /** This is a reference to the underlying legal contract template and associated parameters. */
-    override val legalContractReference: SecureHash = SecureHash.sha256("IOU contract template and params")
 }

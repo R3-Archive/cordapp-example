@@ -57,6 +57,8 @@ lib/dokka.jar
 
 # IntelliJ
 /out/
+/java-source/out/
+/kotlin-source/out/
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
