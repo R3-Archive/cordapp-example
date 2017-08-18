@@ -2,7 +2,7 @@ package com.example.flow
 
 import com.example.state.IOUState
 import net.corda.core.contracts.TransactionVerificationException
-import net.corda.core.getOrThrow
+import net.corda.core.utilities.getOrThrow
 import net.corda.testing.node.MockNetwork
 import org.junit.After
 import org.junit.Before

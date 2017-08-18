@@ -4,7 +4,6 @@ import com.example.state.IOUState;
 import net.corda.core.contracts.AuthenticatedObject;
 import net.corda.core.contracts.CommandData;
 import net.corda.core.contracts.Contract;
-import net.corda.core.crypto.SecureHash;
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.transactions.LedgerTransaction;
 
@@ -58,8 +57,4 @@ public class IOUContract implements Contract {
     public interface Commands extends CommandData {
         class Create implements Commands {}
     }
-
-    /** This is a reference to the underlying legal contract template and associated parameters. */
-    private final SecureHash legalContractReference = SecureHash.sha256("IOU contract template and params");
-    @Override public final SecureHash getLegalContractReference() { return legalContractReference; }
 }

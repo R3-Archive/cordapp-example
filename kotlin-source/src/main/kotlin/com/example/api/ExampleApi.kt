@@ -2,12 +2,11 @@ package com.example.api
 
 import com.example.flow.ExampleFlow.Initiator
 import com.example.state.IOUState
-import net.corda.client.rpc.notUsed
 import net.corda.core.contracts.StateAndRef
-import net.corda.core.getOrThrow
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.startTrackedFlow
 import net.corda.core.messaging.vaultQueryBy
+import net.corda.core.utilities.getOrThrow
 import net.corda.core.utilities.loggerFor
 import org.bouncycastle.asn1.x500.X500Name
 import org.slf4j.Logger
@@ -42,8 +41,7 @@ class ExampleApi(val services: CordaRPCOps) {
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
     fun getPeers(): Map<String, List<X500Name>> {
-        val (nodeInfo, nodeUpdates) = services.networkMapUpdates()
-        nodeUpdates.notUsed()
+        val nodeInfo = services.networkMapSnapshot()
         return mapOf("peers" to nodeInfo
                 .map { it.legalIdentity.name }
                 .filter { it != myLegalName && it.toString() != NOTARY_NAME })

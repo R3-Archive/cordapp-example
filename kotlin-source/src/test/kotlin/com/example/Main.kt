@@ -1,8 +1,8 @@
 package com.example
 
-import com.google.common.util.concurrent.Futures
-import net.corda.core.getOrThrow
+import net.corda.core.internal.concurrent.transpose
 import net.corda.core.node.services.ServiceInfo
+import net.corda.core.utilities.getOrThrow
 import net.corda.node.services.transactions.ValidatingNotaryService
 import net.corda.nodeapi.User
 import net.corda.testing.driver.driver
@@ -27,10 +27,10 @@ fun main(args: Array<String>) {
     val user = User("user1", "test", permissions = setOf())
     driver(isDebug = true) {
         startNode(X500Name("CN=Controller,O=R3,OU=corda,L=London,C=UK"), setOf(ServiceInfo(ValidatingNotaryService.type)))
-        val (nodeA, nodeB, nodeC) = Futures.allAsList(
+        val (nodeA, nodeB, nodeC) = listOf(
                 startNode(X500Name("CN=NodeA,O=NodeA,L=London,C=UK"), rpcUsers = listOf(user)),
                 startNode(X500Name("CN=NodeB,O=NodeB,L=New York,C=US"), rpcUsers = listOf(user)),
-                startNode(X500Name("CN=NodeC,O=NodeC,L=Paris,C=FR"), rpcUsers = listOf(user))).getOrThrow()
+                startNode(X500Name("CN=NodeC,O=NodeC,L=Paris,C=FR"), rpcUsers = listOf(user))).transpose().getOrThrow()
 
         startWebserver(nodeA)
         startWebserver(nodeB)
