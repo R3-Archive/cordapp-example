@@ -3,6 +3,7 @@ package com.example.plugin;
 import com.example.api.ExampleApi;
 import com.example.flow.ExampleFlow;
 import com.example.state.IOUState;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -33,4 +34,5 @@ public class ExamplePlugin implements WebServerPluginRegistry {
 
     @Override public List<Function<CordaRPCOps, ?>> getWebApis() { return webApis; }
     @Override public Map<String, String> getStaticServeDirs() { return staticServeDirs; }
+    @Override public void customizeJSONSerialization(ObjectMapper objectMapper) { }
 }
