@@ -2,19 +2,20 @@ package com.example.state;
 
 import com.example.contract.IOUContract;
 import com.example.model.IOU;
+import com.example.schema.IOUSchemaV1;
+import com.google.common.collect.ImmutableList;
 import net.corda.core.contracts.LinearState;
 import net.corda.core.contracts.UniqueIdentifier;
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
+import net.corda.core.schemas.MappedSchema;
+import net.corda.core.schemas.PersistentState;
+import net.corda.core.schemas.QueryableState;
 
 import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toList;
-import static net.corda.core.crypto.CryptoUtils.getKeys;
 
 // TODO: Implement QueryableState and add ORM code (to match Kotlin example).
 
@@ -23,7 +24,7 @@ import static net.corda.core.crypto.CryptoUtils.getKeys;
  *
  * A state must implement [ContractState] or one of its descendants.
  */
-public class IOUState implements LinearState {
+public class IOUState implements LinearState, QueryableState {
     private final IOU iou;
     private final Party sender;
     private final Party recipient;
@@ -59,12 +60,23 @@ public class IOUState implements LinearState {
      * simple; track this state if we are one of the involved parties.
      */
     @Override public boolean isRelevant(Set<? extends PublicKey> ourKeys) {
-        final List<PublicKey> partyKeys = Stream.of(sender, recipient)
-                .flatMap(party -> getKeys(party.getOwningKey()).stream())
-                .collect(toList());
-        return ourKeys
-                .stream()
-                .anyMatch(partyKeys::contains);
+        final boolean iAmSender = ourKeys.contains(sender.getOwningKey());
+        final boolean iAmRecipient = ourKeys.contains(recipient.getOwningKey());
+        return iAmSender || iAmRecipient;
+    }
 
+    @Override public PersistentState generateMappedObject(MappedSchema schema) {
+        if (schema instanceof IOUSchemaV1) {
+            return new IOUSchemaV1.PersistentIOU(
+                    this.sender.getName().toString(),
+                    this.recipient.getName().toString(),
+                    this.iou.getValue());
+        } else {
+            throw new IllegalArgumentException("Unrecognised schema $schema");
+        }
+    }
+
+    @Override public Iterable<MappedSchema> supportedSchemas() {
+        return ImmutableList.of(new IOUSchemaV1());
     }
 }
