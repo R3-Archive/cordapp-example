@@ -7,6 +7,7 @@ import net.corda.core.schemas.PersistentState;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.util.UUID;
 
 /**
  * An IOUState schema.
@@ -22,12 +23,14 @@ public class IOUSchemaV1 extends MappedSchema {
         @Column(name = "sender_name") private final String senderName;
         @Column(name = "recipient_name") private final String recipientName;
         @Column(name = "value") private final int value;
+        @Column(name = "linear_id") private final UUID linearId;
 
 
-        public PersistentIOU(String senderName, String recipientName, int value) {
+        public PersistentIOU(String senderName, String recipientName, int value, UUID linearId) {
             this.senderName = senderName;
             this.recipientName = recipientName;
             this.value = value;
+            this.linearId = linearId;
         }
 
         public String getSenderName() {
@@ -40,6 +43,10 @@ public class IOUSchemaV1 extends MappedSchema {
 
         public int getValue() {
             return value;
+        }
+
+        public UUID getId() {
+            return linearId;
         }
     }
 }

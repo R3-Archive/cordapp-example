@@ -2,6 +2,7 @@ package com.example.schema
 
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
+import java.util.*
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Table
@@ -28,6 +29,9 @@ object IOUSchemaV1 : MappedSchema(
             var recipientName: String,
 
             @Column(name = "value")
-            var value: Int
+            var value: Int,
+
+            @Column(name = "linear_id")
+            var linearId: UUID
     ) : PersistentState()
 }
