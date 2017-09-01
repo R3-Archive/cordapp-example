@@ -55,22 +55,13 @@ public class IOUState implements LinearState, QueryableState {
         return Arrays.asList(sender, recipient);
     }
 
-    /**
-     * This returns true if the state should be tracked by the vault of a particular node. In this case the logic is
-     * simple; track this state if we are one of the involved parties.
-     */
-    @Override public boolean isRelevant(Set<? extends PublicKey> ourKeys) {
-        final boolean iAmSender = ourKeys.contains(sender.getOwningKey());
-        final boolean iAmRecipient = ourKeys.contains(recipient.getOwningKey());
-        return iAmSender || iAmRecipient;
-    }
-
     @Override public PersistentState generateMappedObject(MappedSchema schema) {
         if (schema instanceof IOUSchemaV1) {
             return new IOUSchemaV1.PersistentIOU(
                     this.sender.getName().toString(),
                     this.recipient.getName().toString(),
-                    this.iou.getValue());
+                    this.iou.getValue(),
+                    this.linearId.getId());
         } else {
             throw new IllegalArgumentException("Unrecognised schema $schema");
         }

@@ -34,15 +34,13 @@ data class IOUState(val iou: IOU,
     /** The public keys of the involved parties. */
     override val participants: List<AbstractParty> get() = listOf(sender, recipient)
 
-    /** Tells the vault to track a state if we are one of the parties involved. */
-    override fun isRelevant(ourKeys: Set<PublicKey>) = ourKeys.intersect(participants.flatMap { it.owningKey.keys }).isNotEmpty()
-
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         return when (schema) {
             is IOUSchemaV1 -> IOUSchemaV1.PersistentIOU(
                     senderName = this.sender.name.toString(),
                     recipientName = this.recipient.name.toString(),
-                    value = this.iou.value
+                    value = this.iou.value,
+                    linearId = this.linearId.id
             )
             else -> throw IllegalArgumentException("Unrecognised schema $schema")
         }

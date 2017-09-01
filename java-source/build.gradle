@@ -64,7 +64,6 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         advertisedServices = ["corda.notary.validating"]
         p2pPort 10002
         rpcPort 10003
-        webPort 10004
         cordapps = ["net.corda:corda-finance:$corda_release_version"]
     }
     node {
