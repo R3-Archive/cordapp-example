@@ -1,5 +1,6 @@
 package com.example.contract
 
+import com.example.model.IOU
 import com.example.state.IOUState
 import net.corda.core.contracts.*
 import net.corda.core.transactions.LedgerTransaction

@@ -1,6 +1,5 @@
 package com.example
 
-import net.corda.core.internal.concurrent.transpose
 import net.corda.core.node.services.ServiceInfo
 import net.corda.core.utilities.getOrThrow
 import net.corda.node.services.transactions.ValidatingNotaryService
@@ -30,8 +29,7 @@ fun main(args: Array<String>) {
         val (nodeA, nodeB, nodeC) = listOf(
                 startNode(providedName = X500Name("CN=NodeA,O=NodeA,L=London,C=UK"), rpcUsers = listOf(user)),
                 startNode(providedName = X500Name("CN=NodeB,O=NodeB,L=New York,C=US"), rpcUsers = listOf(user)),
-                startNode(providedName = X500Name("CN=NodeC,O=NodeC,L=Paris,C=FR"), rpcUsers = listOf(user))
-        ).transpose().getOrThrow()
+                startNode(providedName = X500Name("CN=NodeC,O=NodeC,L=Paris,C=FR"), rpcUsers = listOf(user))).map { it.getOrThrow() }
 
         startWebserver(nodeA)
         startWebserver(nodeB)
