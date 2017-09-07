@@ -3,12 +3,12 @@ package com.example.contract;
 import com.example.model.IOU;
 import com.example.state.IOUState;
 import net.corda.core.identity.Party;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.security.PublicKey;
 
 import static net.corda.testing.CoreTestUtils.*;
+import static net.corda.testing.NodeTestUtils.ledger;
 
 public class IOUContractTests {
     static private final Party miniCorp = getMINI_CORP();
