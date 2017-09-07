@@ -6,7 +6,9 @@ import net.corda.core.node.services.ServiceInfo;
 import net.corda.node.services.config.VerifierType;
 import net.corda.node.services.transactions.ValidatingNotaryService;
 import net.corda.nodeapi.User;
+import net.corda.testing.driver.DriverParameters;
 import net.corda.testing.driver.NodeHandle;
+import net.corda.testing.driver.NodeParameters;
 import org.bouncycastle.asn1.x500.X500Name;
 
 import static java.util.Collections.*;
@@ -30,19 +32,21 @@ public class Main {
     public static void main(String[] args) {
         // No permissions required as we are not invoking flows.
         final User user = new User("user1", "test", emptySet());
-        driver(
-                true,
-                dsl -> {
-                    dsl.startNode(new X500Name("CN=Controller,O=R3,OU=corda,L=London,C=UK"),
-                            ImmutableSet.of(new ServiceInfo(ValidatingNotaryService.Companion.getType(), null)),
-                            emptyList(),
-                            VerifierType.InMemory,
-                            emptyMap(),null);
+        driver(new DriverParameters().setIsDebug(true), dsl -> {
+                    dsl.startNode(new NodeParameters()
+                            .setProvidedName(new X500Name("CN=Controller,O=R3,OU=corda,L=London,C=UK"))
+                            .setAdvertisedServices(ImmutableSet.of(new ServiceInfo(ValidatingNotaryService.Companion.getType(), null))));
 
                     try {
-                        NodeHandle nodeA = dsl.startNode(new X500Name("CN=NodeA,O=NodeA,L=London,C=UK"), emptySet(), ImmutableList.of(user), VerifierType.InMemory, emptyMap(), null).get();
-                        NodeHandle nodeB = dsl.startNode(new X500Name("CN=NodeB,O=NodeB,L=New York,C=US"), emptySet(), ImmutableList.of(user), VerifierType.InMemory, emptyMap(), null).get();
-                        NodeHandle nodeC = dsl.startNode(new X500Name("CN=NodeC,O=NodeC,L=Paris,C=FR"), emptySet(), ImmutableList.of(user), VerifierType.InMemory, emptyMap(), null).get();
+                        NodeHandle nodeA = dsl.startNode(new NodeParameters()
+                                .setProvidedName(new X500Name("CN=NodeA,O=NodeA,L=London,C=UK"))
+                                .setRpcUsers(ImmutableList.of(user))).get();
+                        NodeHandle nodeB = dsl.startNode(new NodeParameters()
+                                .setProvidedName(new X500Name("CN=NodeB,O=NodeB,L=New York,C=US"))
+                                .setRpcUsers(ImmutableList.of(user))).get();
+                        NodeHandle nodeC = dsl.startNode(new NodeParameters()
+                                .setProvidedName(new X500Name("CN=NodeC,O=NodeC,L=Paris,C=FR"))
+                                .setRpcUsers(ImmutableList.of(user))).get();
 
                         dsl.startWebserver(nodeA);
                         dsl.startWebserver(nodeB);
