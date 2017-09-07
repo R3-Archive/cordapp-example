@@ -12,10 +12,8 @@ import net.corda.core.schemas.MappedSchema;
 import net.corda.core.schemas.PersistentState;
 import net.corda.core.schemas.QueryableState;
 
-import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 // TODO: Implement QueryableState and add ORM code (to match Kotlin example).
 
@@ -69,5 +67,10 @@ public class IOUState implements LinearState, QueryableState {
 
     @Override public Iterable<MappedSchema> supportedSchemas() {
         return ImmutableList.of(new IOUSchemaV1());
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s(iou=%s, sender=%s, recipient=%s, linearId=%s)", getClass().getSimpleName(), iou, sender, recipient, linearId);
     }
 }

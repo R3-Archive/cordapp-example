@@ -13,12 +13,7 @@ import static net.corda.testing.NodeTestUtils.ledger;
 public class IOUContractTests {
     static private final Party miniCorp = getMINI_CORP();
     static private final Party megaCorp = getMEGA_CORP();
-    static private final PublicKey[] keys = new PublicKey[2];
-
-    {
-        keys[0] = getMEGA_CORP_PUBKEY();
-        keys[1] = getMINI_CORP_PUBKEY();
-    }
+    static private final PublicKey[] keys = {getMEGA_CORP_PUBKEY(), getMINI_CORP_PUBKEY()};
 
     @Test
     public void transactionMustIncludeCreateCommand() {

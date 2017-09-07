@@ -6,13 +6,11 @@ import com.example.schema.IOUSchemaV1
 import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.LinearState
 import net.corda.core.contracts.UniqueIdentifier
-import net.corda.core.crypto.keys
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
 import net.corda.core.schemas.QueryableState
-import java.security.PublicKey
 
 /**
  * The state object recording IOU agreements between two parties.
@@ -22,7 +20,6 @@ import java.security.PublicKey
  * @param iou details of the IOU.
  * @param sender the party issuing the IOU.
  * @param recipient the party receiving and approving the IOU.
- * @param contract the contract which governs which transactions are valid for this state object.
  */
 data class IOUState(val iou: IOU,
                     val sender: Party,

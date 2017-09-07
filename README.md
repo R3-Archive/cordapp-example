@@ -295,10 +295,8 @@ available tables and provides an interface for you to query them using SQL.
 `ExampleClientRPC` is a simple utility class which uses the client
 RPC library to connect to a node and log the 'placed' IOUs.
 It will log any existing IOUs and listen for any future
-IOUs. To build the client use the following gradle task:
+IOUs.
 
-     ../gradlew runExampleClientRPC
-     
 To run the client:
 
 **Via IntelliJ:**
@@ -309,11 +307,12 @@ client.
 
 **Via the command line:**
 
-Run the following gradle task:
+Run one of the following gradle tasks:
 
-     ../gradlew runExampleClientRPC
+     ../gradlew runExampleClientRPCKotlin
+     ../gradlew runExampleClientRPCJava
      
-From either `kotlin-source` or `java-source` directory depending which one you are running.
+depending which nodes you are running.
 The RPC client should output some IOUs to the console.
 
 ## Running the Nodes Across Multiple Machines
