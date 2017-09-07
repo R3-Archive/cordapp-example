@@ -33,7 +33,7 @@ private class ExampleClientRPC {
 
         // Grab all signed transactions and all future signed transactions.
         val (transactions: List<SignedTransaction>, futureTransactions: Observable<SignedTransaction>) =
-                proxy.verifiedTransactionsFeed()
+                proxy.internalVerifiedTransactionsFeed()
 
         // Log the 'placed' IOU states and listen for new ones.
         futureTransactions.startWith(transactions).toBlocking().subscribe { transaction ->

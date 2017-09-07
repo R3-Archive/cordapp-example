@@ -37,7 +37,7 @@ public class ExampleClientRPC {
 
         // Grab all signed transactions and all future signed transactions.
         final DataFeed<List<SignedTransaction>, SignedTransaction> txsAndFutureTxs =
-                proxy.verifiedTransactionsFeed();
+                proxy.internalVerifiedTransactionsFeed();
         final List<SignedTransaction> txs = txsAndFutureTxs.getSnapshot();
         final Observable<SignedTransaction> futureTxs = txsAndFutureTxs.getUpdates();
 
