@@ -6,6 +6,7 @@ import com.example.model.IOU;
 import com.example.state.IOUState;
 import net.corda.core.contracts.Command;
 import net.corda.core.contracts.ContractState;
+import net.corda.core.contracts.UniqueIdentifier;
 import net.corda.core.flows.*;
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
@@ -82,12 +83,14 @@ public class ExampleFlow {
         @Override
         public SignedTransaction call() throws FlowException {
             // Obtain a reference to the notary we want to use.
-            final Party notary = getServiceHub().getNetworkMapCache().getNotaryNodes().get(0).getNotaryIdentity();
+            final Party notary = getServiceHub().getNetworkMapCache().getAnyNotary(null);
+            // Obtain a reference to our own identity.
+            final Party me = getServiceHub().getMyInfo().getLegalIdentity();
 
             // Stage 1.
             progressTracker.setCurrentStep(GENERATING_TRANSACTION);
             // Generate an unsigned transaction.
-            IOUState iouState = new IOUState(new IOU(iouValue), getServiceHub().getMyInfo().getLegalIdentity(), otherParty);
+            IOUState iouState = new IOUState(new IOU(iouValue), me, otherParty, new UniqueIdentifier());
             final Command<IOUContract.Commands.Create> txCommand = new Command<>(new IOUContract.Commands.Create(),
                     iouState.getParticipants().stream().map(AbstractParty::getOwningKey).collect(Collectors.toList()));
             final TransactionBuilder txBuilder = new TransactionBuilder(notary).withItems(iouState, txCommand);

@@ -33,15 +33,17 @@ public class IOUState implements LinearState, QueryableState {
      * @param iou details of the IOU.
      * @param sender the party issuing the IOU.
      * @param recipient the party receiving and approving the IOU.
+     * @param linearId unique identifier of the IOU.
      */
     public IOUState(IOU iou,
                     Party sender,
-                    Party recipient)
+                    Party recipient,
+                    UniqueIdentifier linearId)
     {
         this.iou = iou;
         this.sender = sender;
         this.recipient = recipient;
-        this.linearId = new UniqueIdentifier();
+        this.linearId = linearId;
     }
 
     public IOU getIOU() { return iou; }
