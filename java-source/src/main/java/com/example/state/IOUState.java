@@ -47,7 +47,6 @@ public class IOUState implements LinearState, QueryableState {
     public IOU getIOU() { return iou; }
     public Party getSender() { return sender; }
     public Party getRecipient() { return recipient; }
-    @Override public IOUContract getContract() { return contract; }
     @Override public UniqueIdentifier getLinearId() { return linearId; }
     @Override public List<AbstractParty> getParticipants() {
         return Arrays.asList(sender, recipient);

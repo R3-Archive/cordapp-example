@@ -2,11 +2,13 @@ package com.example.flow
 
 import co.paralleluniverse.fibers.Suspendable
 import com.example.contract.IOUContract
+import com.example.contract.IOUContract.Companion.IOU_CONTRACT_ID
 import com.example.flow.ExampleFlow.Acceptor
 import com.example.flow.ExampleFlow.Initiator
 import com.example.model.IOU
 import com.example.state.IOUState
 import net.corda.core.contracts.Command
+import net.corda.core.contracts.StateAndContract
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.InitiatedBy
@@ -78,7 +80,7 @@ object ExampleFlow {
             // Generate an unsigned transaction.
             val iouState = IOUState(IOU(iouValue), serviceHub.myInfo.legalIdentity, otherParty)
             val txCommand = Command(IOUContract.Commands.Create(), iouState.participants.map { it.owningKey })
-            val txBuilder = TransactionBuilder(notary).withItems(iouState, txCommand)
+            val txBuilder = TransactionBuilder(notary).withItems(StateAndContract(iouState, IOU_CONTRACT_ID), txCommand)
 
             // Stage 2.
             progressTracker.currentStep = VERIFYING_TRANSACTION

@@ -18,6 +18,11 @@ import net.corda.core.transactions.LedgerTransaction
  * All contracts must sub-class the [Contract] interface.
  */
 open class IOUContract : Contract {
+    companion object {
+        @JvmStatic
+        val IOU_CONTRACT_ID = "com.example.contract.IOUContract"
+    }
+
     /**
      * The verify() function of all the states' contracts must not throw an exception for a transaction to be
      * considered valid.

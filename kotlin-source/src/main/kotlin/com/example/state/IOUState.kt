@@ -26,8 +26,6 @@ data class IOUState(val iou: IOU,
                     val recipient: Party,
                     override val linearId: UniqueIdentifier = UniqueIdentifier()):
         LinearState, QueryableState {
-    override val contract get() = IOUContract()
-
     /** The public keys of the involved parties. */
     override val participants: List<AbstractParty> get() = listOf(sender, recipient)
 
