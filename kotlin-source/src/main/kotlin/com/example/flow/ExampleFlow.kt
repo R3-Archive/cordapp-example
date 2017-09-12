@@ -85,7 +85,7 @@ object ExampleFlow {
             // Stage 2.
             progressTracker.currentStep = VERIFYING_TRANSACTION
             // Verify that the transaction is valid.
-            txBuilder.toWireTransaction().toLedgerTransaction(serviceHub).verify()
+            txBuilder.verify(serviceHub)
 
             // Stage 3.
             progressTracker.currentStep = SIGNING_TRANSACTION
