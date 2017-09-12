@@ -17,9 +17,10 @@ import net.corda.core.schemas.QueryableState
  *
  * A state must implement [ContractState] or one of its descendants.
  *
- * @param iou details of the IOU.
- * @param sender the party issuing the IOU.
- * @param recipient the party receiving and approving the IOU.
+ * @property iou details of the IOU.
+ * @property sender the party issuing the IOU.
+ * @property recipient the party receiving and approving the IOU.
+ * @property linearId unique identifier of the IOU.
  */
 data class IOUState(val iou: IOU,
                     val sender: Party,
