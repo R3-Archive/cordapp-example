@@ -7,6 +7,7 @@ import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.TransactionState;
 import net.corda.core.contracts.TransactionVerificationException;
 import net.corda.core.transactions.SignedTransaction;
+import net.corda.node.internal.StartedNode;
 import net.corda.testing.node.MockNetwork;
 import net.corda.testing.node.MockNetwork.BasketOfNodes;
 import net.corda.testing.node.MockNetwork.MockNode;
@@ -23,8 +24,8 @@ import static org.junit.Assert.assertEquals;
 
 public class IOUFlowTests {
     private MockNetwork net;
-    private MockNode a;
-    private MockNode b;
+    private StartedNode<MockNode> a;
+    private StartedNode<MockNode> b;
 
     @Before
     public void setup() {
@@ -33,7 +34,7 @@ public class IOUFlowTests {
         a = nodes.getPartyNodes().get(0);
         b = nodes.getPartyNodes().get(1);
         // For real nodes this happens automatically, but we have to manually register the flow for tests
-        for (MockNode node: nodes.getPartyNodes()) {
+        for (StartedNode<MockNode> node: nodes.getPartyNodes()) {
             node.registerInitiatedFlow(ExampleFlow.Acceptor.class);
         }
         net.runNetwork();
@@ -50,7 +51,7 @@ public class IOUFlowTests {
     @Test
     public void flowRejectsInvalidIOUs() throws Exception {
         // The IOUContract specifies that IOUs cannot have negative values.
-        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(-1, b.info.getLegalIdentity());
+        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(-1, b.getInfo().getLegalIdentities().get(0));
         CordaFuture<SignedTransaction> future = a.getServices().startFlow(flow).getResultFuture();
         net.runNetwork();
 
@@ -61,33 +62,33 @@ public class IOUFlowTests {
 
     @Test
     public void signedTransactionReturnedByTheFlowIsSignedByTheInitiator() throws Exception {
-        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(1, b.info.getLegalIdentity());
+        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(1, b.getInfo().getLegalIdentities().get(0));
         CordaFuture<SignedTransaction> future = a.getServices().startFlow(flow).getResultFuture();
         net.runNetwork();
 
         SignedTransaction signedTx = future.get();
-        signedTx.verifySignaturesExcept(b.getServices().getLegalIdentityKey());
+        signedTx.verifySignaturesExcept(b.getInfo().getLegalIdentities().get(0).getOwningKey());
     }
 
     @Test
     public void signedTransactionReturnedByTheFlowIsSignedByTheAcceptor() throws Exception {
-        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(1, b.info.getLegalIdentity());
+        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(1, b.getInfo().getLegalIdentities().get(0));
         CordaFuture<SignedTransaction> future = a.getServices().startFlow(flow).getResultFuture();
         net.runNetwork();
 
         SignedTransaction signedTx = future.get();
-        signedTx.verifySignaturesExcept(a.getServices().getLegalIdentityKey());
+        signedTx.verifySignaturesExcept(a.getInfo().getLegalIdentities().get(0).getOwningKey());
     }
 
     @Test
     public void flowRecordsATransactionInBothPartiesVaults() throws Exception {
-        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(1, b.info.getLegalIdentity());
+        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(1, b.getInfo().getLegalIdentities().get(0));
         CordaFuture<SignedTransaction> future = a.getServices().startFlow(flow).getResultFuture();
         net.runNetwork();
         SignedTransaction signedTx = future.get();
 
         // We check the recorded transaction in both vaults.
-        for (MockNode node : ImmutableList.of(a, b)) {
+        for (StartedNode<MockNode> node : ImmutableList.of(a, b)) {
             assertEquals(signedTx, node.getServices().getValidatedTransactions().getTransaction(signedTx.getId()));
         }
     }
@@ -95,21 +96,21 @@ public class IOUFlowTests {
     @Test
     public void recordedTransactionHasNoInputsAndASingleOutputTheInputIOU() throws Exception {
         int iouValue = 1;
-        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(iouValue, b.info.getLegalIdentity());
+        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(iouValue, b.getInfo().getLegalIdentities().get(0));
         CordaFuture<SignedTransaction> future = a.getServices().startFlow(flow).getResultFuture();
         net.runNetwork();
         SignedTransaction signedTx = future.get();
 
         // We check the recorded transaction in both vaults.
-        for (MockNode node : ImmutableList.of(a, b)) {
+        for (StartedNode<MockNode> node : ImmutableList.of(a, b)) {
             SignedTransaction recordedTx = node.getServices().getValidatedTransactions().getTransaction(signedTx.getId());
             List<TransactionState<ContractState>> txOutputs = recordedTx.getTx().getOutputs();
             assert(txOutputs.size() == 1);
 
             IOUState recordedState = (IOUState) txOutputs.get(0).getData();
             assertEquals(recordedState.getIOU().getValue(), iouValue);
-            assertEquals(recordedState.getSender(), a.info.getLegalIdentity());
-            assertEquals(recordedState.getRecipient(), b.info.getLegalIdentity());
+            assertEquals(recordedState.getSender(), a.getInfo().getLegalIdentities().get(0));
+            assertEquals(recordedState.getRecipient(), b.getInfo().getLegalIdentities().get(0));
         }
     }
 }
