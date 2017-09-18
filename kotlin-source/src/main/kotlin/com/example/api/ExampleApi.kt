@@ -3,12 +3,12 @@ package com.example.api
 import com.example.flow.ExampleFlow.Initiator
 import com.example.state.IOUState
 import net.corda.core.contracts.StateAndRef
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.startTrackedFlow
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.utilities.getOrThrow
 import net.corda.core.utilities.loggerFor
-import org.bouncycastle.asn1.x500.X500Name
 import org.slf4j.Logger
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
@@ -19,7 +19,7 @@ val NOTARY_NAME = "CN=Controller,O=R3,OU=corda,L=London,C=UK"
 // This API is accessible from /api/example. All paths specified below are relative to it.
 @Path("example")
 class ExampleApi(val services: CordaRPCOps) {
-    private val myLegalName: X500Name = services.nodeIdentity().legalIdentity.name
+    private val myLegalName: CordaX500Name = services.nodeInfo().legalIdentities.first().name
 
     companion object {
         private val logger: Logger = loggerFor<ExampleApi>()
@@ -40,10 +40,10 @@ class ExampleApi(val services: CordaRPCOps) {
     @GET
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getPeers(): Map<String, List<X500Name>> {
+    fun getPeers(): Map<String, List<CordaX500Name>> {
         val nodeInfo = services.networkMapSnapshot()
         return mapOf("peers" to nodeInfo
-                .map { it.legalIdentity.name }
+                .map { it.legalIdentities.first().name }
                 .filter { it != myLegalName && it.toString() != NOTARY_NAME })
     }
 
@@ -71,7 +71,7 @@ class ExampleApi(val services: CordaRPCOps) {
      */
     @PUT
     @Path("create-iou")
-    fun createIOU(@QueryParam("iouValue") iouValue: Int, @QueryParam("partyName") partyName: X500Name): Response {
+    fun createIOU(@QueryParam("iouValue") iouValue: Int, @QueryParam("partyName") partyName: CordaX500Name): Response {
         val otherParty = services.partyFromX500Name(partyName) ?:
                 return Response.status(Response.Status.BAD_REQUEST).build()
 

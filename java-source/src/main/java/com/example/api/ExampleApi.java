@@ -4,13 +4,13 @@ import com.example.flow.ExampleFlow;
 import com.example.state.*;
 import com.google.common.collect.ImmutableMap;
 import net.corda.core.contracts.StateAndRef;
+import net.corda.core.identity.CordaX500Name;
 import net.corda.core.identity.Party;
 import net.corda.core.messaging.CordaRPCOps;
 import net.corda.core.messaging.FlowProgressHandle;
 import net.corda.core.node.NodeInfo;
 import net.corda.core.node.services.Vault;
 import net.corda.core.transactions.SignedTransaction;
-import org.bouncycastle.asn1.x500.X500Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,14 +27,14 @@ import static java.util.stream.Collectors.toList;
 @Path("example")
 public class ExampleApi {
     private final CordaRPCOps services;
-    private final X500Name myLegalName;
+    private final CordaX500Name myLegalName;
     private final String notaryName = "CN=Controller,O=R3,OU=corda,L=London,C=UK";
 
     static private final Logger logger = LoggerFactory.getLogger(ExampleApi.class);
 
     public ExampleApi(CordaRPCOps services) {
         this.services = services;
-        this.myLegalName = services.nodeIdentity().getLegalIdentity().getName();
+        this.myLegalName = services.nodeInfo().getLegalIdentities().get(0).getName();
     }
 
     /**
@@ -43,7 +43,7 @@ public class ExampleApi {
     @GET
     @Path("me")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, X500Name> whoami() { return ImmutableMap.of("me", myLegalName); }
+    public Map<String, CordaX500Name> whoami() { return ImmutableMap.of("me", myLegalName); }
 
     /**
      * Returns all parties registered with the [NetworkMapService]. These names can be used to look up identities
@@ -52,13 +52,13 @@ public class ExampleApi {
     @GET
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, List<X500Name>> getPeers() {
+    public Map<String, List<CordaX500Name>> getPeers() {
         List<NodeInfo> nodeInfoSnapshot = services.networkMapSnapshot();
         return ImmutableMap.of(
                 "peers",
                 nodeInfoSnapshot
                         .stream()
-                        .map(node -> node.getLegalIdentity().getName())
+                        .map(node -> node.getLegalIdentities().get(0).getName())
                         .filter(name -> !name.equals(myLegalName) && !(name.toString().equals(notaryName)))
                         .collect(toList()));
     }
@@ -87,7 +87,7 @@ public class ExampleApi {
      */
     @PUT
     @Path("create-iou")
-    public Response createIOU(@QueryParam("iouValue") int iouValue, @QueryParam("partyName") X500Name partyName) throws InterruptedException, ExecutionException {
+    public Response createIOU(@QueryParam("iouValue") int iouValue, @QueryParam("partyName") CordaX500Name partyName) throws InterruptedException, ExecutionException {
         final Party otherParty = services.partyFromX500Name(partyName);
 
         if (otherParty == null) {
