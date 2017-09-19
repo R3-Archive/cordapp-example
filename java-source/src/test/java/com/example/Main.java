@@ -33,12 +33,12 @@ public class Main {
         final User user = new User("user1", "test", emptySet());
         driver(new DriverParameters().setIsDebug(true), dsl -> {
                     dsl.startNode(new NodeParameters()
-                            .setProvidedName(new CordaX500Name("Controller", "corda", "R3", "London", null, "UK"))
+                            .setProvidedName(new CordaX500Name("Controller", "corda", "R3 Ltd", "London", null, "GB"))
                             .setAdvertisedServices(ImmutableSet.of(new ServiceInfo(ValidatingNotaryService.Companion.getType(), null))));
 
                     try {
                         NodeHandle nodeA = dsl.startNode(new NodeParameters()
-                                .setProvidedName(new CordaX500Name("NodeA", "NodeA", "London", "UK"))
+                                .setProvidedName(new CordaX500Name("NodeA", "NodeA", "London", "GB"))
                                 .setRpcUsers(ImmutableList.of(user))).get();
                         NodeHandle nodeB = dsl.startNode(new NodeParameters()
                                 .setProvidedName(new CordaX500Name("NodeB", "NodeB", "New York", "US"))
