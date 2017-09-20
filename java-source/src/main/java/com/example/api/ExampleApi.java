@@ -87,8 +87,8 @@ public class ExampleApi {
      */
     @PUT
     @Path("create-iou")
-    public Response createIOU(@QueryParam("iouValue") int iouValue, @QueryParam("partyName") CordaX500Name partyName) throws InterruptedException, ExecutionException {
-        final Party otherParty = services.partyFromX500Name(partyName);
+    public Response createIOU(@QueryParam("iouValue") int iouValue, @QueryParam("partyName") String partyName) throws InterruptedException, ExecutionException {
+        final Party otherParty = services.partyFromX500Name(CordaX500Name.parse(partyName));
 
         if (otherParty == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
