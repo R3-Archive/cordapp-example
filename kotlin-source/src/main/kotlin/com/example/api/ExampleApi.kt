@@ -71,8 +71,8 @@ class ExampleApi(val services: CordaRPCOps) {
      */
     @PUT
     @Path("create-iou")
-    fun createIOU(@QueryParam("iouValue") iouValue: Int, @QueryParam("partyName") partyName: CordaX500Name): Response {
-        val otherParty = services.partyFromX500Name(partyName) ?:
+    fun createIOU(@QueryParam("iouValue") iouValue: Int, @QueryParam("partyName") partyName: String): Response {
+        val otherParty = services.partyFromX500Name(CordaX500Name.parse(partyName)) ?:
                 return Response.status(Response.Status.BAD_REQUEST).build()
 
         var status: Response.Status
