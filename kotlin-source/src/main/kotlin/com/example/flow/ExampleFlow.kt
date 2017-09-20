@@ -73,7 +73,7 @@ object ExampleFlow {
         @Suspendable
         override fun call(): SignedTransaction {
             // Obtain a reference to the notary we want to use.
-            val notary = serviceHub.networkMapCache.notaryNodes.single().notaryIdentity
+            val notary = serviceHub.networkMapCache.getAnyNotary()
 
             // Stage 1.
             progressTracker.currentStep = GENERATING_TRANSACTION
