@@ -74,7 +74,7 @@ class ExampleApi(val services: CordaRPCOps) {
     @PUT
     @Path("create-iou")
     fun createIOU(@QueryParam("iouValue") iouValue: Int, @QueryParam("partyName") partyName: CordaX500Name): Response {
-        val otherParty = services.partyFromX500Name(partyName) ?:
+        val otherParty = services.wellKnownPartyFromX500Name(partyName) ?:
                 return Response.status(Response.Status.BAD_REQUEST).entity("Party named $partyName cannot be found").build()
 
         var status: Response.Status

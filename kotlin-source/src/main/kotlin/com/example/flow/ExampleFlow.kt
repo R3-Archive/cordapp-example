@@ -87,10 +87,10 @@ object ExampleFlow {
             val partSignedTx = serviceHub.signInitialTransaction(txBuilder)
 
             // Stage 4.
-            val otherPartFlow = initiateFlow(otherParty)
+            val otherPartyFlow = initiateFlow(otherParty)
             progressTracker.currentStep = GATHERING_SIGS
             // Send the state to the counterparty, and receive it back with their signature.
-            val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, setOf(otherPartFlow), GATHERING_SIGS.childProgressTracker()))
+            val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, setOf(otherPartyFlow), GATHERING_SIGS.childProgressTracker()))
 
             // Stage 5.
             progressTracker.currentStep = FINALISING_TRANSACTION
