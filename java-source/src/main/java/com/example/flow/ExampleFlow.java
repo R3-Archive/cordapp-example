@@ -97,7 +97,7 @@ public class ExampleFlow {
             // Stage 2.
             progressTracker.setCurrentStep(VERIFYING_TRANSACTION);
             // Verify that the transaction is valid.
-            txBuilder.toWireTransaction().toLedgerTransaction(getServiceHub()).verify();
+            txBuilder.toWireTransaction(getServiceHub()).toLedgerTransaction(getServiceHub()).verify();
 
             // Stage 3.
             progressTracker.setCurrentStep(SIGNING_TRANSACTION);
