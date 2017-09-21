@@ -27,14 +27,14 @@ import static java.util.stream.Collectors.toList;
 @Path("example")
 public class ExampleApi {
     private final CordaRPCOps services;
-    private final CordaX500Name myLegalName;
-    private final String notaryName = "CN=Controller,O=R3,OU=corda,L=London,C=UK";
+    private final String myLegalName;
+    private final String notaryName = "Controller";
 
     static private final Logger logger = LoggerFactory.getLogger(ExampleApi.class);
 
     public ExampleApi(CordaRPCOps services) {
         this.services = services;
-        this.myLegalName = services.nodeInfo().getLegalIdentities().get(0).getName();
+        this.myLegalName = services.nodeInfo().getLegalIdentities().get(0).getName().getOrganisation();
     }
 
     /**
@@ -43,7 +43,7 @@ public class ExampleApi {
     @GET
     @Path("me")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, CordaX500Name> whoami() { return ImmutableMap.of("me", myLegalName); }
+    public Map<String, String> whoami() { return ImmutableMap.of("me", myLegalName); }
 
     /**
      * Returns all parties registered with the [NetworkMapService]. These names can be used to look up identities
@@ -52,14 +52,14 @@ public class ExampleApi {
     @GET
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, List<CordaX500Name>> getPeers() {
+    public Map<String, List<String>> getPeers() {
         List<NodeInfo> nodeInfoSnapshot = services.networkMapSnapshot();
         return ImmutableMap.of(
                 "peers",
                 nodeInfoSnapshot
                         .stream()
-                        .map(node -> node.getLegalIdentities().get(0).getName())
-                        .filter(name -> !name.equals(myLegalName) && !(name.toString().equals(notaryName)))
+                        .map(node -> node.getLegalIdentities().get(0).getName().getOrganisation())
+                        .filter(name -> !name.equals(myLegalName) && !(name.equals(notaryName)))
                         .collect(toList()));
     }
 
@@ -87,8 +87,8 @@ public class ExampleApi {
      */
     @PUT
     @Path("create-iou")
-    public Response createIOU(@QueryParam("iouValue") int iouValue, @QueryParam("partyName") CordaX500Name partyName) throws InterruptedException, ExecutionException {
-        final Party otherParty = services.partyFromX500Name(partyName);
+    public Response createIOU(@QueryParam("iouValue") int iouValue, @QueryParam("partyName") String partyName) throws InterruptedException, ExecutionException {
+        final Party otherParty = services.partiesFromName(partyName, false).iterator().next();
 
         if (otherParty == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
