@@ -9,18 +9,18 @@ import net.corda.core.messaging.startTrackedFlow
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.utilities.getOrThrow
 import net.corda.core.utilities.loggerFor
-import org.bouncycastle.asn1.x500.X500Name
 import org.slf4j.Logger
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
 val NOTARY_NAME = "Controller"
+val NETWORK_MAP_NAME = "Network Map Service"
 
 // This API is accessible from /api/example. All paths specified below are relative to it.
 @Path("example")
 class ExampleApi(val services: CordaRPCOps) {
-    private val myLegalName = services.nodeInfo().legalIdentities.first().name.organisation
+    private val myLegalName: CordaX500Name = services.nodeInfo().legalIdentities.first().name
 
     companion object {
         private val logger: Logger = loggerFor<ExampleApi>()
@@ -41,11 +41,12 @@ class ExampleApi(val services: CordaRPCOps) {
     @GET
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getPeers(): Map<String, List<String>> {
+    fun getPeers(): Map<String, List<CordaX500Name>> {
         val nodeInfo = services.networkMapSnapshot()
         return mapOf("peers" to nodeInfo
-                .map { it.legalIdentities.first().name.organisation }
-                .filter { it != myLegalName && it != NOTARY_NAME })
+                .map { it.legalIdentities.first().name }
+                //filter out myself, notary and eventual network map started by driver
+                .filter { it != myLegalName && it.organisation != NOTARY_NAME && it.organisation != NETWORK_MAP_NAME })
     }
 
     /**
@@ -72,8 +73,9 @@ class ExampleApi(val services: CordaRPCOps) {
      */
     @PUT
     @Path("create-iou")
-    fun createIOU(@QueryParam("iouValue") iouValue: Int, @QueryParam("partyName") partyName: String): Response {
-        val otherParty = services.partiesFromName(partyName, false).first()
+    fun createIOU(@QueryParam("iouValue") iouValue: Int, @QueryParam("partyName") partyName: CordaX500Name): Response {
+        val otherParty = services.wellKnownPartyFromX500Name(partyName) ?:
+                return Response.status(Response.Status.BAD_REQUEST).entity("Party named $partyName cannot be found").build()
 
         var status: Response.Status
         var msg: String

@@ -25,11 +25,11 @@ fun main(args: Array<String>) {
     // No permissions required as we are not invoking flows.
     val user = User("user1", "test", permissions = setOf())
     driver(isDebug = true) {
-        startNode(providedName = CordaX500Name("Controller", "corda", "R3 Ltd", "London", null, "GB"), advertisedServices = setOf(ServiceInfo(ValidatingNotaryService.type)))
+        startNode(providedName = CordaX500Name("Controller", "London", "GB"), advertisedServices = setOf(ServiceInfo(ValidatingNotaryService.type)))
         val (nodeA, nodeB, nodeC) = listOf(
-                startNode(providedName = CordaX500Name("PartyA", "PartyA", "London", "GB"), rpcUsers = listOf(user)),
-                startNode(providedName = CordaX500Name("PartyB", "PartyB", "New York", "US"), rpcUsers = listOf(user)),
-                startNode(providedName = CordaX500Name("PartyC", "PartyC", "Paris", "FR"), rpcUsers = listOf(user))).map { it.getOrThrow() }
+                startNode(providedName = CordaX500Name("PartyA", "London", "GB"), rpcUsers = listOf(user)),
+                startNode(providedName = CordaX500Name("PartyB", "New York", "US"), rpcUsers = listOf(user)),
+                startNode(providedName = CordaX500Name("PartyC", "Paris", "FR"), rpcUsers = listOf(user))).map { it.getOrThrow() }
 
         startWebserver(nodeA)
         startWebserver(nodeB)
