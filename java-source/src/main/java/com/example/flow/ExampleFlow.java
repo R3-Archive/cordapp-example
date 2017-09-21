@@ -84,7 +84,7 @@ public class ExampleFlow {
         @Override
         public SignedTransaction call() throws FlowException {
             // Obtain a reference to the notary we want to use.
-            final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0).getParty();
+            final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
 
             // Stage 1.
             progressTracker.setCurrentStep(GENERATING_TRANSACTION);
