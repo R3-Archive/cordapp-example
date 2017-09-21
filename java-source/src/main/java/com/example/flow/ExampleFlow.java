@@ -4,6 +4,7 @@ import co.paralleluniverse.fibers.Suspendable;
 import com.example.contract.IOUContract;
 import com.example.model.IOU;
 import com.example.state.IOUState;
+import com.google.common.collect.Sets;
 import net.corda.core.contracts.Command;
 import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.StateAndContract;
@@ -104,34 +105,37 @@ public class ExampleFlow {
             // Sign the transaction.
             final SignedTransaction partSignedTx = getServiceHub().signInitialTransaction(txBuilder);
 
+
+            FlowSession otherPartySession = initiateFlow(otherParty);
+
             // Stage 4.
             progressTracker.setCurrentStep(GATHERING_SIGS);
             // Send the state to the counterparty, and receive it back with their signature.
             final SignedTransaction fullySignedTx = subFlow(
-                    new CollectSignaturesFlow(partSignedTx, CollectSignaturesFlow.Companion.tracker()));
+                    new CollectSignaturesFlow(partSignedTx, Sets.newHashSet(otherPartySession), CollectSignaturesFlow.Companion.tracker()));
 
             // Stage 5.
             progressTracker.setCurrentStep(FINALISING_TRANSACTION);
             // Notarise and record the transaction in both parties' vaults.
-            return subFlow(new FinalityFlow(fullySignedTx)).get(0);
+            return subFlow(new FinalityFlow(fullySignedTx));
         }
     }
 
     @InitiatedBy(Initiator.class)
     public static class Acceptor extends FlowLogic<SignedTransaction> {
 
-        private final Party otherParty;
+        private final FlowSession otherPartyFlow;
 
-        public Acceptor(Party otherParty) {
-            this.otherParty = otherParty;
+        public Acceptor(FlowSession otherPartyFlow) {
+            this.otherPartyFlow = otherPartyFlow;
         }
 
         @Suspendable
         @Override
         public SignedTransaction call() throws FlowException {
             class signTxFlow extends SignTransactionFlow {
-                private signTxFlow(Party otherParty, ProgressTracker progressTracker) {
-                    super(otherParty, progressTracker);
+                private signTxFlow(FlowSession otherPartyFlow, ProgressTracker progressTracker) {
+                    super(otherPartyFlow, progressTracker);
                 }
 
                 @Override
@@ -146,7 +150,7 @@ public class ExampleFlow {
                 }
             }
 
-            return subFlow(new signTxFlow(otherParty, SignTransactionFlow.Companion.tracker()));
+            return subFlow(new signTxFlow(otherPartyFlow, SignTransactionFlow.Companion.tracker()));
         }
     }
 }
