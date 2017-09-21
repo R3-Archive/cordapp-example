@@ -27,16 +27,16 @@ submit IOUs to a seller. The scenario defines four nodes:
 
 * **Controller** which hosts the network map service and validating notary
   service.
-* **NodeA** who is the buyer.
-* **NodeB** who is the seller.
-* **NodeC** an unrelated third party.
+* **PartyA** who is the buyer.
+* **PartyB** who is the seller.
+* **PartyC** an unrelated third party.
 
 NodeA can generate IOUs. The flows used to facilitate the agreement process 
 always result in an agreement with the seller as long as the IOU meets the 
 contract constraints which are defined in `IOUContract`.
 
-All agreed IOUs between NodeA and NodeB become "shared facts"
-between NodeA and NodeB. However, NodeC won't see any of these
+All agreed IOUs between PartyA and PartyB become "shared facts"
+between PartyA and PartyB. However, PartyC won't see any of these
 transactions or receive copies of the resulting `IOUState`
 objects. This is because data is only propagated on a need-to-know
 basis.
@@ -158,9 +158,9 @@ The nodes can be found using the following port numbers, defined in
 `build.gradle` and the respective `node.conf` file for each node found
 in `kotlin-source/build/nodes/NodeX` or `java-source/build/nodes/NodeX`:
 
-     NodeA: localhost:10007
-     NodeB: localhost:10010
-     NodeC: localhost:10013
+     PartyA: localhost:10007
+     PartyB: localhost:10010
+     PartyC: localhost:10013
 
 Also, as the nodes start-up they should tell you which host and port the
 embedded web server is running on. The API endpoints served are as follows:
@@ -184,21 +184,21 @@ not copy such code directly into products meant for production use.**
 
 **Submitting an IOU via HTTP API:**
 
-To create an IOU from NodeA to NodeB, use:
+To create an IOU from PartyA to PartyB, use:
 
-     curl -X PUT 'http://localhost:10007/api/example/create-iou?iouValue=99&partyName=CN%3DNodeB%2CO%3DNodeB%2CL%3DNew%20York%2CC%3DUS'
+     curl -v -X PUT 'http://localhost:10007/api/example/create-iou?iouValue=99&partyName=O%3DPartyB%2CL%3DNew%20York%2CC%3DUS'
 
-Note the port number `10007` (NodeA), the IOU value `99` and the counterparty name `CN=NodeB,O=NodeB,L=New York,C=US` 
+Note the port number `10007` (PartyA), the IOU value `99` and the counterparty name `O=PartyB,L=New York,C=US` 
 referenced in the end-point path. This command instructs NodeA to create and send an IOU
-to NodeB. Upon verification and completion of the process, both nodes
-(but not NodeC) will have a signed, notarised copy of the IOU.
+to PartyB. Upon verification and completion of the process, both parties
+(but not PartyC) will have a signed, notarised copy of the IOU.
 
 **Submitting an IOU via `web/example`:**
 
 Click the "Create IOU" button at the top left of the page and enter the IOU 
 details, e.g.
 
-     Counter-party: CN=NodeB,O=NodeB,L=New York,C=US
+     Counter-party: O=PartyB,L=New York,C=US
      Value:  1
 
 and click "Create IOU". The modal dialogue should close.
@@ -211,9 +211,9 @@ Exception and you should rceeive an error message in response.
 **Viewing the submitted IOU:**
 
 Inspect the terminal for the nodes. You should see some activity in the
-terminal windows for NodeA and NodeB:
+terminal windows for PartyA and PartyB:
 
-*NodeA:*
+*PartyA:*
 
      Generating transaction based on new IOU.
      Verifying contract constraints.
@@ -221,7 +221,7 @@ terminal windows for NodeA and NodeB:
      Sending proposed transaction to recipient for review.
      Done
 
-*NodeB:*
+*PartyB:*
 
      Receiving proposed transaction from sender.
      Verifying signatures and contract constraints.
@@ -229,23 +229,23 @@ terminal windows for NodeA and NodeB:
      Obtaining notary signature and recording transaction.
      Done
 
-*NodeC:*
+*PartyC:*
 
      You shouldn't see any activity.
 
 
-**NOTE: These progress tracking messages are not currently visible in the Nodes, but they are visible on the NodeA WebServer terminal. Running the nodes with log-level DEBUG or TRACE should reveal extra activity when creating a new IOU.**
+**NOTE: These progress tracking messages are not currently visible in the Nodes, but they are visible on the PartyA WebServer terminal. Running the nodes with log-level DEBUG or TRACE should reveal extra activity when creating a new IOU.**
 
 Alternatively, try adding an IOU with a delivery date in the past 
 or a delivery country other than the UK.
 
 Next you can view the newly created IOU by accessing the
-vault of NodeA or NodeB:
+vault of PartyA or PartyB:
 
 **Via the HTTP API:**
 
-For NodeA. navigate to
-`http://localhost:10007/api/example/ious`. For NodeB,
+For PartyA. navigate to
+`http://localhost:10007/api/example/ious`. For PartyB,
 navigate to `http://localhost:10010/api/example/ious`.
 
 **Via web/example:**
@@ -302,15 +302,15 @@ To run the client:
 **Via IntelliJ:**
 
 Select the 'Run Example RPC Client' run configuration which, by default,
-connects to NodeA (RPC port 10006). Click the Green Arrow to run the
+connects to PartyA (RPC port 10006). Click the Green Arrow to run the
 client. 
 
 **Via the command line:**
 
 Run one of the following gradle tasks:
 
-     ../gradlew runExampleClientRPCKotlin
-     ../gradlew runExampleClientRPCJava
+     ./gradlew runExampleClientRPCKotlin
+     ./gradlew runExampleClientRPCJava
      
 depending which nodes you are running.
 The RPC client should output some IOUs to the console.
