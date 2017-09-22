@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import net.corda.core.identity.CordaX500Name;
 import net.corda.node.services.transactions.ValidatingNotaryService;
-import net.corda.nodeapi.ServiceInfo;
 import net.corda.nodeapi.User;
+import net.corda.nodeapi.internal.ServiceInfo;
 import net.corda.testing.driver.DriverParameters;
 import net.corda.testing.driver.NodeHandle;
 import net.corda.testing.driver.NodeParameters;
@@ -33,18 +33,18 @@ public class Main {
         final User user = new User("user1", "test", emptySet());
         driver(new DriverParameters().setIsDebug(true), dsl -> {
                     dsl.startNode(new NodeParameters()
-                            .setProvidedName(new CordaX500Name("Controller", "corda", "R3 Ltd", "London", null, "GB"))
+                            .setProvidedName(new CordaX500Name("Controller", "London", "GB"))
                             .setAdvertisedServices(ImmutableSet.of(new ServiceInfo(ValidatingNotaryService.Companion.getType(), null))));
 
                     try {
                         NodeHandle nodeA = dsl.startNode(new NodeParameters()
-                                .setProvidedName(new CordaX500Name("PartyA", "PartyA", "London", "GB"))
+                                .setProvidedName(new CordaX500Name("PartyA", "London", "GB"))
                                 .setRpcUsers(ImmutableList.of(user))).get();
                         NodeHandle nodeB = dsl.startNode(new NodeParameters()
-                                .setProvidedName(new CordaX500Name("PartyB", "PartyB", "New York", "US"))
+                                .setProvidedName(new CordaX500Name("PartyB", "New York", "US"))
                                 .setRpcUsers(ImmutableList.of(user))).get();
                         NodeHandle nodeC = dsl.startNode(new NodeParameters()
-                                .setProvidedName(new CordaX500Name("PartyC", "PartyC", "Paris", "FR"))
+                                .setProvidedName(new CordaX500Name("PartyC", "Paris", "FR"))
                                 .setRpcUsers(ImmutableList.of(user))).get();
 
                         dsl.startWebserver(nodeA);
