@@ -19,6 +19,8 @@ import org.junit.rules.ExpectedException;
 
 import java.util.List;
 
+import static net.corda.testing.CoreTestUtils.setCordappPackages;
+import static net.corda.testing.CoreTestUtils.unsetCordappPackages;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 
@@ -29,6 +31,7 @@ public class IOUFlowTests {
 
     @Before
     public void setup() {
+        setCordappPackages("com.example.contract");
         net = new MockNetwork();
         BasketOfNodes nodes = net.createSomeNodes(2);
         a = nodes.getPartyNodes().get(0);
@@ -42,6 +45,7 @@ public class IOUFlowTests {
 
     @After
     public void tearDown() {
+        unsetCordappPackages();
         net.stopNodes();
     }
 
