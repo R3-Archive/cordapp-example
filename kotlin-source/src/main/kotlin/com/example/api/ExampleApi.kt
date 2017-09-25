@@ -73,9 +73,15 @@ class ExampleApi(val services: CordaRPCOps) {
      */
     @PUT
     @Path("create-iou")
-    fun createIOU(@QueryParam("iouValue") iouValue: Int, @QueryParam("partyName") partyName: CordaX500Name): Response {
+    fun createIOU(@QueryParam("iouValue") iouValue: Int, @QueryParam("partyName") partyName: CordaX500Name?): Response {
+        if (iouValue <= 0 ) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Query parameter 'iouValue' must be non-negative.\n").build()
+        }
+        if (partyName == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Query parameter 'partyName' missing or has wrong format.\n").build()
+        }
         val otherParty = services.wellKnownPartyFromX500Name(partyName) ?:
-                return Response.status(Response.Status.BAD_REQUEST).entity("Party named $partyName cannot be found").build()
+                return Response.status(Response.Status.BAD_REQUEST).entity("Party named $partyName cannot be found.\n").build()
 
         var status: Response.Status
         var msg: String
@@ -89,7 +95,7 @@ class ExampleApi(val services: CordaRPCOps) {
                     .getOrThrow()
 
             status = Response.Status.CREATED
-            msg = "Transaction id ${result.id} committed to ledger."
+            msg = "Transaction id ${result.id} committed to ledger.\n"
 
         } catch (ex: Throwable) {
             status = Response.Status.BAD_REQUEST
