@@ -87,11 +87,17 @@ public class ExampleApi {
      */
     @PUT
     @Path("create-iou")
-    public Response createIOU(@QueryParam("iouValue") int iouValue, @QueryParam("partyName") String partyName) throws InterruptedException, ExecutionException {
-        final Party otherParty = services.partiesFromName(partyName, false).iterator().next();
+    public Response createIOU(@QueryParam("iouValue") int iouValue, @QueryParam("partyName") CordaX500Name partyName) throws InterruptedException, ExecutionException {
+        if (iouValue <= 0 ) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Query parameter 'iouValue' must be non-negative.\n").build();
+        }
+        if (partyName == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Query parameter 'partyName' missing or has wrong format.\n").build();
+        }
 
+        final Party otherParty = services.wellKnownPartyFromX500Name(partyName);
         if (otherParty == null) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity("Party named " + partyName + "cannot be found.\n").build();
         }
 
         Response.Status status;
@@ -107,7 +113,7 @@ public class ExampleApi {
                     .get();
 
             status = Response.Status.CREATED;
-            msg = String.format("Transaction id %s committed to ledger.", result.getId());
+            msg = String.format("Transaction id %s committed to ledger.\n", result.getId());
 
         } catch (Throwable ex) {
             status = Response.Status.BAD_REQUEST;
