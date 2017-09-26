@@ -4,9 +4,22 @@ import com.example.contract.IOUContract.Companion.IOU_CONTRACT_ID
 import com.example.model.IOU
 import com.example.state.IOUState
 import net.corda.testing.*
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 
 class IOUContractTests {
+
+    @Before
+    fun setup() {
+        setCordappPackages("com.example.contract")
+    }
+
+    @After
+    fun tearDown() {
+        unsetCordappPackages()
+    }
+
     @Test
     fun `transaction must include Create command`() {
         val iou = IOU(1)

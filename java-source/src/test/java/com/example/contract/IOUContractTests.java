@@ -3,7 +3,7 @@ package com.example.contract;
 import com.example.model.IOU;
 import com.example.state.IOUState;
 import net.corda.core.identity.Party;
-import org.junit.Test;
+import org.junit.*;
 
 import java.security.PublicKey;
 
@@ -15,6 +15,16 @@ public class IOUContractTests {
     static private final Party miniCorp = getMINI_CORP();
     static private final Party megaCorp = getMEGA_CORP();
     static private final PublicKey[] keys = {getMEGA_CORP_PUBKEY(), getMINI_CORP_PUBKEY()};
+
+    @Before
+    public void setup() {
+        setCordappPackages("com.example.contract");
+    }
+
+    @After
+    public void tearDown() {
+        unsetCordappPackages();
+    }
 
     @Test
     public void transactionMustIncludeCreateCommand() {

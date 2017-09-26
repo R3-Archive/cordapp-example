@@ -6,6 +6,8 @@ import net.corda.core.utilities.getOrThrow
 import net.corda.node.internal.StartedNode
 import net.corda.testing.chooseIdentity
 import net.corda.testing.node.MockNetwork
+import net.corda.testing.setCordappPackages
+import net.corda.testing.unsetCordappPackages
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -19,6 +21,7 @@ class IOUFlowTests {
 
     @Before
     fun setup() {
+       setCordappPackages("com.example.contract")
         net = MockNetwork()
         val nodes = net.createSomeNodes(2)
         a = nodes.partyNodes[0]
@@ -30,6 +33,7 @@ class IOUFlowTests {
 
     @After
     fun tearDown() {
+        unsetCordappPackages()
         net.stopNodes()
     }
 
