@@ -57,8 +57,7 @@ public class IOUContractTests {
     }
 
     @Test
-    public void
-    transactionMustHaveOneOutput() {
+    public void transactionMustHaveOneOutput() {
         IOU iou = new IOU(1);
         ledger(ledgerDSL -> {
             ledgerDSL.transaction(txDSL -> {
