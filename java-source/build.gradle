@@ -54,6 +54,10 @@ dependencies {
     cordapp "net.corda:corda-finance:$corda_release_version"
 }
 
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-parameters" // Required for shell commands.
+}
+
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     directory "./build/nodes"
     networkMap "O=Controller,L=London,C=GB"
