@@ -5,7 +5,6 @@ import com.example.contract.IOUContract
 import com.example.contract.IOUContract.Companion.IOU_CONTRACT_ID
 import com.example.flow.ExampleFlow.Acceptor
 import com.example.flow.ExampleFlow.Initiator
-import com.example.model.IOU
 import com.example.state.IOUState
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.StateAndContract
@@ -72,7 +71,7 @@ object ExampleFlow {
             // Stage 1.
             progressTracker.currentStep = GENERATING_TRANSACTION
             // Generate an unsigned transaction.
-            val iouState = IOUState(IOU(iouValue), serviceHub.myInfo.legalIdentities.first(), otherParty)
+            val iouState = IOUState(iouValue, serviceHub.myInfo.legalIdentities.first(), otherParty)
             val txCommand = Command(IOUContract.Commands.Create(), iouState.participants.map { it.owningKey })
             val txBuilder = TransactionBuilder(notary).withItems(StateAndContract(iouState, IOU_CONTRACT_ID), txCommand)
 
@@ -108,7 +107,7 @@ object ExampleFlow {
                     val output = stx.tx.outputs.single().data
                     "This must be an IOU transaction." using (output is IOUState)
                     val iou = output as IOUState
-                    "The IOU's value can't be too high." using (iou.iou.value < 100)
+                    "The IOU's value can't be too high." using (iou.value < 100)
                 }
             }
 

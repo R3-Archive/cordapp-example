@@ -21,7 +21,7 @@ class IOUFlowTests {
 
     @Before
     fun setup() {
-       setCordappPackages("com.example.contract")
+        setCordappPackages("com.example.contract")
         net = MockNetwork()
         val nodes = net.createSomeNodes(2)
         a = nodes.partyNodes[0]
@@ -95,9 +95,9 @@ class IOUFlowTests {
             assert(txOutputs.size == 1)
 
             val recordedState = txOutputs[0].data as IOUState
-            assertEquals(recordedState.iou.value, iouValue)
-            assertEquals(recordedState.sender, a.info.chooseIdentity())
-            assertEquals(recordedState.recipient, b.info.chooseIdentity())
+            assertEquals(recordedState.value, iouValue)
+            assertEquals(recordedState.lender, a.info.chooseIdentity())
+            assertEquals(recordedState.borrower, b.info.chooseIdentity())
         }
     }
 }

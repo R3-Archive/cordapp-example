@@ -99,7 +99,7 @@ public class IOUFlowTests {
 
     @Test
     public void recordedTransactionHasNoInputsAndASingleOutputTheInputIOU() throws Exception {
-        int iouValue = 1;
+        Integer iouValue = 1;
         ExampleFlow.Initiator flow = new ExampleFlow.Initiator(iouValue, b.getInfo().getLegalIdentities().get(0));
         CordaFuture<SignedTransaction> future = a.getServices().startFlow(flow).getResultFuture();
         net.runNetwork();
@@ -112,9 +112,9 @@ public class IOUFlowTests {
             assert(txOutputs.size() == 1);
 
             IOUState recordedState = (IOUState) txOutputs.get(0).getData();
-            assertEquals(recordedState.getIOU().getValue(), iouValue);
-            assertEquals(recordedState.getSender(), a.getInfo().getLegalIdentities().get(0));
-            assertEquals(recordedState.getRecipient(), b.getInfo().getLegalIdentities().get(0));
+            assertEquals(recordedState.getValue(), iouValue);
+            assertEquals(recordedState.getLender(), a.getInfo().getLegalIdentities().get(0));
+            assertEquals(recordedState.getBorrower(), b.getInfo().getLegalIdentities().get(0));
         }
     }
 }
