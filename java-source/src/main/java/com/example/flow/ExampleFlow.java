@@ -2,7 +2,6 @@ package com.example.flow;
 
 import co.paralleluniverse.fibers.Suspendable;
 import com.example.contract.IOUContract;
-import com.example.model.IOU;
 import com.example.state.IOUState;
 import com.google.common.collect.Sets;
 import net.corda.core.contracts.Command;
@@ -15,9 +14,6 @@ import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 import net.corda.core.utilities.ProgressTracker;
 import net.corda.core.utilities.ProgressTracker.Step;
-import net.corda.core.flows.CollectSignaturesFlow;
-import net.corda.core.flows.FinalityFlow;
-import net.corda.core.flows.SignTransactionFlow;
 
 import java.util.stream.Collectors;
 
@@ -90,7 +86,7 @@ public class ExampleFlow {
             // Stage 1.
             progressTracker.setCurrentStep(GENERATING_TRANSACTION);
             // Generate an unsigned transaction.
-            IOUState iouState = new IOUState(new IOU(iouValue), getServiceHub().getMyInfo().getLegalIdentities().get(0), otherParty);
+            IOUState iouState = new IOUState(iouValue, getServiceHub().getMyInfo().getLegalIdentities().get(0), otherParty);
             final Command<IOUContract.Commands.Create> txCommand = new Command<>(new IOUContract.Commands.Create(),
                     iouState.getParticipants().stream().map(AbstractParty::getOwningKey).collect(Collectors.toList()));
             final TransactionBuilder txBuilder = new TransactionBuilder(notary).withItems(new StateAndContract(iouState, IOU_CONTRACT_ID), txCommand);
@@ -144,7 +140,7 @@ public class ExampleFlow {
                         ContractState output = stx.getTx().getOutputs().get(0).getData();
                         require.using("This must be an IOU transaction.", output instanceof IOUState);
                         IOUState iou = (IOUState) output;
-                        require.using("The IOU's value can't be too high.", iou.getIOU().getValue() < 100);
+                        require.using("The IOU's value can't be too high.", iou.getValue() < 100);
                         return null;
                     });
                 }

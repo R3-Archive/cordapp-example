@@ -1,7 +1,6 @@
 package com.example.contract
 
 import com.example.contract.IOUContract.Companion.IOU_CONTRACT_ID
-import com.example.model.IOU
 import com.example.state.IOUState
 import net.corda.testing.*
 import org.junit.After
@@ -22,7 +21,7 @@ class IOUContractTests {
 
     @Test
     fun `transaction must include Create command`() {
-        val iou = IOU(1)
+        val iou = 1
         ledger {
             transaction {
                 output(IOU_CONTRACT_ID) { IOUState(iou, MINI_CORP, MEGA_CORP) }
@@ -35,7 +34,7 @@ class IOUContractTests {
 
     @Test
     fun `transaction must have no inputs`() {
-        val iou = IOU(1)
+        val iou = 1
         ledger {
             transaction {
                 input(IOU_CONTRACT_ID) { IOUState(iou, MINI_CORP, MEGA_CORP) }
@@ -48,7 +47,7 @@ class IOUContractTests {
 
     @Test
     fun `transaction must have one output`() {
-        val iou = IOU(1)
+        val iou = 1
         ledger {
             transaction {
                 output(IOU_CONTRACT_ID) { IOUState(iou, MINI_CORP, MEGA_CORP) }
@@ -61,7 +60,7 @@ class IOUContractTests {
 
     @Test
     fun `sender must sign transaction`() {
-        val iou = IOU(1)
+        val iou = 1
         ledger {
             transaction {
                 output(IOU_CONTRACT_ID) { IOUState(iou, MINI_CORP, MEGA_CORP) }
@@ -73,7 +72,7 @@ class IOUContractTests {
 
     @Test
     fun `recipient must sign transaction`() {
-        val iou = IOU(1)
+        val iou = 1
         ledger {
             transaction {
                 output(IOU_CONTRACT_ID) { IOUState(iou, MINI_CORP, MEGA_CORP) }
@@ -85,7 +84,7 @@ class IOUContractTests {
 
     @Test
     fun `sender is not recipient`() {
-        val iou = IOU(1)
+        val iou = 1
         ledger {
             transaction {
                 output(IOU_CONTRACT_ID) { IOUState(iou, MEGA_CORP, MEGA_CORP) }
@@ -97,7 +96,7 @@ class IOUContractTests {
 
     @Test
     fun `cannot create negative-value IOUs`() {
-        val iou = IOU(-1)
+        val iou = -1
         ledger {
             transaction {
                 output(IOU_CONTRACT_ID) { IOUState(iou, MINI_CORP, MEGA_CORP) }

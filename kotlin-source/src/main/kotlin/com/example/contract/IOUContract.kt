@@ -1,8 +1,10 @@
 package com.example.contract
 
-import com.example.model.IOU
 import com.example.state.IOUState
-import net.corda.core.contracts.*
+import net.corda.core.contracts.CommandData
+import net.corda.core.contracts.Contract
+import net.corda.core.contracts.requireSingleCommand
+import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
 
 /**
@@ -38,7 +40,7 @@ open class IOUContract : Contract {
             "All of the participants must be signers." using (command.signers.containsAll(out.participants.map { it.owningKey }))
 
             // IOU-specific constraints.
-            "The IOU's value must be non-negative." using (out.iou.value > 0)
+            "The IOU's value must be non-negative." using (out.value > 0)
         }
     }
 

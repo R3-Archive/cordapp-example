@@ -19,8 +19,8 @@ val NETWORK_MAP_NAME = "Network Map Service"
 
 // This API is accessible from /api/example. All paths specified below are relative to it.
 @Path("example")
-class ExampleApi(val services: CordaRPCOps) {
-    private val myLegalName: CordaX500Name = services.nodeInfo().legalIdentities.first().name
+class ExampleApi(val rpcOps: CordaRPCOps) {
+    private val myLegalName: CordaX500Name = rpcOps.nodeInfo().legalIdentities.first().name
 
     companion object {
         private val logger: Logger = loggerFor<ExampleApi>()
@@ -42,7 +42,7 @@ class ExampleApi(val services: CordaRPCOps) {
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
     fun getPeers(): Map<String, List<CordaX500Name>> {
-        val nodeInfo = services.networkMapSnapshot()
+        val nodeInfo = rpcOps.networkMapSnapshot()
         return mapOf("peers" to nodeInfo
                 .map { it.legalIdentities.first().name }
                 //filter out myself, notary and eventual network map started by driver
@@ -56,7 +56,7 @@ class ExampleApi(val services: CordaRPCOps) {
     @Path("ious")
     @Produces(MediaType.APPLICATION_JSON)
     fun getIOUs(): List<StateAndRef<IOUState>> {
-        val vaultStates = services.vaultQueryBy<IOUState>()
+        val vaultStates = rpcOps.vaultQueryBy<IOUState>()
         return vaultStates.states
     }
 
@@ -80,13 +80,13 @@ class ExampleApi(val services: CordaRPCOps) {
         if (partyName == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Query parameter 'partyName' missing or has wrong format.\n").build()
         }
-        val otherParty = services.wellKnownPartyFromX500Name(partyName) ?:
+        val otherParty = rpcOps.wellKnownPartyFromX500Name(partyName) ?:
                 return Response.status(Response.Status.BAD_REQUEST).entity("Party named $partyName cannot be found.\n").build()
 
         var status: Response.Status
         var msg: String
         try {
-            val flowHandle = services.startTrackedFlow(::Initiator, iouValue, otherParty)
+            val flowHandle = rpcOps.startTrackedFlow(::Initiator, iouValue, otherParty)
             flowHandle.progress.subscribe { println(">> $it") }
 
             // The line below blocks and waits for the future to resolve.

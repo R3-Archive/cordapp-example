@@ -26,7 +26,7 @@ import static java.util.stream.Collectors.toList;
 // This API is accessible from /api/example. All paths specified below are relative to it.
 @Path("example")
 public class ExampleApi {
-    private final CordaRPCOps services;
+    private final CordaRPCOps rpcOps;
     private final CordaX500Name myLegalName;
 
     private final String NOTARY_NAME = "Controller";
@@ -34,9 +34,9 @@ public class ExampleApi {
 
     static private final Logger logger = LoggerFactory.getLogger(ExampleApi.class);
 
-    public ExampleApi(CordaRPCOps services) {
-        this.services = services;
-        this.myLegalName = services.nodeInfo().getLegalIdentities().get(0).getName();
+    public ExampleApi(CordaRPCOps rpcOps) {
+        this.rpcOps = rpcOps;
+        this.myLegalName = rpcOps.nodeInfo().getLegalIdentities().get(0).getName();
     }
 
     /**
@@ -55,7 +55,7 @@ public class ExampleApi {
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, List<CordaX500Name>> getPeers() {
-        List<NodeInfo> nodeInfoSnapshot = services.networkMapSnapshot();
+        List<NodeInfo> nodeInfoSnapshot = rpcOps.networkMapSnapshot();
         return ImmutableMap.of(
                 "peers",
                 nodeInfoSnapshot
@@ -73,7 +73,7 @@ public class ExampleApi {
     @Path("ious")
     @Produces(MediaType.APPLICATION_JSON)
     public List<StateAndRef<IOUState>> getIOUs() {
-        Vault.Page<IOUState> vaultStates = services.vaultQuery(IOUState.class);
+        Vault.Page<IOUState> vaultStates = rpcOps.vaultQuery(IOUState.class);
         return vaultStates.getStates();
     }
 
@@ -98,7 +98,7 @@ public class ExampleApi {
             return Response.status(Response.Status.BAD_REQUEST).entity("Query parameter 'partyName' missing or has wrong format.\n").build();
         }
 
-        final Party otherParty = services.wellKnownPartyFromX500Name(partyName);
+        final Party otherParty = rpcOps.wellKnownPartyFromX500Name(partyName);
         if (otherParty == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Party named " + partyName + "cannot be found.\n").build();
         }
@@ -106,7 +106,7 @@ public class ExampleApi {
         Response.Status status;
         String msg;
         try {
-            FlowProgressHandle<SignedTransaction> flowHandle = services
+            FlowProgressHandle<SignedTransaction> flowHandle = rpcOps
                     .startTrackedFlowDynamic(ExampleFlow.Initiator.class, iouValue, otherParty);
             flowHandle.getProgress().subscribe(evt -> System.out.printf(">> %s\n", evt));
 
