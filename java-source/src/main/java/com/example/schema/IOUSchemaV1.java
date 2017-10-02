@@ -20,25 +20,25 @@ public class IOUSchemaV1 extends MappedSchema {
     @Entity
     @Table(name = "iou_states")
     public static class PersistentIOU extends PersistentState {
-        @Column(name = "sender_name") private final String senderName;
-        @Column(name = "recipient_name") private final String recipientName;
+        @Column(name = "lender") private final String lender;
+        @Column(name = "borrower") private final String borrower;
         @Column(name = "value") private final int value;
         @Column(name = "linear_id") private final UUID linearId;
 
 
-        public PersistentIOU(String senderName, String recipientName, int value, UUID linearId) {
-            this.senderName = senderName;
-            this.recipientName = recipientName;
+        public PersistentIOU(String lender, String borrower, int value, UUID linearId) {
+            this.lender = lender;
+            this.borrower = borrower;
             this.value = value;
             this.linearId = linearId;
         }
 
-        public String getSenderName() {
-            return senderName;
+        public String getLender() {
+            return lender;
         }
 
-        public String getRecipientName() {
-            return recipientName;
+        public String getBorrower() {
+            return borrower;
         }
 
         public int getValue() {

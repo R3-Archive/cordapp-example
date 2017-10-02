@@ -1,9 +1,12 @@
 package com.example.contract;
 
-import com.example.model.IOU;
 import com.example.state.IOUState;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import net.corda.core.identity.Party;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.security.PublicKey;
 
@@ -14,7 +17,7 @@ import static net.corda.testing.NodeTestUtils.ledger;
 public class IOUContractTests {
     static private final Party miniCorp = getMINI_CORP();
     static private final Party megaCorp = getMEGA_CORP();
-    static private final PublicKey[] keys = {getMEGA_CORP_PUBKEY(), getMINI_CORP_PUBKEY()};
+    static private final PublicKey[] keys = Iterables.toArray(ImmutableList.of(getMEGA_CORP_PUBKEY(), getMINI_CORP_PUBKEY()), PublicKey.class);
 
     @Before
     public void setup() {
@@ -28,7 +31,7 @@ public class IOUContractTests {
 
     @Test
     public void transactionMustIncludeCreateCommand() {
-        IOU iou = new IOU(1);
+        Integer iou = 1;
         ledger(ledgerDSL -> {
             ledgerDSL.transaction(txDSL -> {
                 txDSL.output(IOU_CONTRACT_ID, () -> new IOUState(iou, miniCorp, megaCorp));
@@ -43,11 +46,11 @@ public class IOUContractTests {
 
     @Test
     public void transactionMustHaveNoInputs() {
-        IOU iou = new IOU(1);
+        Integer iou = 1;
         ledger(ledgerDSL -> {
             ledgerDSL.transaction(txDSL -> {
                 txDSL.input(IOU_CONTRACT_ID, new IOUState(iou, miniCorp, megaCorp));
-                txDSL.output(IOU_CONTRACT_ID,  () -> new IOUState(iou, miniCorp, megaCorp));
+                txDSL.output(IOU_CONTRACT_ID, () -> new IOUState(iou, miniCorp, megaCorp));
                 txDSL.command(keys, IOUContract.Commands.Create::new);
                 txDSL.failsWith("No inputs should be consumed when issuing an IOU.");
                 return null;
@@ -58,7 +61,7 @@ public class IOUContractTests {
 
     @Test
     public void transactionMustHaveOneOutput() {
-        IOU iou = new IOU(1);
+        Integer iou = 1;
         ledger(ledgerDSL -> {
             ledgerDSL.transaction(txDSL -> {
                 txDSL.output(IOU_CONTRACT_ID, () -> new IOUState(iou, miniCorp, megaCorp));
@@ -72,8 +75,8 @@ public class IOUContractTests {
     }
 
     @Test
-    public void senderMustSignTransaction() {
-        IOU iou = new IOU(1);
+    public void lenderMustSignTransaction() {
+        Integer iou = 1;
         ledger(ledgerDSL -> {
             ledgerDSL.transaction(txDSL -> {
                 txDSL.output(IOU_CONTRACT_ID, () -> new IOUState(iou, miniCorp, megaCorp));
@@ -88,8 +91,8 @@ public class IOUContractTests {
     }
 
     @Test
-    public void recipientMustSignTransaction() {
-        IOU iou = new IOU(1);
+    public void borrowerMustSignTransaction() {
+        Integer iou = 1;
         ledger(ledgerDSL -> {
             ledgerDSL.transaction(txDSL -> {
                 txDSL.output(IOU_CONTRACT_ID, () -> new IOUState(iou, miniCorp, megaCorp));
@@ -104,15 +107,15 @@ public class IOUContractTests {
     }
 
     @Test
-    public void senderIsNotRecipient() {
-        IOU iou = new IOU(1);
+    public void lenderIsNotBorrower() {
+        Integer iou = 1;
         ledger(ledgerDSL -> {
             ledgerDSL.transaction(txDSL -> {
                 txDSL.output(IOU_CONTRACT_ID, () -> new IOUState(iou, megaCorp, megaCorp));
                 PublicKey[] keys = new PublicKey[1];
                 keys[0] = getMEGA_CORP_PUBKEY();
                 txDSL.command(keys, IOUContract.Commands.Create::new);
-                txDSL.failsWith("The sender and the recipient cannot be the same entity.");
+                txDSL.failsWith("The lender and the borrower cannot be the same entity.");
                 return null;
             });
             return null;
@@ -121,7 +124,7 @@ public class IOUContractTests {
 
     @Test
     public void cannotCreateNegativeValueIOUs() {
-        IOU iou = new IOU(-1);
+        Integer iou = -1;
         ledger(ledgerDSL -> {
             ledgerDSL.transaction(txDSL -> {
                 txDSL.output(IOU_CONTRACT_ID, () -> new IOUState(iou, miniCorp, megaCorp));
