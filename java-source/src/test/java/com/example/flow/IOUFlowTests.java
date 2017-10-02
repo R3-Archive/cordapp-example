@@ -113,8 +113,8 @@ public class IOUFlowTests {
 
             IOUState recordedState = (IOUState) txOutputs.get(0).getData();
             assertEquals(recordedState.getValue(), iouValue);
-            assertEquals(recordedState.getSender(), a.getInfo().getLegalIdentities().get(0));
-            assertEquals(recordedState.getRecipient(), b.getInfo().getLegalIdentities().get(0));
+            assertEquals(recordedState.getLender(), a.getInfo().getLegalIdentities().get(0));
+            assertEquals(recordedState.getBorrower(), b.getInfo().getLegalIdentities().get(0));
         }
     }
 }

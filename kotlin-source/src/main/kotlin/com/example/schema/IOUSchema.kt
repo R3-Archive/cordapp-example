@@ -22,11 +22,11 @@ object IOUSchemaV1 : MappedSchema(
     @Entity
     @Table(name = "iou_states")
     class PersistentIOU(
-            @Column(name = "sender_name")
-            var senderName: String,
+            @Column(name = "lender")
+            var lenderName: String,
 
-            @Column(name = "recipient_name")
-            var recipientName: String,
+            @Column(name = "borrower")
+            var borrowerName: String,
 
             @Column(name = "value")
             var value: Int,

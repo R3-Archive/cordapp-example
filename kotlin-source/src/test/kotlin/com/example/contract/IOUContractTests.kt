@@ -59,7 +59,7 @@ class IOUContractTests {
     }
 
     @Test
-    fun `sender must sign transaction`() {
+    fun `lender must sign transaction`() {
         val iou = 1
         ledger {
             transaction {
@@ -71,7 +71,7 @@ class IOUContractTests {
     }
 
     @Test
-    fun `recipient must sign transaction`() {
+    fun `borrower must sign transaction`() {
         val iou = 1
         ledger {
             transaction {
@@ -83,13 +83,13 @@ class IOUContractTests {
     }
 
     @Test
-    fun `sender is not recipient`() {
+    fun `lender is not borrower`() {
         val iou = 1
         ledger {
             transaction {
                 output(IOU_CONTRACT_ID) { IOUState(iou, MEGA_CORP, MEGA_CORP) }
                 command(MEGA_CORP_PUBKEY, MINI_CORP_PUBKEY) { IOUContract.Commands.Create() }
-                `fails with`("The sender and the recipient cannot be the same entity.")
+                `fails with`("The lender and the borrower cannot be the same entity.")
             }
         }
     }

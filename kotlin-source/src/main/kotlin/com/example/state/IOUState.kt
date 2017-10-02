@@ -16,24 +16,24 @@ import net.corda.core.schemas.QueryableState
  * A state must implement [ContractState] or one of its descendants.
  *
  * @param value the value of the IOU.
- * @param sender the party issuing the IOU.
- * @param recipient the party receiving and approving the IOU.
+ * @param lender the party issuing the IOU.
+ * @param borrower the party receiving and approving the IOU.
  */
 data class IOUState(val value: Int,
-                    val sender: Party,
-                    val recipient: Party,
+                    val lender: Party,
+                    val borrower: Party,
                     override val linearId: UniqueIdentifier = UniqueIdentifier()):
         LinearState, QueryableState {
     /** The public keys of the involved parties. */
-    override val participants: List<AbstractParty> get() = listOf(sender, recipient)
+    override val participants: List<AbstractParty> get() = listOf(lender, borrower)
 
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         return when (schema) {
             is IOUSchemaV1 -> IOUSchemaV1.PersistentIOU(
-                    senderName = this.sender.name.toString(),
-                    recipientName = this.recipient.name.toString(),
-                    value = this.value,
-                    linearId = this.linearId.id
+                    this.lender.name.toString(),
+                    this.borrower.name.toString(),
+                    this.value,
+                    this.linearId.id
             )
             else -> throw IllegalArgumentException("Unrecognised schema $schema")
         }

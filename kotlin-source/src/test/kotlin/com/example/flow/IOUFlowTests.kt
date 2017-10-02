@@ -96,8 +96,8 @@ class IOUFlowTests {
 
             val recordedState = txOutputs[0].data as IOUState
             assertEquals(recordedState.value, iouValue)
-            assertEquals(recordedState.sender, a.info.chooseIdentity())
-            assertEquals(recordedState.recipient, b.info.chooseIdentity())
+            assertEquals(recordedState.lender, a.info.chooseIdentity())
+            assertEquals(recordedState.borrower, b.info.chooseIdentity())
         }
     }
 }

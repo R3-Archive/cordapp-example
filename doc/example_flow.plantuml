@@ -9,8 +9,8 @@ autonumber
 note over Initiator : Generating transaction based on new IOU
 note over Initiator : Verifying contract constraints.
 note over Initiator : Signing transaction with private key
-Initiator -> Acceptor : Sending proposed transaction to recipient for review
-note over Acceptor : Receiving proposed transaction from sender
+Initiator -> Acceptor : Sending proposed transaction to borrower for review
+note over Acceptor : Receiving proposed transaction from lender
 note over Acceptor : Verifying signatures and contract constraints
 note over Acceptor : Signing proposed transaction with our private key
 Acceptor -> Notary : Requesting signature by notary service

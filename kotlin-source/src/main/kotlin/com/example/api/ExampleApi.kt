@@ -63,7 +63,7 @@ class ExampleApi(val rpcOps: CordaRPCOps) {
     /**
      * Initiates a flow to agree an IOU between two parties.
      *
-     * Once the flow finishes it will have written the IOU to ledger. Both the sender and the recipient will be able to
+     * Once the flow finishes it will have written the IOU to ledger. Both the lender and the borrower will be able to
      * see it when calling /api/example/ious on their respective nodes.
      *
      * This end-point takes a Party name parameter as part of the path. If the serving node can't find the other party

@@ -20,38 +20,38 @@ import java.util.List;
  */
 public class IOUState implements LinearState, QueryableState {
     private final Integer value;
-    private final Party sender;
-    private final Party recipient;
+    private final Party lender;
+    private final Party borrower;
     private final UniqueIdentifier linearId;
 
     /**
      * @param value the value of the IOU.
-     * @param sender the party issuing the IOU.
-     * @param recipient the party receiving and approving the IOU.
+     * @param lender the party issuing the IOU.
+     * @param borrower the party receiving and approving the IOU.
      */
     public IOUState(Integer value,
-                    Party sender,
-                    Party recipient)
+                    Party lender,
+                    Party borrower)
     {
         this.value = value;
-        this.sender = sender;
-        this.recipient = recipient;
+        this.lender = lender;
+        this.borrower = borrower;
         this.linearId = new UniqueIdentifier();
     }
 
     public Integer getValue() { return value; }
-    public Party getSender() { return sender; }
-    public Party getRecipient() { return recipient; }
+    public Party getLender() { return lender; }
+    public Party getBorrower() { return borrower; }
     @Override public UniqueIdentifier getLinearId() { return linearId; }
     @Override public List<AbstractParty> getParticipants() {
-        return Arrays.asList(sender, recipient);
+        return Arrays.asList(lender, borrower);
     }
 
     @Override public PersistentState generateMappedObject(MappedSchema schema) {
         if (schema instanceof IOUSchemaV1) {
             return new IOUSchemaV1.PersistentIOU(
-                    this.sender.getName().toString(),
-                    this.recipient.getName().toString(),
+                    this.lender.getName().toString(),
+                    this.borrower.getName().toString(),
                     this.value,
                     this.linearId.getId());
         } else {
@@ -65,6 +65,6 @@ public class IOUState implements LinearState, QueryableState {
 
     @Override
     public String toString() {
-        return String.format("%s(iou=%s, sender=%s, recipient=%s, linearId=%s)", getClass().getSimpleName(), value, sender, recipient, linearId);
+        return String.format("%s(iou=%s, lender=%s, borrower=%s, linearId=%s)", getClass().getSimpleName(), value, lender, borrower, linearId);
     }
 }

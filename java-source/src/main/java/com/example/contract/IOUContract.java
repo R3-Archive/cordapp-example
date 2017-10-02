@@ -20,7 +20,7 @@ import static net.corda.core.contracts.ContractsDSL.requireThat;
  * For a new [IOU] to be issued onto the ledger, a transaction is required which takes:
  * - Zero input states.
  * - One output state: the new [IOU].
- * - An Create() command with the public keys of both the sender and the recipient.
+ * - An Create() command with the public keys of both the lender and the borrower.
  *
  * All contracts must sub-class the [Contract] interface.
  */
@@ -41,8 +41,8 @@ public class IOUContract implements Contract {
             require.using("Only one output state should be created.",
                     tx.getOutputs().size() == 1);
             final IOUState out = tx.outputsOfType(IOUState.class).get(0);
-            require.using("The sender and the recipient cannot be the same entity.",
-                    out.getSender() != out.getRecipient());
+            require.using("The lender and the borrower cannot be the same entity.",
+                    out.getLender() != out.getBorrower());
             require.using("All of the participants must be signers.",
                     command.getSigners().containsAll(out.getParticipants().stream().map(AbstractParty::getOwningKey).collect(Collectors.toList())));
 

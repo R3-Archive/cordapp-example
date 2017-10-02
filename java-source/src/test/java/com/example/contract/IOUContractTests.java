@@ -1,6 +1,8 @@
 package com.example.contract;
 
 import com.example.state.IOUState;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import net.corda.core.identity.Party;
 import org.junit.After;
 import org.junit.Before;
@@ -15,7 +17,7 @@ import static net.corda.testing.NodeTestUtils.ledger;
 public class IOUContractTests {
     static private final Party miniCorp = getMINI_CORP();
     static private final Party megaCorp = getMEGA_CORP();
-    static private final PublicKey[] keys = {getMEGA_CORP_PUBKEY(), getMINI_CORP_PUBKEY()};
+    static private final PublicKey[] keys = Iterables.toArray(ImmutableList.of(getMEGA_CORP_PUBKEY(), getMINI_CORP_PUBKEY()), PublicKey.class);
 
     @Before
     public void setup() {
@@ -73,7 +75,7 @@ public class IOUContractTests {
     }
 
     @Test
-    public void senderMustSignTransaction() {
+    public void lenderMustSignTransaction() {
         Integer iou = 1;
         ledger(ledgerDSL -> {
             ledgerDSL.transaction(txDSL -> {
@@ -89,7 +91,7 @@ public class IOUContractTests {
     }
 
     @Test
-    public void recipientMustSignTransaction() {
+    public void borrowerMustSignTransaction() {
         Integer iou = 1;
         ledger(ledgerDSL -> {
             ledgerDSL.transaction(txDSL -> {
@@ -105,7 +107,7 @@ public class IOUContractTests {
     }
 
     @Test
-    public void senderIsNotRecipient() {
+    public void lenderIsNotBorrower() {
         Integer iou = 1;
         ledger(ledgerDSL -> {
             ledgerDSL.transaction(txDSL -> {
@@ -113,7 +115,7 @@ public class IOUContractTests {
                 PublicKey[] keys = new PublicKey[1];
                 keys[0] = getMEGA_CORP_PUBKEY();
                 txDSL.command(keys, IOUContract.Commands.Create::new);
-                txDSL.failsWith("The sender and the recipient cannot be the same entity.");
+                txDSL.failsWith("The lender and the borrower cannot be the same entity.");
                 return null;
             });
             return null;
