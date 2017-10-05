@@ -23,11 +23,11 @@ class IOUFlowTests {
     fun setup() {
        setCordappPackages("com.example.contract")
         net = MockNetwork()
-        val nodes = net.createSomeNodes(2)
-        a = nodes.partyNodes[0]
-        b = nodes.partyNodes[1]
+        val networkMapAddress = net.createNotaryNode().network.myAddress
+        a = net.createNode(networkMapAddress)
+        b = net.createNode(networkMapAddress)
         // For real nodes this happens automatically, but we have to manually register the flow for tests
-        nodes.partyNodes.forEach { it.registerInitiatedFlow(ExampleFlow.Acceptor::class.java) }
+        listOf(a, b).forEach { it.registerInitiatedFlow(ExampleFlow.Acceptor::class.java) }
         net.runNetwork()
     }
 
