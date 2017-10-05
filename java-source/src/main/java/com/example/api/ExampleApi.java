@@ -27,14 +27,16 @@ import static java.util.stream.Collectors.toList;
 @Path("example")
 public class ExampleApi {
     private final CordaRPCOps services;
-    private final String myLegalName;
-    private final String notaryName = "Controller";
+    private final CordaX500Name myLegalName;
+
+    private final String NOTARY_NAME = "Controller";
+    private final String NETWORK_MAP_NAME = "Network Map Service";
 
     static private final Logger logger = LoggerFactory.getLogger(ExampleApi.class);
 
     public ExampleApi(CordaRPCOps services) {
         this.services = services;
-        this.myLegalName = services.nodeInfo().getLegalIdentities().get(0).getName().getOrganisation();
+        this.myLegalName = services.nodeInfo().getLegalIdentities().get(0).getName();
     }
 
     /**
@@ -43,7 +45,7 @@ public class ExampleApi {
     @GET
     @Path("me")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, String> whoami() { return ImmutableMap.of("me", myLegalName); }
+    public Map<String, CordaX500Name> whoami() { return ImmutableMap.of("me", myLegalName); }
 
     /**
      * Returns all parties registered with the [NetworkMapService]. These names can be used to look up identities
@@ -52,14 +54,15 @@ public class ExampleApi {
     @GET
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, List<String>> getPeers() {
+    public Map<String, List<CordaX500Name>> getPeers() {
         List<NodeInfo> nodeInfoSnapshot = services.networkMapSnapshot();
         return ImmutableMap.of(
                 "peers",
                 nodeInfoSnapshot
                         .stream()
-                        .map(node -> node.getLegalIdentities().get(0).getName().getOrganisation())
-                        .filter(name -> !name.equals(myLegalName) && !(name.equals(notaryName)))
+                        .map(node -> node.getLegalIdentities().get(0).getName())
+                        .filter(name -> !name.equals(myLegalName) && !name.getOrganisation().equals(NOTARY_NAME)
+                                && !name.getOrganisation().equals(NETWORK_MAP_NAME))
                         .collect(toList()));
     }
 
