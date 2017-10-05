@@ -2,7 +2,6 @@ package com.example.client;
 
 import com.example.state.IOUState;
 import net.corda.client.rpc.CordaRPCClient;
-import net.corda.client.rpc.CordaRPCClientConfiguration;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.messaging.CordaRPCOps;
 import net.corda.core.messaging.DataFeed;
@@ -32,7 +31,7 @@ public class ExampleClientRPC {
         }
 
         final NetworkHostAndPort nodeAddress = NetworkHostAndPort.parse(args[0]);
-        final CordaRPCClient client = new CordaRPCClient(nodeAddress, null, CordaRPCClientConfiguration.getDefault(), true);
+        final CordaRPCClient client = new CordaRPCClient(nodeAddress);
 
         // Can be amended in the com.example.Main file.
         final CordaRPCOps proxy = client.start("user1", "test").getProxy();

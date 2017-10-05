@@ -6,10 +6,10 @@ import net.corda.core.concurrent.CordaFuture;
 import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.TransactionState;
 import net.corda.core.contracts.TransactionVerificationException;
+import net.corda.core.messaging.SingleMessageRecipient;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.node.internal.StartedNode;
 import net.corda.testing.node.MockNetwork;
-import net.corda.testing.node.MockNetwork.BasketOfNodes;
 import net.corda.testing.node.MockNetwork.MockNode;
 import org.junit.After;
 import org.junit.Before;
@@ -17,6 +17,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static net.corda.testing.CoreTestUtils.setCordappPackages;
@@ -33,11 +34,11 @@ public class IOUFlowTests {
     public void setup() {
         setCordappPackages("com.example.contract");
         net = new MockNetwork();
-        BasketOfNodes nodes = net.createSomeNodes(2);
-        a = nodes.getPartyNodes().get(0);
-        b = nodes.getPartyNodes().get(1);
+        SingleMessageRecipient networkMapAddress = net.createNotaryNode().getNetwork().getMyAddress();
+        a = net.createPartyNode(networkMapAddress);
+        b = net.createPartyNode(networkMapAddress);
         // For real nodes this happens automatically, but we have to manually register the flow for tests
-        for (StartedNode<MockNode> node: nodes.getPartyNodes()) {
+        for (StartedNode<MockNode> node: Arrays.asList(a, b)) {
             node.registerInitiatedFlow(ExampleFlow.Acceptor.class);
         }
         net.runNetwork();
