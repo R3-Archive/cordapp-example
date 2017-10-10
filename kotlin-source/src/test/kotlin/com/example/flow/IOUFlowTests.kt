@@ -15,33 +15,33 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class IOUFlowTests {
-    lateinit var net: MockNetwork
+    lateinit var mockNetwork: MockNetwork
     lateinit var a: StartedNode<MockNetwork.MockNode>
     lateinit var b: StartedNode<MockNetwork.MockNode>
 
     @Before
     fun setup() {
         setCordappPackages("com.example.contract")
-        net = MockNetwork()
-        val nodes = net.createSomeNodes(2)
+        mockNetwork = MockNetwork()
+        val nodes = mockNetwork.createSomeNodes(2)
         a = nodes.partyNodes[0]
         b = nodes.partyNodes[1]
         // For real nodes this happens automatically, but we have to manually register the flow for tests
         nodes.partyNodes.forEach { it.registerInitiatedFlow(ExampleFlow.Acceptor::class.java) }
-        net.runNetwork()
+        mockNetwork.runNetwork()
     }
 
     @After
     fun tearDown() {
         unsetCordappPackages()
-        net.stopNodes()
+        mockNetwork.stopNodes()
     }
 
     @Test
     fun `flow rejects invalid IOUs`() {
         val flow = ExampleFlow.Initiator(-1, b.info.chooseIdentity())
         val future = a.services.startFlow(flow).resultFuture
-        net.runNetwork()
+        mockNetwork.runNetwork()
 
         // The IOUContract specifies that IOUs cannot have negative values.
         assertFailsWith<TransactionVerificationException> { future.getOrThrow() }
@@ -51,7 +51,7 @@ class IOUFlowTests {
     fun `SignedTransaction returned by the flow is signed by the initiator`() {
         val flow = ExampleFlow.Initiator(1, b.info.chooseIdentity())
         val future = a.services.startFlow(flow).resultFuture
-        net.runNetwork()
+        mockNetwork.runNetwork()
 
         val signedTx = future.getOrThrow()
         signedTx.verifySignaturesExcept(b.info.chooseIdentity().owningKey)
@@ -61,7 +61,7 @@ class IOUFlowTests {
     fun `SignedTransaction returned by the flow is signed by the acceptor`() {
         val flow = ExampleFlow.Initiator(1, b.info.chooseIdentity())
         val future = a.services.startFlow(flow).resultFuture
-        net.runNetwork()
+        mockNetwork.runNetwork()
 
         val signedTx = future.getOrThrow()
         signedTx.verifySignaturesExcept(a.info.chooseIdentity().owningKey)
@@ -71,7 +71,7 @@ class IOUFlowTests {
     fun `flow records a transaction in both parties' vaults`() {
         val flow = ExampleFlow.Initiator(1, b.info.chooseIdentity())
         val future = a.services.startFlow(flow).resultFuture
-        net.runNetwork()
+        mockNetwork.runNetwork()
         val signedTx = future.getOrThrow()
 
         // We check the recorded transaction in both vaults.
@@ -85,7 +85,7 @@ class IOUFlowTests {
         val iouValue = 1
         val flow = ExampleFlow.Initiator(iouValue, b.info.chooseIdentity())
         val future = a.services.startFlow(flow).resultFuture
-        net.runNetwork()
+        mockNetwork.runNetwork()
         val signedTx = future.getOrThrow()
 
         // We check the recorded transaction in both vaults.
