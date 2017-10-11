@@ -8,7 +8,6 @@ repositories {
 }
 
 apply plugin: 'java'
-apply plugin: 'kotlin'
 apply plugin: 'net.corda.plugins.cordformation'
 apply plugin: 'net.corda.plugins.quasar-utils'
 
@@ -26,7 +25,6 @@ sourceSets {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
     testCompile "junit:junit:$junit_version"
 
     // Corda integration dependencies
@@ -40,17 +38,11 @@ dependencies {
 
     testCompile "net.corda:corda-node-driver:$corda_release_version"
 
-    // GraphStream: For visualisation (required by ExampleClientRPC app)
-    compile "org.graphstream:gs-core:1.3"
-    compile("org.graphstream:gs-ui:1.3") {
-        exclude group: "bouncycastle"
-    }
-
-    // PlantUML: For Generation of Sequence Diagrams of the Flows
+    // PlantUML: For the generation of sequence diagrams of the flows
     compile 'net.sourceforge.plantuml:plantuml:8039'
 
     // CorDapp dependencies
-    // Specify your cordapp's dependencies below, including dependent cordapps
+    // Specify your cordapp's dependencies below, including dependent CorDapps
     cordapp "net.corda:corda-finance:$corda_release_version"
 }
 
@@ -95,27 +87,6 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         cordapps = ["net.corda:corda-finance:$corda_release_version"]
         rpcUsers = [[ user: "user1", "password": "test", "permissions": []]]
     }
-}
-
-// TODO: Make into gradle plugin without any references to Jython
-task installJythonDeps(dependsOn: ['build']) {
-    project.copy {
-        from project.configurations.runtime
-        into "build/jythonDeps"
-    }
-}
-
-installJythonDeps.shouldRunAfter build
-
-task generateFlowDiagram(type: JavaExec) {
-    classpath = files("build/jythonDeps/plantuml-8039.jar")
-    main = "net.sourceforge.plantuml.Run"
-    args = [
-            "-tsvg",
-            "-output", "../java-source/build/doc",
-            "-exclude", "inc_*",
-            "../doc/*.plantuml"
-    ]
 }
 
 task runExampleClientRPCJava(type: JavaExec) {
