@@ -120,19 +120,6 @@ public class IOUFlowTests {
     }
 
     @Test
-    public void flowRecordsAnIOUInBothPartiesVaults() throws Exception {
-        ExampleFlow.Initiator flow = new ExampleFlow.Initiator(1, b.getInfo().getLegalIdentities().get(0));
-        CordaFuture<SignedTransaction> future = a.getServices().startFlow(flow).getResultFuture();
-        network.runNetwork();
-        SignedTransaction signedTx = future.get();
-
-        // We check the recorded transaction in both vaults.
-        for (StartedNode<MockNode> node : ImmutableList.of(a, b)) {
-            assertEquals(signedTx, node.getServices().getValidatedTransactions().getTransaction(signedTx.getId()));
-        }
-    }
-
-    @Test
     public void flowRecordsTheCorrectIOUInBothPartiesVaults() throws Exception {
         Integer iouValue = 1;
         ExampleFlow.Initiator flow = new ExampleFlow.Initiator(1, b.getInfo().getLegalIdentities().get(0));
