@@ -76,7 +76,7 @@ class IOUFlowTests {
         network.runNetwork()
         val signedTx = future.getOrThrow()
 
-        // We check the recorded transaction in both vaults.
+        // We check the recorded transaction in both transaction storages.
         for (node in listOf(a, b)) {
             assertEquals(signedTx, node.services.validatedTransactions.getTransaction(signedTx.id))
         }
