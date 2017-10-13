@@ -31,7 +31,7 @@ public class Main {
     public static void main(String[] args) {
         // No permissions required as we are not invoking flows.
         final User user = new User("user1", "test", emptySet());
-        driver(new DriverParameters().setIsDebug(true).setStartNodesInProcess(true), dsl -> {
+        driver(new DriverParameters().setIsDebug(true), dsl -> {
                     dsl.startNode(new NodeParameters()
                             .setProvidedName(new CordaX500Name("Controller", "London", "GB"))
                             .setAdvertisedServices(ImmutableSet.of(new ServiceInfo(ValidatingNotaryService.Companion.getType(), null))));
