@@ -2,7 +2,6 @@ package com.example.api
 
 import com.example.flow.ExampleFlow.Initiator
 import com.example.state.IOUState
-import net.corda.core.contracts.StateAndRef
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.startTrackedFlow
@@ -13,13 +12,14 @@ import org.slf4j.Logger
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
+import javax.ws.rs.core.Response.Status.BAD_REQUEST
+import javax.ws.rs.core.Response.Status.CREATED
 
-val NOTARY_NAME = "Controller"
-val NETWORK_MAP_NAME = "Network Map Service"
+val SERVICE_NAMES = listOf("Controller", "Network Map Service")
 
 // This API is accessible from /api/example. All paths specified below are relative to it.
 @Path("example")
-class ExampleApi(val rpcOps: CordaRPCOps) {
+class ExampleApi(private val rpcOps: CordaRPCOps) {
     private val myLegalName: CordaX500Name = rpcOps.nodeInfo().legalIdentities.first().name
 
     companion object {
@@ -46,7 +46,7 @@ class ExampleApi(val rpcOps: CordaRPCOps) {
         return mapOf("peers" to nodeInfo
                 .map { it.legalIdentities.first().name }
                 //filter out myself, notary and eventual network map started by driver
-                .filter { it != myLegalName && it.organisation != NOTARY_NAME && it.organisation != NETWORK_MAP_NAME })
+                .filter { it.organisation !in (SERVICE_NAMES + myLegalName.organisation) })
     }
 
     /**
@@ -55,10 +55,7 @@ class ExampleApi(val rpcOps: CordaRPCOps) {
     @GET
     @Path("ious")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getIOUs(): List<StateAndRef<IOUState>> {
-        val vaultStates = rpcOps.vaultQueryBy<IOUState>()
-        return vaultStates.states
-    }
+    fun getIOUs() = rpcOps.vaultQueryBy<IOUState>().states
 
     /**
      * Initiates a flow to agree an IOU between two parties.
@@ -75,34 +72,26 @@ class ExampleApi(val rpcOps: CordaRPCOps) {
     @Path("create-iou")
     fun createIOU(@QueryParam("iouValue") iouValue: Int, @QueryParam("partyName") partyName: CordaX500Name?): Response {
         if (iouValue <= 0 ) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Query parameter 'iouValue' must be non-negative.\n").build()
+            return Response.status(BAD_REQUEST).entity("Query parameter 'iouValue' must be non-negative.\n").build()
         }
         if (partyName == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Query parameter 'partyName' missing or has wrong format.\n").build()
+            return Response.status(BAD_REQUEST).entity("Query parameter 'partyName' missing or has wrong format.\n").build()
         }
         val otherParty = rpcOps.wellKnownPartyFromX500Name(partyName) ?:
-                return Response.status(Response.Status.BAD_REQUEST).entity("Party named $partyName cannot be found.\n").build()
+                return Response.status(BAD_REQUEST).entity("Party named $partyName cannot be found.\n").build()
 
-        var status: Response.Status
-        var msg: String
-        try {
+        return try {
             val flowHandle = rpcOps.startTrackedFlow(::Initiator, iouValue, otherParty)
             flowHandle.progress.subscribe { println(">> $it") }
 
             // The line below blocks and waits for the future to resolve.
-            val result = flowHandle
-                    .returnValue
-                    .getOrThrow()
+            val result = flowHandle.returnValue.getOrThrow()
 
-            status = Response.Status.CREATED
-            msg = "Transaction id ${result.id} committed to ledger.\n"
+            Response.status(CREATED).entity("Transaction id ${result.id} committed to ledger.\n").build()
 
         } catch (ex: Throwable) {
-            status = Response.Status.BAD_REQUEST
-            msg = ex.message!!
-            logger.error(msg, ex)
+            logger.error(ex.message, ex)
+            Response.status(BAD_REQUEST).entity(ex.message!!).build()
         }
-
-        return Response.status(status).entity(msg).build()
     }
 }
