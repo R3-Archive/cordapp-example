@@ -35,10 +35,24 @@ public class ExampleFlow {
     @InitiatingFlow
     @StartableByRPC
     public static class Initiator extends FlowLogic<SignedTransaction> {
-
+        
         private final int iouValue;
         private final Party otherParty;
 
+        private final Step GENERATING_TRANSACTION = new Step("Generating transaction based on new IOU.");
+        private final Step VERIFYING_TRANSACTION = new Step("Verifying contract constraints.");
+        private final Step SIGNING_TRANSACTION = new Step("Signing transaction with our private key.");
+        private final Step GATHERING_SIGS = new Step("Gathering the counterparty's signature.") {
+            @Override public ProgressTracker childProgressTracker() {
+                return CollectSignaturesFlow.Companion.tracker();
+            }
+        };
+        private final Step FINALISING_TRANSACTION = new Step("Obtaining notary signature and recording transaction.") {
+            @Override public ProgressTracker childProgressTracker() {
+                return FinalityFlow.Companion.tracker();
+            }
+        };
+        
         // The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
         // checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call()
         // function.
@@ -49,20 +63,6 @@ public class ExampleFlow {
                 GATHERING_SIGS,
                 FINALISING_TRANSACTION
         );
-
-        private static final Step GENERATING_TRANSACTION = new Step("Generating transaction based on new IOU.");
-        private static final Step VERIFYING_TRANSACTION = new Step("Verifying contract constraints.");
-        private static final Step SIGNING_TRANSACTION = new Step("Signing transaction with our private key.");
-        private static final Step GATHERING_SIGS = new Step("Gathering the counterparty's signature.") {
-            @Override public ProgressTracker childProgressTracker() {
-                return CollectSignaturesFlow.Companion.tracker();
-            }
-        };
-        private static final Step FINALISING_TRANSACTION = new Step("Obtaining notary signature and recording transaction.") {
-            @Override public ProgressTracker childProgressTracker() {
-                return FinalityFlow.Companion.tracker();
-            }
-        };
 
         public Initiator(int iouValue, Party otherParty) {
             this.iouValue = iouValue;
