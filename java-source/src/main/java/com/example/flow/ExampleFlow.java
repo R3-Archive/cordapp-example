@@ -129,8 +129,8 @@ public class ExampleFlow {
         @Suspendable
         @Override
         public SignedTransaction call() throws FlowException {
-            class signTxFlow extends SignTransactionFlow {
-                private signTxFlow(FlowSession otherPartyFlow, ProgressTracker progressTracker) {
+            class SignTxFlow extends SignTransactionFlow {
+                private SignTxFlow(FlowSession otherPartyFlow, ProgressTracker progressTracker) {
                     super(otherPartyFlow, progressTracker);
                 }
 
@@ -146,7 +146,7 @@ public class ExampleFlow {
                 }
             }
 
-            return subFlow(new signTxFlow(otherPartyFlow, SignTransactionFlow.Companion.tracker()));
+            return subFlow(new SignTxFlow(otherPartyFlow, SignTransactionFlow.Companion.tracker()));
         }
     }
 }
