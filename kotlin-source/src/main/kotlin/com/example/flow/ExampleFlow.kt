@@ -107,7 +107,7 @@ object ExampleFlow {
                     val output = stx.tx.outputs.single().data
                     "This must be an IOU transaction." using (output is IOUState)
                     val iou = output as IOUState
-                    "The IOU's value can't be too high." using (iou.value < 100)
+                    "I won't accept IOUs with a value over 100." using (iou.value <= 100)
                 }
             }
 
