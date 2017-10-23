@@ -40,6 +40,7 @@ app.controller('DemoAppController', function($http, $location, $uibModal) {
             controller: 'ModalInstanceCtrl',
             controllerAs: 'modalInstance',
             resolve: {
+                demoApp: () => demoApp,
                 apiBaseURL: () => apiBaseURL,
                 peers: () => peers
             }
@@ -56,7 +57,7 @@ app.controller('DemoAppController', function($http, $location, $uibModal) {
     demoApp.getIOUs();
 });
 
-app.controller('ModalInstanceCtrl', function ($http, $location, $uibModalInstance, $uibModal, apiBaseURL, peers) {
+app.controller('ModalInstanceCtrl', function ($http, $location, $uibModalInstance, $uibModal, demoApp, apiBaseURL, peers) {
     const modalInstance = this;
 
     modalInstance.peers = peers;
@@ -76,8 +77,13 @@ app.controller('ModalInstanceCtrl', function ($http, $location, $uibModalInstanc
 
             // Create PO and handle success / fail responses.
             $http.put(createIOUEndpoint).then(
-                (result) => modalInstance.displayMessage(result),
-                (result) => modalInstance.displayMessage(result)
+                (result) => {
+                    modalInstance.displayMessage(result);
+                    demoApp.getIOUs();
+                },
+                (result) => {
+                    modalInstance.displayMessage(result);
+                }
             );
         }
     };
