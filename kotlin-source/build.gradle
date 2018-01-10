@@ -30,22 +30,22 @@ dependencies {
     testCompile "junit:junit:$junit_version"
 
     // Corda integration dependencies
-    cordaCompile "net.corda:corda-core:$corda_release_version"
-    cordaCompile "net.corda:corda-finance:$corda_release_version"
-    cordaCompile "net.corda:corda-jackson:$corda_release_version"
-    cordaCompile "net.corda:corda-rpc:$corda_release_version"
-    cordaCompile "net.corda:corda-webserver-impl:$corda_release_version"
-    cordaRuntime "net.corda:corda:$corda_release_version"
-    cordaRuntime "net.corda:corda-webserver:$corda_release_version"
+    cordaCompile "$corda_release_group:corda-core:$corda_release_version"
+    cordaCompile "$corda_release_group:corda-finance:$corda_release_version"
+    cordaCompile "$corda_release_group:corda-jackson:$corda_release_version"
+    cordaCompile "$corda_release_group:corda-rpc:$corda_release_version"
+    cordaCompile "$corda_release_group:corda-webserver-impl:$corda_release_version"
+    cordaRuntime "$corda_release_group:corda:$corda_release_version"
+    cordaRuntime "$corda_release_group:corda-webserver:$corda_release_version"
 
-    testCompile "net.corda:corda-node-driver:$corda_release_version"
+    testCompile "$corda_release_group:corda-node-driver:$corda_release_version"
 
     // PlantUML: For the generation of sequence diagrams of the flows
     compile 'net.sourceforge.plantuml:plantuml:8039'
 
     // CorDapp dependencies
     // Specify your cordapp's dependencies below, including dependent CorDapps
-    cordapp "net.corda:corda-finance:$corda_release_version"
+    cordapp "$corda_release_group:corda-finance:$corda_release_version"
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
@@ -65,7 +65,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         advertisedServices = ["corda.notary.validating"]
         p2pPort 10002
         rpcPort 10003
-        cordapps = ["net.corda:corda-finance:$corda_release_version"]
+        cordapps = ["$corda_release_group:corda-finance:$corda_release_version"]
     }
     node {
         name "O=PartyA,L=London,C=GB"
@@ -73,7 +73,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         p2pPort 10005
         rpcPort 10006
         webPort 10007
-        cordapps = ["net.corda:corda-finance:$corda_release_version"]
+        cordapps = ["$corda_release_group:corda-finance:$corda_release_version"]
         rpcUsers = [[ user: "user1", "password": "test", "permissions": [
                 "StartFlow.com.example.flow.ExampleFlow\$Initiator"
         ]]]
@@ -84,7 +84,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         p2pPort 10008
         rpcPort 10009
         webPort 10010
-        cordapps = ["net.corda:corda-finance:$corda_release_version"]
+        cordapps = ["$corda_release_group:corda-finance:$corda_release_version"]
         rpcUsers = [[ user: "user1", "password": "test", "permissions": [
                 "StartFlow.com.example.flow.ExampleFlow\$Initiator"
         ]]]
@@ -95,7 +95,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         p2pPort 10011
         rpcPort 10012
         webPort 10013
-        cordapps = ["net.corda:corda-finance:$corda_release_version"]
+        cordapps = ["$corda_release_group:corda-finance:$corda_release_version"]
         rpcUsers = [[ user: "user1", "password": "test", "permissions": [
                 "StartFlow.com.example.flow.ExampleFlow\$Initiator"
         ]]]
