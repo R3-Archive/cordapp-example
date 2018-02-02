@@ -33,6 +33,14 @@ public class IOUSchemaV1 extends MappedSchema {
             this.linearId = linearId;
         }
 
+        // Default constructor required by hibernate.
+        public PersistentIOU() {
+            this.lender = null;
+            this.borrower = null;
+            this.value = 0;
+            this.linearId = null;
+        }
+
         public String getLender() {
             return lender;
         }

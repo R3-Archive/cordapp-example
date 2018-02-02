@@ -1,5 +1,6 @@
 package com.example.schema
 
+import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
 import java.util.*
@@ -33,5 +34,8 @@ object IOUSchemaV1 : MappedSchema(
 
             @Column(name = "linear_id")
             var linearId: UUID
-    ) : PersistentState()
+    ) : PersistentState() {
+        // Default constructor required by hibernate.
+        constructor(): this("", "", 0, UUID.randomUUID())
+    }
 }
