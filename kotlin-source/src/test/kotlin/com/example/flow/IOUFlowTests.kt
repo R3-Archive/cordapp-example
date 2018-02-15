@@ -2,14 +2,12 @@ package com.example.flow
 
 import com.example.state.IOUState
 import net.corda.core.contracts.TransactionVerificationException
-import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.queryBy
 import net.corda.core.utilities.getOrThrow
-import net.corda.node.internal.StartedNode
-import net.corda.testing.chooseIdentity
+import net.corda.testing.core.chooseIdentity
 import net.corda.testing.node.MockNetwork
-import net.corda.testing.setCordappPackages
-import net.corda.testing.unsetCordappPackages
+import net.corda.testing.node.StartedMockNode
+import net.corda.testing.node.startFlow
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -18,31 +16,28 @@ import kotlin.test.assertFailsWith
 
 class IOUFlowTests {
     lateinit var network: MockNetwork
-    lateinit var a: StartedNode<MockNetwork.MockNode>
-    lateinit var b: StartedNode<MockNetwork.MockNode>
+    lateinit var a: StartedMockNode
+    lateinit var b: StartedMockNode
 
     @Before
     fun setup() {
-        setCordappPackages("com.example.contract")
-        network = MockNetwork()
-        val nodes = network.createSomeNodes(2)
-        a = nodes.partyNodes[0]
-        b = nodes.partyNodes[1]
+        network = MockNetwork(listOf("com.example.contract"))
+        a = network.createPartyNode()
+        b = network.createPartyNode()
         // For real nodes this happens automatically, but we have to manually register the flow for tests.
-        nodes.partyNodes.forEach { it.registerInitiatedFlow(ExampleFlow.Acceptor::class.java) }
+        listOf(a, b).forEach { it.registerInitiatedFlow(ExampleFlow.Acceptor::class.java) }
         network.runNetwork()
     }
 
     @After
     fun tearDown() {
-        unsetCordappPackages()
         network.stopNodes()
     }
 
     @Test
     fun `flow rejects invalid IOUs`() {
         val flow = ExampleFlow.Initiator(-1, b.info.chooseIdentity())
-        val future = a.services.startFlow(flow).resultFuture
+        val future = a.services.startFlow(flow)
         network.runNetwork()
 
         // The IOUContract specifies that IOUs cannot have negative values.
@@ -52,7 +47,7 @@ class IOUFlowTests {
     @Test
     fun `SignedTransaction returned by the flow is signed by the initiator`() {
         val flow = ExampleFlow.Initiator(1, b.info.chooseIdentity())
-        val future = a.services.startFlow(flow).resultFuture
+        val future = a.services.startFlow(flow)
         network.runNetwork()
 
         val signedTx = future.getOrThrow()
@@ -62,7 +57,7 @@ class IOUFlowTests {
     @Test
     fun `SignedTransaction returned by the flow is signed by the acceptor`() {
         val flow = ExampleFlow.Initiator(1, b.info.chooseIdentity())
-        val future = a.services.startFlow(flow).resultFuture
+        val future = a.services.startFlow(flow)
         network.runNetwork()
 
         val signedTx = future.getOrThrow()
@@ -72,7 +67,7 @@ class IOUFlowTests {
     @Test
     fun `flow records a transaction in both parties' transaction storages`() {
         val flow = ExampleFlow.Initiator(1, b.info.chooseIdentity())
-        val future = a.services.startFlow(flow).resultFuture
+        val future = a.services.startFlow(flow)
         network.runNetwork()
         val signedTx = future.getOrThrow()
 
@@ -86,7 +81,7 @@ class IOUFlowTests {
     fun `recorded transaction has no inputs and a single output, the input IOU`() {
         val iouValue = 1
         val flow = ExampleFlow.Initiator(iouValue, b.info.chooseIdentity())
-        val future = a.services.startFlow(flow).resultFuture
+        val future = a.services.startFlow(flow)
         network.runNetwork()
         val signedTx = future.getOrThrow()
 
@@ -107,7 +102,7 @@ class IOUFlowTests {
     fun `flow records the correct IOU in both parties' vaults`() {
         val iouValue = 1
         val flow = ExampleFlow.Initiator(1, b.info.chooseIdentity())
-        val future = a.services.startFlow(flow).resultFuture
+        val future = a.services.startFlow(flow)
         network.runNetwork()
         future.getOrThrow()
 
