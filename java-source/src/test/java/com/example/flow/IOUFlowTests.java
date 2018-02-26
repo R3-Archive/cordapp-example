@@ -123,7 +123,7 @@ public class IOUFlowTests {
 
         // We check the recorded IOU in both vaults.
         for (StartedMockNode node : ImmutableList.of(a, b)) {
-            node.getDatabase().transaction(it -> {
+            node.transaction(() -> {
                 List<StateAndRef<IOUState>> ious = node.getServices().getVaultService().queryBy(IOUState.class).getStates();
                 assertEquals(1, ious.size());
                 IOUState recordedState = ious.get(0).getState().getData();
