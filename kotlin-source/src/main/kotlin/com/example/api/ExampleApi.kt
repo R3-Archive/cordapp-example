@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response
 import javax.ws.rs.core.Response.Status.BAD_REQUEST
 import javax.ws.rs.core.Response.Status.CREATED
 
-val SERVICE_NAMES = listOf("Controller", "Network Map Service")
+val SERVICE_NAMES = listOf("Notary", "Network Map Service")
 
 // This API is accessible from /api/example. All paths specified below are relative to it.
 @Path("example")

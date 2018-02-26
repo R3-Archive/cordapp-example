@@ -78,7 +78,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     directory "./build/nodes"
     node {
-        name "O=Controller,L=London,C=GB"
+        name "O=Notary,L=London,C=GB"
         notary = [validating : true]
         p2pPort 10002
         cordapps = ["$corda_release_group:corda-finance:$corda_release_version"]
