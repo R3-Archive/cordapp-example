@@ -12,6 +12,8 @@ apply plugin: 'net.corda.plugins.cordapp'
 apply plugin: 'net.corda.plugins.cordformation'
 apply plugin: 'net.corda.plugins.quasar-utils'
 
+jar.baseName = "cordapp-example"
+
 sourceSets {
     main {
         resources {
