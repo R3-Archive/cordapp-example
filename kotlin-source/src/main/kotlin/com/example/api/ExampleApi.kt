@@ -81,13 +81,8 @@ class ExampleApi(private val rpcOps: CordaRPCOps) {
                 return Response.status(BAD_REQUEST).entity("Party named $partyName cannot be found.\n").build()
 
         return try {
-            val flowHandle = rpcOps.startTrackedFlow(::Initiator, iouValue, otherParty)
-            flowHandle.progress.subscribe { println(">> $it") }
-
-            // The line below blocks and waits for the future to resolve.
-            val result = flowHandle.returnValue.getOrThrow()
-
-            Response.status(CREATED).entity("Transaction id ${result.id} committed to ledger.\n").build()
+            val signedTx = rpcOps.startTrackedFlow(::Initiator, iouValue, otherParty).returnValue.getOrThrow()
+            Response.status(CREATED).entity("Transaction id ${signedTx.id} committed to ledger.\n").build()
 
         } catch (ex: Throwable) {
             logger.error(ex.message, ex)
