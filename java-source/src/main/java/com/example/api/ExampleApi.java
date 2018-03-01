@@ -103,16 +103,12 @@ public class ExampleApi {
         }
 
         try {
-            FlowProgressHandle<SignedTransaction> flowHandle = rpcOps
-                    .startTrackedFlowDynamic(ExampleFlow.Initiator.class, iouValue, otherParty);
-            flowHandle.getProgress().subscribe(evt -> System.out.printf(">> %s\n", evt));
-
-            // The line below blocks and waits for the flow to return.
-            final SignedTransaction result = flowHandle
+            final SignedTransaction signedTx = rpcOps
+                    .startTrackedFlowDynamic(ExampleFlow.Initiator.class, iouValue, otherParty)
                     .getReturnValue()
                     .get();
 
-            final String msg = String.format("Transaction id %s committed to ledger.\n", result.getId());
+            final String msg = String.format("Transaction id %s committed to ledger.\n", signedTx.getId());
             return Response.status(CREATED).entity(msg).build();
 
         } catch (Throwable ex) {
