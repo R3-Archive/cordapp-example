@@ -55,9 +55,6 @@ dependencies {
 
     testCompile "$corda_release_group:corda-node-driver:$corda_release_version"
 
-    // PlantUML: For the generation of sequence diagrams of the flows
-    compile 'net.sourceforge.plantuml:plantuml:8039'
-
     // CorDapp dependencies
     // Specify your cordapp's dependencies below, including dependent CorDapps
     cordapp "$corda_release_group:corda-finance:$corda_release_version"

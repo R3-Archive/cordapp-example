@@ -7,7 +7,6 @@ import com.example.flow.ExampleFlow.Acceptor
 import com.example.flow.ExampleFlow.Initiator
 import com.example.state.IOUState
 import net.corda.core.contracts.Command
-import net.corda.core.contracts.StateAndContract
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.identity.Party
@@ -15,7 +14,6 @@ import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
-
 
 /**
  * This flow allows two parties (the [Initiator] and the [Acceptor]) to come to an agreement about the IOU encapsulated
@@ -73,7 +71,9 @@ object ExampleFlow {
             // Generate an unsigned transaction.
             val iouState = IOUState(iouValue, serviceHub.myInfo.legalIdentities.first(), otherParty)
             val txCommand = Command(IOUContract.Commands.Create(), iouState.participants.map { it.owningKey })
-            val txBuilder = TransactionBuilder(notary).withItems(StateAndContract(iouState, IOU_CONTRACT_ID), txCommand)
+            val txBuilder = TransactionBuilder(notary)
+                    .addOutputState(iouState, IOU_CONTRACT_ID)
+                    .addCommand(txCommand)
 
             // Stage 2.
             progressTracker.currentStep = VERIFYING_TRANSACTION
@@ -86,9 +86,9 @@ object ExampleFlow {
             val partSignedTx = serviceHub.signInitialTransaction(txBuilder)
 
             // Stage 4.
-            val otherPartyFlow = initiateFlow(otherParty)
             progressTracker.currentStep = GATHERING_SIGS
             // Send the state to the counterparty, and receive it back with their signature.
+            val otherPartyFlow = initiateFlow(otherParty)
             val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, setOf(otherPartyFlow), GATHERING_SIGS.childProgressTracker()))
 
             // Stage 5.

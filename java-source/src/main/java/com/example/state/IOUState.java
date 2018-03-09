@@ -66,6 +66,6 @@ public class IOUState implements LinearState, QueryableState {
 
     @Override
     public String toString() {
-        return String.format("%s(iou=%s, lender=%s, borrower=%s, linearId=%s)", getClass().getSimpleName(), value, lender, borrower, linearId);
+        return String.format("IOUState(value=%s, lender=%s, borrower=%s, linearId=%s)", value, lender, borrower, linearId);
     }
 }
