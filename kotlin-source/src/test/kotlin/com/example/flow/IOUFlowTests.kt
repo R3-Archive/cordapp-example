@@ -4,10 +4,9 @@ import com.example.state.IOUState
 import net.corda.core.contracts.TransactionVerificationException
 import net.corda.core.node.services.queryBy
 import net.corda.core.utilities.getOrThrow
-import net.corda.testing.core.chooseIdentity
+import net.corda.testing.core.singleIdentity
 import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.StartedMockNode
-import net.corda.testing.node.startFlow
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -36,8 +35,8 @@ class IOUFlowTests {
 
     @Test
     fun `flow rejects invalid IOUs`() {
-        val flow = ExampleFlow.Initiator(-1, b.info.chooseIdentity())
-        val future = a.services.startFlow(flow)
+        val flow = ExampleFlow.Initiator(-1, b.info.singleIdentity())
+        val future = a.startFlow(flow)
         network.runNetwork()
 
         // The IOUContract specifies that IOUs cannot have negative values.
@@ -46,28 +45,28 @@ class IOUFlowTests {
 
     @Test
     fun `SignedTransaction returned by the flow is signed by the initiator`() {
-        val flow = ExampleFlow.Initiator(1, b.info.chooseIdentity())
-        val future = a.services.startFlow(flow)
+        val flow = ExampleFlow.Initiator(1, b.info.singleIdentity())
+        val future = a.startFlow(flow)
         network.runNetwork()
 
         val signedTx = future.getOrThrow()
-        signedTx.verifySignaturesExcept(b.info.chooseIdentity().owningKey)
+        signedTx.verifySignaturesExcept(b.info.singleIdentity().owningKey)
     }
 
     @Test
     fun `SignedTransaction returned by the flow is signed by the acceptor`() {
-        val flow = ExampleFlow.Initiator(1, b.info.chooseIdentity())
-        val future = a.services.startFlow(flow)
+        val flow = ExampleFlow.Initiator(1, b.info.singleIdentity())
+        val future = a.startFlow(flow)
         network.runNetwork()
 
         val signedTx = future.getOrThrow()
-        signedTx.verifySignaturesExcept(a.info.chooseIdentity().owningKey)
+        signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
     }
 
     @Test
     fun `flow records a transaction in both parties' transaction storages`() {
-        val flow = ExampleFlow.Initiator(1, b.info.chooseIdentity())
-        val future = a.services.startFlow(flow)
+        val flow = ExampleFlow.Initiator(1, b.info.singleIdentity())
+        val future = a.startFlow(flow)
         network.runNetwork()
         val signedTx = future.getOrThrow()
 
@@ -80,8 +79,8 @@ class IOUFlowTests {
     @Test
     fun `recorded transaction has no inputs and a single output, the input IOU`() {
         val iouValue = 1
-        val flow = ExampleFlow.Initiator(iouValue, b.info.chooseIdentity())
-        val future = a.services.startFlow(flow)
+        val flow = ExampleFlow.Initiator(iouValue, b.info.singleIdentity())
+        val future = a.startFlow(flow)
         network.runNetwork()
         val signedTx = future.getOrThrow()
 
@@ -93,16 +92,16 @@ class IOUFlowTests {
 
             val recordedState = txOutputs[0].data as IOUState
             assertEquals(recordedState.value, iouValue)
-            assertEquals(recordedState.lender, a.info.chooseIdentity())
-            assertEquals(recordedState.borrower, b.info.chooseIdentity())
+            assertEquals(recordedState.lender, a.info.singleIdentity())
+            assertEquals(recordedState.borrower, b.info.singleIdentity())
         }
     }
 
     @Test
     fun `flow records the correct IOU in both parties' vaults`() {
         val iouValue = 1
-        val flow = ExampleFlow.Initiator(1, b.info.chooseIdentity())
-        val future = a.services.startFlow(flow)
+        val flow = ExampleFlow.Initiator(1, b.info.singleIdentity())
+        val future = a.startFlow(flow)
         network.runNetwork()
         future.getOrThrow()
 
@@ -113,8 +112,8 @@ class IOUFlowTests {
                 assertEquals(1, ious.size)
                 val recordedState = ious.single().state.data
                 assertEquals(recordedState.value, iouValue)
-                assertEquals(recordedState.lender, a.info.chooseIdentity())
-                assertEquals(recordedState.borrower, b.info.chooseIdentity())
+                assertEquals(recordedState.lender, a.info.singleIdentity())
+                assertEquals(recordedState.borrower, b.info.singleIdentity())
             }
         }
     }
