@@ -20,8 +20,8 @@ import static net.corda.testing.driver.Driver.driver;
 import static org.junit.Assert.assertEquals;
 
 public class DriverBasedTests {
-    TestIdentity bankA = new TestIdentity(new CordaX500Name("BankA", "", "GB"));
-    TestIdentity bankB = new TestIdentity(new CordaX500Name("BankB", "", "US"));
+    private final TestIdentity bankA = new TestIdentity(new CordaX500Name("BankA", "", "GB"));
+    private final TestIdentity bankB = new TestIdentity(new CordaX500Name("BankB", "", "US"));
 
     @Test
     public void nodeTest() {
@@ -70,13 +70,13 @@ public class DriverBasedTests {
                     WebserverHandle webserverHandle = dsl.startWebserver(nodeHandle).get();
 
                     NetworkHostAndPort nodeAddress = webserverHandle.getListenAddress();
-                    String url = String.format("http://%s/api/template/templateGetEndpoint", nodeAddress);
+                    String url = String.format("http://%s/api/example/ious", nodeAddress);
 
                     Request request = new Request.Builder().url(url).build();
                     OkHttpClient client = new OkHttpClient();
                     Response response = client.newCall(request).execute();
 
-                    assertEquals("Template GET endpoint.", response.body().string());
+                    assertEquals("[ ]", response.body().string());
                 }
             } catch (Exception e) {
                 throw new RuntimeException("Caught exception during test", e);

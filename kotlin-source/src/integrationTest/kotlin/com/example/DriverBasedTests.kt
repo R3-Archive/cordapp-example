@@ -47,13 +47,13 @@ class DriverBasedTests {
                 val webserverHandle = startWebserver(nodeHandle).getOrThrow()
 
                 val nodeAddress = webserverHandle.listenAddress
-                val url = "http://$nodeAddress/api/template/templateGetEndpoint"
+                val url = "http://$nodeAddress/api/example/ious"
 
                 val request = Request.Builder().url(url).build()
                 val client = OkHttpClient()
                 val response = client.newCall(request).execute()
 
-                assertEquals("Template GET endpoint.", response.body().string())
+                assertEquals("[ ]", response.body().string())
             }
         }
     }
