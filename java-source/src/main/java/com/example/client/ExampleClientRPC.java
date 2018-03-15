@@ -37,7 +37,7 @@ public class ExampleClientRPC {
         // Can be amended in the com.example.Main file.
         final CordaRPCOps proxy = client.start("user1", "test").getProxy();
 
-        // Grab all signed transactions and all future signed transactions.
+        // Grab all existing and future IOU states in the vault.
         final DataFeed<Vault.Page<IOUState>, Vault.Update<IOUState>> dataFeed = proxy.vaultTrack(IOUState.class);
         final Vault.Page<IOUState> snapshot = dataFeed.getSnapshot();
         final Observable<Vault.Update<IOUState>> updates = dataFeed.getUpdates();
