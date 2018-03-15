@@ -30,7 +30,7 @@ private class ExampleClientRPC {
         // Can be amended in the com.example.MainKt file.
         val proxy = client.start("user1", "test").proxy
 
-        // Grab all signed transactions and all future signed transactions.
+        // Grab all existing and future IOU states in the vault.
         val (snapshot, updates) = proxy.vaultTrack(IOUState::class.java)
 
         // Log the 'placed' IOU states and listen for new ones.
