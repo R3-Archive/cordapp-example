@@ -17,12 +17,14 @@ class IOUFlowTests {
     lateinit var network: MockNetwork
     lateinit var a: StartedMockNode
     lateinit var b: StartedMockNode
+    lateinit var c: StartedMockNode
 
     @Before
     fun setup() {
         network = MockNetwork(listOf("com.example.contract"))
         a = network.createPartyNode()
         b = network.createPartyNode()
+        c = network.createPartyNode()
         // For real nodes this happens automatically, but we have to manually register the flow for tests.
         listOf(a, b).forEach { it.registerInitiatedFlow(ExampleFlow.Acceptor::class.java) }
         network.runNetwork()
@@ -31,70 +33,6 @@ class IOUFlowTests {
     @After
     fun tearDown() {
         network.stopNodes()
-    }
-
-    @Test
-    fun `flow rejects invalid IOUs`() {
-        val flow = ExampleFlow.Initiator(-1, b.info.singleIdentity())
-        val future = a.startFlow(flow)
-        network.runNetwork()
-
-        // The IOUContract specifies that IOUs cannot have negative values.
-        assertFailsWith<TransactionVerificationException> { future.getOrThrow() }
-    }
-
-    @Test
-    fun `SignedTransaction returned by the flow is signed by the initiator`() {
-        val flow = ExampleFlow.Initiator(1, b.info.singleIdentity())
-        val future = a.startFlow(flow)
-        network.runNetwork()
-
-        val signedTx = future.getOrThrow()
-        signedTx.verifySignaturesExcept(b.info.singleIdentity().owningKey)
-    }
-
-    @Test
-    fun `SignedTransaction returned by the flow is signed by the acceptor`() {
-        val flow = ExampleFlow.Initiator(1, b.info.singleIdentity())
-        val future = a.startFlow(flow)
-        network.runNetwork()
-
-        val signedTx = future.getOrThrow()
-        signedTx.verifySignaturesExcept(a.info.singleIdentity().owningKey)
-    }
-
-    @Test
-    fun `flow records a transaction in both parties' transaction storages`() {
-        val flow = ExampleFlow.Initiator(1, b.info.singleIdentity())
-        val future = a.startFlow(flow)
-        network.runNetwork()
-        val signedTx = future.getOrThrow()
-
-        // We check the recorded transaction in both transaction storages.
-        for (node in listOf(a, b)) {
-            assertEquals(signedTx, node.services.validatedTransactions.getTransaction(signedTx.id))
-        }
-    }
-
-    @Test
-    fun `recorded transaction has no inputs and a single output, the input IOU`() {
-        val iouValue = 1
-        val flow = ExampleFlow.Initiator(iouValue, b.info.singleIdentity())
-        val future = a.startFlow(flow)
-        network.runNetwork()
-        val signedTx = future.getOrThrow()
-
-        // We check the recorded transaction in both vaults.
-        for (node in listOf(a, b)) {
-            val recordedTx = node.services.validatedTransactions.getTransaction(signedTx.id)
-            val txOutputs = recordedTx!!.tx.outputs
-            assert(txOutputs.size == 1)
-
-            val recordedState = txOutputs[0].data as IOUState
-            assertEquals(recordedState.value, iouValue)
-            assertEquals(recordedState.lender, a.info.singleIdentity())
-            assertEquals(recordedState.borrower, b.info.singleIdentity())
-        }
     }
 
     @Test
@@ -116,5 +54,8 @@ class IOUFlowTests {
                 assertEquals(recordedState.borrower, b.info.singleIdentity())
             }
         }
+
+        println("You'll see the IOU in node C's database too.")
+        println(c.services.vaultService.queryBy<IOUState>().states)
     }
 }
