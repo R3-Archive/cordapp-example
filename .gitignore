@@ -78,3 +78,6 @@ crashlytics-build.properties
 
 # docs related
 docs/virtualenv/
+
+# oh-my-zsh Gradle auto-complete
+**/.gradletasknamecache
