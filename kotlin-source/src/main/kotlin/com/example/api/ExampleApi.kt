@@ -1,11 +1,16 @@
 package com.example.api
 
 import com.example.flow.ExampleFlow.Initiator
+import com.example.schema.IOUSchemaV1
 import com.example.state.IOUState
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.startTrackedFlow
 import net.corda.core.messaging.vaultQueryBy
+import net.corda.core.node.services.IdentityService
+import net.corda.core.node.services.Vault
+import net.corda.core.node.services.vault.QueryCriteria
+import net.corda.core.node.services.vault.builder
 import net.corda.core.utilities.getOrThrow
 import net.corda.core.utilities.loggerFor
 import org.slf4j.Logger
@@ -87,6 +92,23 @@ class ExampleApi(private val rpcOps: CordaRPCOps) {
         } catch (ex: Throwable) {
             logger.error(ex.message, ex)
             Response.status(BAD_REQUEST).entity(ex.message!!).build()
+        }
+    }
+	
+	/**
+     * Displays all IOU states that are created by Party.
+     */
+    @GET
+    @Path("my-ious")
+    @Produces(MediaType.APPLICATION_JSON)
+    fun myious(): Response {
+        val generalCriteria = QueryCriteria.VaultQueryCriteria(Vault.StateStatus.ALL)
+        val results = builder {
+                var partyType = IOUSchemaV1.PersistentIOU::lenderName.equal(rpcOps.nodeInfo().legalIdentities.first().name.toString())
+                val customCriteria = QueryCriteria.VaultCustomQueryCriteria(partyType)
+                val criteria = generalCriteria.and(customCriteria)
+                val results = rpcOps.vaultQueryBy<IOUState>(criteria).states
+                return Response.ok(results).build()
         }
     }
 }

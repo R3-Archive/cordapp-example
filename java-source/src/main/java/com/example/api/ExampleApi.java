@@ -1,6 +1,7 @@
 package com.example.api;
 
 import com.example.flow.ExampleFlow;
+import com.example.schema.IOUSchemaV1;
 import com.example.state.IOUState;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -8,8 +9,9 @@ import net.corda.core.contracts.StateAndRef;
 import net.corda.core.identity.CordaX500Name;
 import net.corda.core.identity.Party;
 import net.corda.core.messaging.CordaRPCOps;
-import net.corda.core.messaging.FlowProgressHandle;
 import net.corda.core.node.NodeInfo;
+import net.corda.core.node.services.Vault;
+import net.corda.core.node.services.vault.*;
 import net.corda.core.transactions.SignedTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -116,5 +119,21 @@ public class ExampleApi {
             logger.error(ex.getMessage(), ex);
             return Response.status(BAD_REQUEST).entity(msg).build();
         }
+    }
+	
+	/**
+     * Displays all IOU states that are created by Party.
+     */
+    @GET
+    @Path("my-ious")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getMyIOUs() throws NoSuchFieldException {
+        QueryCriteria generalCriteria = new QueryCriteria.VaultQueryCriteria(Vault.StateStatus.ALL);
+        Field lender = IOUSchemaV1.PersistentIOU.class.getDeclaredField("lender");
+        CriteriaExpression lenderIndex = Builder.equal(lender, myLegalName.toString());
+        QueryCriteria lenderCriteria = new QueryCriteria.VaultCustomQueryCriteria(lenderIndex);
+        QueryCriteria criteria = generalCriteria.and(lenderCriteria);
+        List<StateAndRef<IOUState>> results = rpcOps.vaultQueryByCriteria(criteria,IOUState.class).getStates();
+        return Response.status(CREATED).entity(results).build();
     }
 }
