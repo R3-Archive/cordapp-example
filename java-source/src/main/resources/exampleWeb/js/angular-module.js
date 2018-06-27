@@ -54,7 +54,14 @@ app.controller('DemoAppController', function($http, $location, $uibModal) {
             .map((key) => response.data[key].state.data)
             .reverse());
 
+    demoApp.getMyIOUs = () => $http.get(apiBaseURL + "my-ious")
+        .then((response) => demoApp.myious = Object.keys(response.data)
+            .map((key) => response.data[key].state.data)
+            .reverse());
+
     demoApp.getIOUs();
+    demoApp.getMyIOUs();
+
 });
 
 app.controller('ModalInstanceCtrl', function ($http, $location, $uibModalInstance, $uibModal, demoApp, apiBaseURL, peers) {
@@ -80,6 +87,7 @@ app.controller('ModalInstanceCtrl', function ($http, $location, $uibModalInstanc
                 (result) => {
                     modalInstance.displayMessage(result);
                     demoApp.getIOUs();
+                    demoApp.getMyIOUs();
                 },
                 (result) => {
                     modalInstance.displayMessage(result);
