@@ -82,11 +82,11 @@ COMING WEEKS WE'LL WRITE A TUTORIAL ON HOW BEST TO DO THIS.
                 <div class="panel-primary">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" data-target="#collapse1"  href="#">Recorded IOUs:</a>
+                            Recorded IOUs:
                         </h4>
                     </div>
                 </div>
-                <div id="collapse1" class="panel-collapse collapse in">
+                <div>
                     <div ng-show="!demoApp.ious.length" class="panel-body">Use the "Create IOU" button to send an IOU to a peer.</div>
                     <div ng-repeat="iou in demoApp.ious" class="panel panel-default">
                         <div class="panel-body">
@@ -99,16 +99,15 @@ COMING WEEKS WE'LL WRITE A TUTORIAL ON HOW BEST TO DO THIS.
                     </div>
                 </div>
             </div>
-            <div class="panel ">
+            <div class="panel">
                 <div class="panel-primary">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" data-target="#collapse2" href="#">My IOUs:</a>
+                            My IOUs:
                         </h4>
                     </div>
                 </div>
-                <div id="collapse2" class="panel-collapse collapse">
-                    <div ng-show="!demoApp.myious.length" class="panel-body">Use the "Create IOU" button to send an IOU to a peer.</div>
+                <div>
                     <div ng-repeat="iou in demoApp.myious" class="panel panel-default">
                         <div class="panel-body">
                             <ul>
