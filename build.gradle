@@ -1,30 +1,17 @@
 buildscript {
     ext.corda_release_group = 'com.r3.corda'
+    // Note: Replace ext.corda_release_version with R3 Corda version number
     ext.corda_release_version = '3.0.0'
     ext.corda_gradle_plugins_version = '4.0.22'
     ext.kotlin_version = '1.1.60'
     ext.junit_version = '4.12'
     ext.quasar_version = '0.7.9'
+    ext.quasar_group = 'co.paralleluniverse'
 
     repositories {
-//      [Option 1: Add Corda Enterprise binaries in ~/.m2/repository or C:\Documents and Settings\{your-username}\.m2]
         mavenLocal()
         mavenCentral()
         jcenter()
-
-//      [Option 2: uncomment the following block and tweak it to point to resolve Corda Enterprise dependencies against your company's repository.]
-//        maven {
-//            url 'https://repo.mycompany.com/maven2'
-//            credentials {
-//                username "<username>"
-//                password "<password>"
-//            }
-//        }
-
-//      [Option 3: uncomment the following block and tweak it to point to resolve Corda Enterprise dependencies against a custom path on your local file system.]
-//        maven {
-//            url 'file://D:/path/to/local/directory'
-//        }
     }
 
     dependencies {
@@ -32,5 +19,31 @@ buildscript {
         classpath "net.corda.plugins:cordapp:$corda_gradle_plugins_version"
         classpath "net.corda.plugins:cordformation:$corda_gradle_plugins_version"
         classpath "net.corda.plugins:quasar-utils:$corda_gradle_plugins_version"
+        classpath "net.corda.plugins:cordform-common:$corda_gradle_plugins_version"
+    }
+}
+
+allprojects {
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+
+        // [Option 1: Add Corda Enterprise binaries in ~/.m2/repository or C:\Documents and Settings\{your-username}\.m2]
+        
+        // [Option 2: uncomment the following block and tweak it to point to resolve Corda Enterprise dependencies against your company's repository.]
+        // maven {
+        //     url 'https://repo.mycompany.com/maven2'
+        //     credentials {
+        //         username "<username>"
+        //         password "<password>"
+        //     }
+        // }
+
+        // [Option 3: uncomment the following block and tweak it to point to resolve Corda Enterprise dependencies against a custom path on your local file system.]
+        // maven {
+        //     url 'file://D:/path/to/local/directory'
+        // }
     }
 }
