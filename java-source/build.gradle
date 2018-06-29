@@ -1,12 +1,3 @@
-repositories {
-    mavenLocal()
-    jcenter()
-    mavenCentral()
-    maven { url 'https://dl.bintray.com/kotlin/exposed' }
-    maven { url 'https://jitpack.io' }
-    maven { url 'https://ci-artifactory.corda.r3cev.com/artifactory/corda-releases' }
-}
-
 apply plugin: 'java'
 apply plugin: 'net.corda.plugins.cordapp'
 apply plugin: 'net.corda.plugins.cordformation'
@@ -73,6 +64,10 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         name "O=Notary,L=London,C=GB"
         notary = [validating : false]
         p2pPort 10006
+        rpcSettings {
+            address("localhost:10004")
+            adminAddress("localhost:10038")
+        }
         cordapps = ["$corda_release_group:corda-finance:$corda_release_version"]
     }
     node {
