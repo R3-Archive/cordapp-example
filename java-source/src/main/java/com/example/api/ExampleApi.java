@@ -27,6 +27,7 @@ import java.util.concurrent.ExecutionException;
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CREATED;
+import static javax.ws.rs.core.Response.Status.OK;
 
 // This API is accessible from /api/example. All paths specified below are relative to it.
 @Path("example")
@@ -134,6 +135,6 @@ public class ExampleApi {
         QueryCriteria lenderCriteria = new QueryCriteria.VaultCustomQueryCriteria(lenderIndex);
         QueryCriteria criteria = generalCriteria.and(lenderCriteria);
         List<StateAndRef<IOUState>> results = rpcOps.vaultQueryByCriteria(criteria,IOUState.class).getStates();
-        return Response.status(CREATED).entity(results).build();
+        return Response.status(OK).entity(results).build();
     }
 }
