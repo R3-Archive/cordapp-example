@@ -4,8 +4,6 @@ buildscript {
     ext.corda_gradle_plugins_version = '4.0.25'
     ext.kotlin_version = '1.2.50'
     ext.junit_version = '4.12'
-    ext.quasar_group = 'co.paralleluniverse'
-    ext.quasar_version = '0.7.9'
 
 
     repositories {
