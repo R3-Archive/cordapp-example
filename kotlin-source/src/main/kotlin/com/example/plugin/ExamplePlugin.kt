@@ -9,12 +9,12 @@ class ExamplePlugin : WebServerPluginRegistry {
     /**
      * A list of classes that expose web APIs.
      */
-    override val webApis: List<Function<CordaRPCOps, out Any>> = listOf(Function(::ExampleApi))
+    override val webApis = listOf(Function(::ExampleApi))
 
     /**
      * A list of directories in the resources directory that will be served by Jetty under /web.
      */
-    override val staticServeDirs: Map<String, String> = mapOf(
+    override val staticServeDirs = mapOf(
             // This will serve the exampleWeb directory in resources to /web/example
             "example" to javaClass.classLoader.getResource("exampleWeb").toExternalForm()
     )
