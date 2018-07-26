@@ -5,4 +5,3 @@
 Welcome to the example CorDapp. This CorDapp is documented [here](http://docs.corda.net/tutorial-cordapp.html).
 
 // TODO: Allow all webservers to run concurrently.
-// TODO: Update server to serve proper IOU CorDapp front-end

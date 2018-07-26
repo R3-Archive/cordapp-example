@@ -26,6 +26,8 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-websocket:$spring_boot_version") {
         exclude group: "org.springframework.boot", module: "spring-boot-starter-logging"
     }
+
+    cordapp project(":kotlin-source")
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
@@ -37,6 +39,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     }
 }
 
+// TODO: Allow all webservers to run concurrently.
 task runServers(dependsOn:["runPartyAServer", "runPartyBServer", "runPartyCServer"])
 
 task runPartyAServer(type: JavaExec) {

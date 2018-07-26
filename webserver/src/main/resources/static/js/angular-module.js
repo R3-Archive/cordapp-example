@@ -1,21 +1,5 @@
 "use strict";
 
-// --------
-// WARNING:
-// --------
-
-// THIS CODE IS ONLY MADE AVAILABLE FOR DEMONSTRATION PURPOSES AND IS NOT SECURE!
-// DO NOT USE IN PRODUCTION!
-
-// FOR SECURITY REASONS, USING A JAVASCRIPT WEB APP HOSTED VIA THE CORDA NODE IS
-// NOT THE RECOMMENDED WAY TO INTERFACE WITH CORDA NODES! HOWEVER, FOR THIS
-// PRE-ALPHA RELEASE IT'S A USEFUL WAY TO EXPERIMENT WITH THE PLATFORM AS IT ALLOWS
-// YOU TO QUICKLY BUILD A UI FOR DEMONSTRATION PURPOSES.
-
-// GOING FORWARD WE RECOMMEND IMPLEMENTING A STANDALONE WEB SERVER THAT AUTHORISES
-// VIA THE NODE'S RPC INTERFACE. IN THE COMING WEEKS WE'LL WRITE A TUTORIAL ON
-// HOW BEST TO DO THIS.
-
 const app = angular.module('demoAppModule', ['ui.bootstrap']);
 
 // Fix for unhandled rejections bug.
@@ -25,14 +9,11 @@ app.config(['$qProvider', function ($qProvider) {
 
 app.controller('DemoAppController', function($http, $location, $uibModal) {
     const demoApp = this;
-
-    // We identify the node.
-    const apiBaseURL = "/api/example/";
     let peers = [];
 
-    $http.get(apiBaseURL + "me").then((response) => demoApp.thisNode = response.data.me);
+    $http.get("me").then((response) => demoApp.thisNode = response.data.me);
 
-    $http.get(apiBaseURL + "peers").then((response) => peers = response.data.peers);
+    $http.get("peers").then((response) => peers = response.data.peers);
 
     demoApp.openModal = () => {
         const modalInstance = $uibModal.open({
@@ -41,7 +22,6 @@ app.controller('DemoAppController', function($http, $location, $uibModal) {
             controllerAs: 'modalInstance',
             resolve: {
                 demoApp: () => demoApp,
-                apiBaseURL: () => apiBaseURL,
                 peers: () => peers
             }
         });
@@ -49,14 +29,14 @@ app.controller('DemoAppController', function($http, $location, $uibModal) {
         modalInstance.result.then(() => {}, () => {});
     };
 
-    demoApp.getIOUs = () => $http.get(apiBaseURL + "ious")
+    demoApp.getIOUs = () => $http.get("ious")
         .then((response) => demoApp.ious = Object.keys(response.data)
-            .map((key) => response.data[key].state.data)
+            .map((key) => response.data[key])
             .reverse());
 
-    demoApp.getMyIOUs = () => $http.get(apiBaseURL + "my-ious")
+    demoApp.getMyIOUs = () => $http.get("my-ious")
         .then((response) => demoApp.myious = Object.keys(response.data)
-            .map((key) => response.data[key].state.data)
+            .map((key) => response.data[key])
             .reverse());
 
     demoApp.getIOUs();
@@ -64,7 +44,7 @@ app.controller('DemoAppController', function($http, $location, $uibModal) {
 
 });
 
-app.controller('ModalInstanceCtrl', function ($http, $location, $uibModalInstance, $uibModal, demoApp, apiBaseURL, peers) {
+app.controller('ModalInstanceCtrl', function ($http, $location, $uibModalInstance, $uibModal, demoApp, peers) {
     const modalInstance = this;
 
     modalInstance.peers = peers;
@@ -80,7 +60,7 @@ app.controller('ModalInstanceCtrl', function ($http, $location, $uibModalInstanc
 
             $uibModalInstance.close();
 
-            const createIOUEndpoint = `${apiBaseURL}create-iou?partyName=${modalInstance.form.counterparty}&iouValue=${modalInstance.form.value}`;
+            const createIOUEndpoint = `create-iou?partyName=${modalInstance.form.counterparty}&iouValue=${modalInstance.form.value}`;
 
             // Create PO and handle success / fail responses.
             $http.put(createIOUEndpoint).then(
