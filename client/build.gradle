@@ -53,9 +53,7 @@ dependencies {
 
     testCompile "$corda_release_group:corda-node-driver:$corda_release_version"
 
-    // CorDapp dependencies
-    // Specify your cordapp's dependencies below, including dependent CorDapps
-    cordapp "$corda_release_group:corda-finance:$corda_release_version"
+    cordapp project(":kotlin-source")
 }
 
 task integrationTest(type: Test, dependsOn: []) {
@@ -67,42 +65,8 @@ tasks.withType(JavaCompile) {
     options.compilerArgs << "-parameters" // Required for shell commands.
 }
 
-task deployNodesJava(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
-    directory "./build/nodes"
-    node {
-        name "O=Notary,L=London,C=GB"
-        notary = [validating : false]
-        p2pPort 10006
-        cordapps = ["$corda_release_group:corda-finance:$corda_release_version"]
-    }
-    node {
-        name "O=PartyA,L=London,C=GB"
-        p2pPort 10007
-        rpcSettings {
-            address("localhost:10008")
-            adminAddress("localhost:10048")
-        }
-        cordapps = ["$corda_release_group:corda-finance:$corda_release_version"]
-        rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
-    }
-    node {
-        name "O=PartyB,L=New York,C=US"
-        p2pPort 10010
-        rpcSettings {
-            address("localhost:10011")
-            adminAddress("localhost:10051")
-        }
-        cordapps = ["$corda_release_group:corda-finance:$corda_release_version"]
-        rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
-    }
-    node {
-        name "O=PartyC,L=Paris,C=FR"
-        p2pPort 10013
-        rpcSettings {
-            address("localhost:10014")
-            adminAddress("localhost:10054")
-        }
-        cordapps = ["$corda_release_group:corda-finance:$corda_release_version"]
-        rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
-    }
+task runExampleClient(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'com.example.client.ExampleClient'
+    args 'localhost:10008'
 }

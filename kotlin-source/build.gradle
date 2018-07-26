@@ -113,9 +113,3 @@ task deployNodesKotlin(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
     }
 }
-
-task runExampleClientRPCKotlin(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    main = 'com.example.client.ExampleClientRPCKt'
-    args 'localhost:10008'
-}

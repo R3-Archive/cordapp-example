@@ -17,16 +17,16 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Demonstration of using the CordaRPCClient to connect to a Corda Node and
- * steam some State data from the node.
+ * stream some state data back from the node.
  */
-public class ExampleClientRPC {
-    private static final Logger logger = LoggerFactory.getLogger(ExampleClientRPC.class);
+public class ExampleClient {
+    private static final Logger logger = LoggerFactory.getLogger(ExampleClient.class);
 
     private static void logState(StateAndRef<IOUState> state) {
         logger.info("{}", state.getState().getData());
     }
 
-    public static void main(String[] args) throws ActiveMQException, InterruptedException, ExecutionException {
+    public static void main(String[] args) {
         if (args.length != 1) {
             throw new IllegalArgumentException("Usage: ExampleClientRPC <node address>");
         }
@@ -34,7 +34,6 @@ public class ExampleClientRPC {
         final NetworkHostAndPort nodeAddress = NetworkHostAndPort.parse(args[0]);
         final CordaRPCClient client = new CordaRPCClient(nodeAddress, CordaRPCClientConfiguration.DEFAULT);
 
-        // Can be amended in the com.example.Main file.
         final CordaRPCOps proxy = client.start("user1", "test").getProxy();
 
         // Grab all existing and future IOU states in the vault.
@@ -43,7 +42,7 @@ public class ExampleClientRPC {
         final Observable<Vault.Update<IOUState>> updates = dataFeed.getUpdates();
 
         // Log the 'placed' IOUs and listen for new ones.
-        snapshot.getStates().forEach(ExampleClientRPC::logState);
-        updates.toBlocking().subscribe(update -> update.getProduced().forEach(ExampleClientRPC::logState));
+        snapshot.getStates().forEach(ExampleClient::logState);
+        updates.toBlocking().subscribe(update -> update.getProduced().forEach(ExampleClient::logState));
     }
 }
