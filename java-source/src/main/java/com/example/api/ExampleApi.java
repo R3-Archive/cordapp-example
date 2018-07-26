@@ -35,7 +35,7 @@ public class ExampleApi {
     private final CordaRPCOps rpcOps;
     private final CordaX500Name myLegalName;
 
-    private final List<String> serviceNames = ImmutableList.of("Notary", "Network Map Service");
+    private final List<String> serviceNames = ImmutableList.of("Notary");
 
     static private final Logger logger = LoggerFactory.getLogger(ExampleApi.class);
 
