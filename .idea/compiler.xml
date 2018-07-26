@@ -8,6 +8,9 @@
       <module name="kotlin-source_integrationTest" target="1.8" />
       <module name="kotlin-source_main" target="1.8" />
       <module name="kotlin-source_test" target="1.8" />
+      <module name="webserver_integrationTest" target="1.8" />
+      <module name="webserver_main" target="1.8" />
+      <module name="webserver_test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

@@ -36,3 +36,28 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
         javaParameters = true   // Useful for reflection.
     }
 }
+
+task runServers(dependsOn:["runPartyAServer", "runPartyBServer", "runPartyCServer"])
+
+task runPartyAServer(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'com.example.server.Starter'
+    args '--server.port=10009', '--config.rpc.username=user1', '--config.rpc.password=test', '--config.rpc.host=localhost', '--config.rpc.port=10008'
+}
+
+task runPartyBServer(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'com.example.server.Starter'
+    args '--server.port=10012', '--config.rpc.username=user1', '--config.rpc.password=test', '--config.rpc.host=localhost', '--config.rpc.port=10011'
+}
+
+task runPartyCServer(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'com.example.server.Starter'
+    args '--server.port=10012', '--config.rpc.username=user1', '--config.rpc.password=test', '--config.rpc.host=localhost', '--config.rpc.port=10014'
+}
+
+bootJar {
+    baseName = "corda-webserver"
+    version = ""
+}

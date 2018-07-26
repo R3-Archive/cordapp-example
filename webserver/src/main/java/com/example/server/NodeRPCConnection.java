@@ -14,14 +14,8 @@ import static com.example.server.Constants.*;
 
 /**
  * Wraps a node RPC proxy.
- * <p>
- * The RPC proxy is configured based on the properties in `application.properties`.
  *
- * @param host     The host of the node we are connecting to.
- * @param rpcPort  The RPC port of the node we are connecting to.
- * @param username The username for logging into the RPC client.
- * @param password The password for logging into the RPC client.
- * @property proxy The RPC proxy.
+ * The RPC proxy is configured using command-line arguments.
  */
 @Component
 public class NodeRPCConnection implements AutoCloseable {
@@ -35,7 +29,7 @@ public class NodeRPCConnection implements AutoCloseable {
     private int rpcPort;
 
     private CordaRPCConnection rpcConnection;
-    public CordaRPCOps proxy;
+    CordaRPCOps proxy;
 
     @PostConstruct
     public void initialiseNodeRPCConnection() {
