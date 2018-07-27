@@ -28,12 +28,12 @@ public class ExampleClient {
 
     public static void main(String[] args) {
         if (args.length != 1) {
-            throw new IllegalArgumentException("Usage: ExampleClientRPC <node address>");
+            throw new IllegalArgumentException("Usage: ExampleClient <node address>");
         }
 
+        // Create an RPC connection to the node.
         final NetworkHostAndPort nodeAddress = NetworkHostAndPort.parse(args[0]);
         final CordaRPCClient client = new CordaRPCClient(nodeAddress, CordaRPCClientConfiguration.DEFAULT);
-
         final CordaRPCOps proxy = client.start("user1", "test").getProxy();
 
         // Grab all existing and future IOU states in the vault.

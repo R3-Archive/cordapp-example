@@ -1,6 +1,9 @@
 package com.example
 
+import com.example.flow.IOUFlow
+import com.example.state.IOUState
 import net.corda.core.identity.CordaX500Name
+import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.utilities.getOrThrow
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.driver.DriverParameters
@@ -22,12 +25,14 @@ class DriverBasedTests {
                     startNode(providedName = bankB.name)
             ).map { it.getOrThrow() }
 
-            // This test makes an RPC call to retrieve another node's name from the network map, to verify that the
-            // nodes have started and can communicate. This is a very basic test, in practice tests would be starting
-            // flows, and verifying the states in the vault and other important metrics to ensure that your CorDapp is
-            // working as intended.
-            assertEquals(partyAHandle.rpc.wellKnownPartyFromX500Name(bankB.name)!!.name, bankB.name)
-            assertEquals(partyBHandle.rpc.wellKnownPartyFromX500Name(bankA.name)!!.name, bankA.name)
+            // We get PartyA to run `IOUFlow.Initiator`.
+            val partyB = partyAHandle.rpc.wellKnownPartyFromX500Name(bankB.name)!!
+            partyAHandle.rpc.startFlowDynamic(IOUFlow.Initiator::class.java, 99, partyB).returnValue.get()
+
+            // We check that `IOUFlow.Initiator` has created a single IOU in both nodes' vaults.
+            listOf(partyAHandle, partyBHandle).forEach { nodeHandle ->
+                assertEquals(nodeHandle.rpc.vaultQueryBy<IOUState>().states.size, 1)
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.example.server;
 
-import com.example.flow.ExampleFlow;
+import com.example.flow.IOUFlow;
 import com.example.schema.IOUSchemaV1;
 import com.example.state.IOUState;
 import com.google.common.collect.ImmutableList;
@@ -109,7 +109,7 @@ public class Controller {
      * Initiates a flow to agree an IOU between two parties.
      *
      * Once the flow finishes it will have written the IOU to ledger. Both the lender and the borrower will be able to
-     * see it when calling /api/example/ious on their respective nodes.
+     * see it when calling /ious on their respective nodes.
      *
      * This end-point takes a Party name parameter as part of the path. If the serving node can't find the other party
      * in its network map cache, it will return an HTTP bad request.
@@ -133,7 +133,7 @@ public class Controller {
 
         try {
             final SignedTransaction signedTx = proxy
-                    .startTrackedFlowDynamic(ExampleFlow.Initiator.class, iouValue, otherParty)
+                    .startTrackedFlowDynamic(IOUFlow.Initiator.class, iouValue, otherParty)
                     .getReturnValue()
                     .get();
 
