@@ -12,8 +12,8 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 class DriverBasedTests {
-    val bankA = TestIdentity(CordaX500Name("BankA", "", "GB"))
-    val bankB = TestIdentity(CordaX500Name("BankB", "", "US"))
+    private val bankA = TestIdentity(CordaX500Name("BankA", "", "GB"))
+    private val bankB = TestIdentity(CordaX500Name("BankB", "", "US"))
 
     @Test
     fun `node test`() {
@@ -29,9 +29,11 @@ class DriverBasedTests {
             val partyB = partyAHandle.rpc.wellKnownPartyFromX500Name(bankB.name)!!
             partyAHandle.rpc.startFlowDynamic(IOUFlow.Initiator::class.java, 99, partyB).returnValue.get()
 
+            Thread.sleep(1000)
+
             // We check that `IOUFlow.Initiator` has created a single IOU in both nodes' vaults.
             listOf(partyAHandle, partyBHandle).forEach { nodeHandle ->
-                assertEquals(nodeHandle.rpc.vaultQueryBy<IOUState>().states.size, 1)
+                assertEquals(1, nodeHandle.rpc.vaultQueryBy<IOUState>().states.size)
             }
         }
     }
