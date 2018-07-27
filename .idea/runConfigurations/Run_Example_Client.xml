@@ -1,8 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Run Example Client" type="Application" factoryName="Application" singleton="true">
-    <option name="MAIN_CLASS_NAME" value="com.example.client.ExampleClient" />
-    <module name="client_main" />
-    <option name="PROGRAM_PARAMETERS" value="localhost:10006" />
-    <method />
-  </configuration>
-</component>
