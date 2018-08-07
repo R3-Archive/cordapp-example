@@ -23,7 +23,14 @@ public class ExampleFlow {
         public Void call() throws FlowException {
             FlowSession otherPartySession = initiateFlow(otherParty);
             List<FlowSession> sessions = ImmutableList.of(otherPartySession);
-            sessions.forEach( it -> sendAMessage(it, new Triple("a", "b", "c")));
+           // sessions.forEach( it -> sendAMessage(it, new Triple("a", "b", "c")));
+            /**
+             * please find the link for more info:
+             * https://stackoverflow.com/questions/50638968/in-corda-unexpected-task-state-when-running-a-flow?rq=1
+             */
+            for(FlowSession session : sessions){
+                sendAMessage(session, new Triple("a", "b", "c"));
+            }
             return null;
         }
     }
