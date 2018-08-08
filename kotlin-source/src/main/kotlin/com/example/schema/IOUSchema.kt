@@ -2,6 +2,7 @@ package com.example.schema
 
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
+import org.hibernate.annotations.Type
 import java.util.*
 import javax.persistence.Column
 import javax.persistence.Entity
@@ -32,6 +33,7 @@ object IOUSchemaV1 : MappedSchema(
             var value: Int,
 
             @Column(name = "linear_id")
+            @Type(type = "uuid-char")
             var linearId: UUID
     ) : PersistentState() {
         // Default constructor required by hibernate.

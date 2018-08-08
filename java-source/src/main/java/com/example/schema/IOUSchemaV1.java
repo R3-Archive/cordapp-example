@@ -3,6 +3,7 @@ package com.example.schema;
 import com.google.common.collect.ImmutableList;
 import net.corda.core.schemas.MappedSchema;
 import net.corda.core.schemas.PersistentState;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,7 +24,7 @@ public class IOUSchemaV1 extends MappedSchema {
         @Column(name = "lender") private final String lender;
         @Column(name = "borrower") private final String borrower;
         @Column(name = "value") private final int value;
-        @Column(name = "linear_id") private final UUID linearId;
+        @Column(name = "linear_id") @Type(type = "uuid-char") private final UUID linearId;
 
 
         public PersistentIOU(String lender, String borrower, int value, UUID linearId) {
