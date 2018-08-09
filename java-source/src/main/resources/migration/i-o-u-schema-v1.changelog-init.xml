@@ -10,8 +10,8 @@
             <column name="transaction_id" type="NVARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="lender" type="NVARCHAR"/>
-            <column name="borrower" type="NVARCHAR"/>
+            <column name="lender" type="NVARCHAR(255)"/>
+            <column name="borrower" type="NVARCHAR(255)"/>
             <column name="value" type="INT"/>
             <column name="linear_id" type="VARCHAR(255)"/>
         </createTable>
