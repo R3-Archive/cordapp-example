@@ -1,0 +1,29 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd" >
+    <changeSet author="R3.Corda" id="i-o-u-schema-v1-create-table">
+        <createTable tableName="iou_states">
+            <column name="output_index" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="transaction_id" type="NVARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lender" type="NVARCHAR(255)"/>
+            <column name="borrower" type="NVARCHAR(255)"/>
+            <column name="value" type="INT"/>
+            <column name="linear_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="R3.Corda" id="i-o-u-schema-v1-add-pk">
+        <addPrimaryKey columnNames="output_index, transaction_id" constraintName="iou_states_pkey" tableName="iou_states"/>
+    </changeSet>
+
+    <changeSet author="R3.Corda" id="i-o-u-schema-v1-non-clustered-pk" onValidationFail="MARK_RAN">
+        <dropPrimaryKey tableName="iou_states" constraintName="iou_states_pkey"/>
+        <addPrimaryKey tableName="iou_states" columnNames="output_index, transaction_id"
+                       constraintName="iou_states_pkey" clustered="false"/>
+    </changeSet>
+</databaseChangeLog>
