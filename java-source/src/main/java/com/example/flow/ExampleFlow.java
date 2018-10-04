@@ -86,7 +86,7 @@ public class ExampleFlow {
             // Stage 1.
             progressTracker.setCurrentStep(GENERATING_TRANSACTION);
             // Generate an unsigned transaction.
-            Party me = getServiceHub().getMyInfo().getLegalIdentities().get(0);
+            Party me = getOurIdentity();
             IOUState iouState = new IOUState(iouValue, me, otherParty, new UniqueIdentifier());
             final Command<IOUContract.Commands.Create> txCommand = new Command<>(
                     new IOUContract.Commands.Create(),
