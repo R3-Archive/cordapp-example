@@ -28,7 +28,7 @@ public class IOUFlowTests {
 
     @Before
     public void setup() {
-        network = new MockNetwork(ImmutableList.of("com.example.contract"));
+        network = new MockNetwork(ImmutableList.of("com.example.contract", "com.example.schema"));
         a = network.createPartyNode(null);
         b = network.createPartyNode(null);
         // For real nodes this happens automatically, but we have to manually register the flow for tests.
