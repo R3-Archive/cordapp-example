@@ -13,6 +13,15 @@ apply plugin: 'net.corda.plugins.quasar-utils'
 
 jar.baseName = "cordapp-example"
 
+cordapp {
+    info {
+        name "CorDapp Example"
+        vendor "Corda Open Source"
+        targetPlatformVersion corda_platform_version.toInteger()
+        minimumPlatformVersion corda_platform_version.toInteger()
+    }
+}
+
 sourceSets {
     main {
         resources {
