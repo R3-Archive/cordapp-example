@@ -87,10 +87,10 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     node {
         name "O=Notary,L=London,C=GB"
         notary = [validating : false]
-        p2pPort 10005
+        p2pPort 10006
         rpcSettings {
-            address("localhost:10006")
-            adminAddress("localhost:10046")
+            address("localhost:10106")
+            adminAddress("localhost:10146")
         }
         cordapps = ["$corda_release_group:corda-finance:$corda_release_version"]
     }
