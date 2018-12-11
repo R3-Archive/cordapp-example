@@ -27,7 +27,6 @@ buildscript {
 }
 
 allprojects {
-
     repositories {
         jcenter()
         mavenCentral()
@@ -43,7 +42,6 @@ allprojects {
                 }
             }
         }
-
         // [Option 2: Add Corda Enterprise binaries in ~/.m2/repository or C:\Documents and Settings\{your-username}\.m2]
         // [Option 3: uncomment the following block and tweak it to point to resolve Corda Enterprise dependencies against a custom path on your local file system.]
         // maven {
