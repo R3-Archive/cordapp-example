@@ -14,18 +14,15 @@ fun main(args: Array<String>) {
     val user = User("user1", "test", permissions = setOf("ALL"))
     driver(DriverParameters(waitForAllNodesToFinish = true)) {
         val nodeFutures = listOf(
-                startNode(
-                        providedName = CordaX500Name("PartyA", "London", "GB"),
-                        customOverrides = mapOf("rpcSettings.address" to "localhost:10008", "rpcSettings.adminAddress" to "localhost:10048", "webAddress" to "localhost:10009"),
-                        rpcUsers = listOf(user)),
-                startNode(
-                        providedName = CordaX500Name("PartyB", "New York", "US"),
-                        customOverrides = mapOf("rpcSettings.address" to "localhost:10011", "rpcSettings.adminAddress" to "localhost:10051", "webAddress" to "localhost:10012"),
-                        rpcUsers = listOf(user)),
-                startNode(
-                        providedName = CordaX500Name("PartyC", "Paris", "FR"),
-                        customOverrides = mapOf("rpcSettings.address" to "localhost:10014", "rpcSettings.adminAddress" to "localhost:10054", "webAddress" to "localhost:10015"),
-                        rpcUsers = listOf(user)))
+            startNode(
+                    providedName = CordaX500Name("PartyA", "London", "GB"),
+                    rpcUsers = listOf(user)),
+            startNode(
+                    providedName = CordaX500Name("PartyB", "New York", "US"),
+                    rpcUsers = listOf(user)),
+            startNode(
+                    providedName = CordaX500Name("PartyC", "Paris", "FR"),
+                    rpcUsers = listOf(user)))
 
         val (nodeA, nodeB, nodeC) = nodeFutures.map { it.getOrThrow() }
 
