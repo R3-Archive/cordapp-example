@@ -24,7 +24,7 @@ lib/dokka.jar
 ## Directory-based project format:
 #.idea
 
-# if you remove the above rule, at least ignore the following:
+# if iouu remove the above rule, at least ignore the following:
 
 # Specific files to avoid churn
 .idea/gradle.xml
@@ -64,6 +64,7 @@ lib/dokka.jar
 /out/
 /java-source/out/
 /kotlin-source/out/
+/clients/out/
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
