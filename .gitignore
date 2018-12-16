@@ -24,7 +24,7 @@ lib/dokka.jar
 ## Directory-based project format:
 #.idea
 
-# if iouu remove the above rule, at least ignore the following:
+# if you remove the above rule, at least ignore the following:
 
 # Specific files to avoid churn
 .idea/gradle.xml
