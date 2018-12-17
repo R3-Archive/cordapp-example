@@ -89,11 +89,10 @@ class MainController(
         if (iouValue <= 0 ) {
             return ResponseEntity.badRequest().body("Query parameter 'iouValue' must be non-negative.\n")
         }
-        if (partyName == null) {
-            return ResponseEntity.badRequest().body("Query parameter 'partyNa-me' missing or has wrong format.\n")
+        if (partyX500Name == null) {
+            return ResponseEntity.badRequest().body("Query parameter 'partyName' missing or has wrong format.\n")
         }
-        val otherParty = proxy.wellKnownPartyFromX500Name(partyX500Name) ?:
-        return ResponseEntity.badRequest().body("Party named $partyName cannot be found.\n")
+        val otherParty = proxy.wellKnownPartyFromX500Name(partyX500Name) ?: return ResponseEntity.badRequest().body("Party named $partyName cannot be found.\n")
 
         return try {
             val signedTx = proxy.startTrackedFlow(::Initiator, iouValue, otherParty).returnValue.getOrThrow()
