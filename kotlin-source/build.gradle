@@ -46,7 +46,8 @@ dependencies {
 
     // Corda integration dependencies
     cordaCompile "$corda_release_group:corda-core:$corda_release_version"
-    cordaCompile "$corda_release_group:corda-finance:$corda_release_version"
+    cordaCompile "$corda_release_group:corda-finance-contracts:$corda_release_version"
+    cordaCompile "$corda_release_group:corda-finance-workflows:$corda_release_version"
     cordaCompile "$corda_release_group:corda-jackson:$corda_release_version"
     cordaCompile "$corda_release_group:corda-rpc:$corda_release_version"
     cordaCompile "$corda_release_group:corda-webserver-impl:$corda_release_version"
@@ -57,7 +58,8 @@ dependencies {
 
     // CorDapp dependencies
     // Specify your cordapp's dependencies below, including dependent CorDapps
-    cordapp "$corda_release_group:corda-finance:$corda_release_version"
+    cordapp "$corda_release_group:corda-finance-contracts:$corda_release_version"
+    cordapp "$corda_release_group:corda-finance-workflows:$corda_release_version"
 }
 
 task integrationTest(type: Test, dependsOn: []) {
@@ -84,7 +86,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
             address("localhost:10001")
             adminAddress("localhost:10002")
         }
-        cordapps = ["$corda_release_group:corda-finance:$corda_release_version"]
+        cordapps = ["$corda_release_group:corda-finance-contracts:$corda_release_version","$corda_release_group:corda-finance-workflows:$corda_release_version"]
     }
     node {
         name "O=PartyA,L=London,C=GB"
@@ -94,7 +96,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
             adminAddress("localhost:10006")
         }
         webPort 10007
-        cordapps = ["$corda_release_group:corda-finance:$corda_release_version"]
+        cordapps = ["$corda_release_group:corda-finance-contracts:$corda_release_version","$corda_release_group:corda-finance-workflows:$corda_release_version"]
         rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
     }
     node {
@@ -105,7 +107,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
             adminAddress("localhost:10010")
         }
         webPort 10011
-        cordapps = ["$corda_release_group:corda-finance:$corda_release_version"]
+        cordapps = ["$corda_release_group:corda-finance-contracts:$corda_release_version","$corda_release_group:corda-finance-workflows:$corda_release_version"]
         rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
     }
     node {
@@ -116,7 +118,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
             adminAddress("localhost:10014")
         }
         webPort 10015
-        cordapps = ["$corda_release_group:corda-finance:$corda_release_version"]
+        cordapps = ["$corda_release_group:corda-finance-contracts:$corda_release_version","$corda_release_group:corda-finance-workflows:$corda_release_version"]
         rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
     }
 }
